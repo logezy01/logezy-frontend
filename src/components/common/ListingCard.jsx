@@ -3,6 +3,7 @@ import { MapPin, Bed, Bath, Maximize } from 'lucide-react';
 
 export default function ListingCard({ listing }) {
   const coverImage = listing.listing_images?.find(img => img.is_cover)?.image_url;
+const baseURL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
   const formatPrice = (price, period) => {
     const formatted = new Intl.NumberFormat('fr-FR').format(price);
@@ -16,7 +17,7 @@ export default function ListingCard({ listing }) {
       <div className="relative h-48 bg-gradient-to-br from-[#E8F5EE] to-[#DBEAFE] overflow-hidden">
         {coverImage ? (
           <img
-            src={`http://localhost:5000${coverImage}`}
+            src={`${baseURL}${coverImage}`}
             alt={listing.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
