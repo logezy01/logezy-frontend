@@ -51,7 +51,7 @@ export default function Listings() {
   const activeFiltersCount = Object.values(filters).filter(v => v !== '').length;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 md:pb-0">
       <Navbar />
 
       {/* Header */}

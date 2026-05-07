@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import useAuthStore from './store/authStore';
+import BottomNav from './components/common/BottomNav';
 
 // Pages publiques
 import Home from './pages/Home';
@@ -26,40 +27,45 @@ const ProtectedRoute = ({ children, roles }) => {
 
 export default function App() {
   return (
-    <Routes>
-      {/* Pages publiques */}
-      <Route path="/" element={<Home />} />
-      <Route path="/annonces" element={<Listings />} />
-      <Route path="/annonces/:id" element={<ListingDetail />} />
+    <>
+      <Routes>
+        {/* Pages publiques */}
+        <Route path="/" element={<Home />} />
+        <Route path="/annonces" element={<Listings />} />
+        <Route path="/annonces/:id" element={<ListingDetail />} />
 
-      {/* Auth */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+        {/* Auth */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      {/* Dashboards protégés */}
-      <Route path="/dashboard/proprietaire/*" element={
-        <ProtectedRoute roles={['proprietaire']}>
-          <DashboardOwner />
-        </ProtectedRoute>
-      } />
-      <Route path="/dashboard/agent/*" element={
-        <ProtectedRoute roles={['agent']}>
-          <DashboardAgent />
-        </ProtectedRoute>
-      } />
-      <Route path="/dashboard/locataire/*" element={
-        <ProtectedRoute roles={['locataire']}>
-          <DashboardTenant />
-        </ProtectedRoute>
-      } />
-      <Route path="/dashboard/admin/*" element={
-        <ProtectedRoute roles={['admin']}>
-          <DashboardAdmin />
-        </ProtectedRoute>
-      } />
+        {/* Dashboards protégés */}
+        <Route path="/dashboard/proprietaire/*" element={
+          <ProtectedRoute roles={['proprietaire']}>
+            <DashboardOwner />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/agent/*" element={
+          <ProtectedRoute roles={['agent']}>
+            <DashboardAgent />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/locataire/*" element={
+          <ProtectedRoute roles={['locataire']}>
+            <DashboardTenant />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/admin/*" element={
+          <ProtectedRoute roles={['admin']}>
+            <DashboardAdmin />
+          </ProtectedRoute>
+        } />
 
-      {/* Redirect 404 */}
-      <Route path="*" element={<Navigate to="/" />} />
-    </Routes>
+        {/* Redirect 404 */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+
+      {/* Bottom Navigation Mobile */}
+      <BottomNav />
+    </>
   );
 }

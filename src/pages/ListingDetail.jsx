@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import Navbar from '../components/common/Navbar';
 import api from '../lib/axios';
 import useAuthStore from '../store/authStore';
+import PhotoGallery from '../components/common/PhotoGallery';
 
 export default function ListingDetail() {
   const { id } = useParams();
@@ -73,7 +74,7 @@ setTimeout(() => {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 md:pb-0">
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 py-8 space-y-4">
         <div className="card h-80 animate-pulse bg-white" />
@@ -115,31 +116,26 @@ setTimeout(() => {
           {/* Colonne principale */}
           <div className="lg:col-span-2 space-y-4">
 
-            {/* Image principale */}
-            <div className="card overflow-hidden">
-              <div className="relative h-72 bg-gradient-to-br from-[#E8F5EE] to-[#DBEAFE]">
-                {coverImage ? (
-                  <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${coverImage}`} alt={listing.title}
-                    className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-8xl">🏠</span>
-                  </div>
-                )}
-                <div className="absolute top-4 left-4 flex gap-2">
-                  <span className={`text-sm font-bold px-3 py-1.5 rounded-full ${
-                    listing.type === 'location' ? 'bg-blue-100 text-blue-600' : 'bg-[#FEF3C7] text-yellow-700'
-                  }`}>
-                    {listing.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
-                  </span>
-                  {listing.users?.is_verified && (
-                    <span className="text-sm font-bold px-3 py-1.5 rounded-full bg-white text-[#1A6B3C]">
-                      ✓ Vérifié
-                    </span>
-                  )}
-                </div>
-              </div>
+          {/* Galerie photos */}
+          <div className="relative">
+            <PhotoGallery
+              images={listing.listing_images || []}
+              title={listing.title}
+            />
+            {/* Badges par dessus */}
+            <div className="absolute top-4 left-4 flex gap-2 z-10">
+              <span className={`text-sm font-bold px-3 py-1.5 rounded-full ${
+                listing.type === 'location' ? 'bg-blue-100 text-blue-600' : 'bg-[#FEF3C7] text-yellow-700'
+              }`}>
+                {listing.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
+              </span>
+              {listing.users?.is_verified && (
+                <span className="text-sm font-bold px-3 py-1.5 rounded-full bg-white text-[#1A6B3C]">
+                  ✓ Vérifié
+                </span>
+              )}
             </div>
+          </div>
 
             {/* Tabs */}
             <div className="card overflow-hidden">

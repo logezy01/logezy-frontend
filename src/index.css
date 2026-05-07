@@ -49,3 +49,40 @@
     @apply bg-white rounded-2xl border border-[#E2E8F0];
   }
 }
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  /* Espace pour la bottom nav */
+  main, .page-content {
+    padding-bottom: 80px;
+  }
+
+  /* Typographie mobile */
+  h1 {
+    font-size: 1.75rem !important;
+  }
+
+  /* Cards mobile */
+  .card {
+    border-radius: 12px;
+  }
+
+  /* Boutons plus grands sur mobile */
+  .btn-primary, .btn-secondary {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+
+  /* Input plus grands sur mobile */
+  .input-field {
+    padding: 14px 16px;
+    font-size: 16px; /* Empêche le zoom automatique sur iOS */
+  }
+}
+
+/* Safe area pour iPhone X+ */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-nav-spacer {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+}

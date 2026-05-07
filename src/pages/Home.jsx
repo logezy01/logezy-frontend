@@ -35,7 +35,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 md:pb-0">
       <Navbar />
 
       {/* HERO */}
@@ -88,7 +88,7 @@ export default function Home() {
 
       {/* STATS */}
       <section className="bg-white border-b border-[#E2E8F0] py-8 px-6">
-        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-6 text-center">
+        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-3 md:gap-6 text-center">
           {[
             { value: '500+', label: 'Annonces actives', emoji: '🏠' },
             { value: '12', label: 'Villes couvertes', emoji: '📍' },
