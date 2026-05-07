@@ -10,6 +10,7 @@ import api from '../lib/axios';
 import useAuthStore from '../store/authStore';
 import PhotoGallery from '../components/common/PhotoGallery';
 import { getImageUrl } from '../lib/imageUrl';
+import FavoriteButton from '../components/common/FavoriteButton';
 
 
 export default function ListingDetail() {
@@ -125,20 +126,23 @@ const coverImage = getImageUrl(coverImagePath);
               images={listing.listing_images || []}
               title={listing.title}
             />
-            {/* Badges par dessus */}
-            <div className="absolute top-4 left-4 flex gap-2 z-10">
-              <span className={`text-sm font-bold px-3 py-1.5 rounded-full ${
-                listing.type === 'location' ? 'bg-blue-100 text-blue-600' : 'bg-[#FEF3C7] text-yellow-700'
-              }`}>
-                {listing.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
-              </span>
-              {listing.users?.is_verified && (
-                <span className="text-sm font-bold px-3 py-1.5 rounded-full bg-white text-[#1A6B3C]">
-                  ✓ Vérifié
-                </span>
-              )}
-            </div>
-          </div>
+           {/* Badges par dessus */}
+<div className="absolute top-4 left-4 flex gap-2 z-10">
+  <span className={`text-sm font-bold px-3 py-1.5 rounded-full ${
+    listing.type === 'location' ? 'bg-blue-100 text-blue-600' : 'bg-[#FEF3C7] text-yellow-700'
+  }`}>
+    {listing.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
+  </span>
+  {listing.users?.is_verified && (
+    <span className="text-sm font-bold px-3 py-1.5 rounded-full bg-white text-[#1A6B3C]">
+      ✓ Vérifié
+    </span>
+  )}
+</div>
+<div className="absolute top-4 right-4 z-10">
+  <FavoriteButton listingId={listing.id} />
+</div>
+</div>
 
             {/* Tabs */}
             <div className="card overflow-hidden">

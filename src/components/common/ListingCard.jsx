@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Bed, Bath, Maximize } from 'lucide-react';
 import { getImageUrl } from '../../lib/imageUrl';
+import FavoriteButton from './FavoriteButton';
+
 
 export default function ListingCard({ listing }) {
   const coverImagePath = listing.listing_images?.find(img => img.is_cover)?.image_url;
@@ -36,11 +38,14 @@ const baseURL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://loc
           </span>
         </div>
 
-        {listing.users?.is_verified && (
-          <div className="absolute top-3 right-3 bg-white text-[#1A6B3C] text-xs font-bold px-2 py-1 rounded-full">
-            ✓ Vérifié
-          </div>
-        )}
+        <div className="absolute top-3 right-3 flex flex-col gap-2">
+  {listing.users?.is_verified && (
+    <div className="bg-white text-[#1A6B3C] text-xs font-bold px-2 py-1 rounded-full">
+      ✓ Vérifié
+    </div>
+  )}
+  <FavoriteButton listingId={listing.id} />
+</div>
       </div>
 
       {/* Contenu */}

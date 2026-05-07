@@ -7,6 +7,8 @@ import ListingCard from '../../components/common/ListingCard';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
 
+
+
 const MENU = [
   { path: '/dashboard/locataire', icon: '📊', label: 'Vue générale' },
   { path: '/dashboard/locataire/recherche', icon: '🔍', label: 'Rechercher' },
@@ -206,17 +208,58 @@ function Search_() {
 
 // ─── FAVORIS ──────────────────────────────────────────────────
 function Favorites() {
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const res = await api.get('/listings/user/favorites');
+        setFavorites(res.data.favorites || []);
+      } catch (e) {
+        toast.error('Erreur chargement favoris');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetch();
+  }, []);
+
+  if (loading) return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="card h-64 animate-pulse bg-[#F8FAFC]" />
+      ))}
+    </div>
+  );
+
   return (
     <div className="space-y-4">
-      <h2 className="font-bold text-[#0F172A]">Mes favoris</h2>
-      <div className="card p-12 text-center text-[#94A3B8]">
-        <span className="text-5xl block mb-3">❤️</span>
-        <p className="font-medium">Aucun favori pour le moment</p>
-        <p className="text-sm mt-1 mb-4">Sauvegardez des annonces pour les retrouver ici</p>
-        <Link to="/annonces" className="btn-primary inline-block text-sm px-6 py-2">
+      <div className="flex items-center justify-between">
+        <h2 className="font-bold text-[#0F172A]">Mes favoris ({favorites.length})</h2>
+        <Link to="/annonces" className="btn-secondary text-sm px-4 py-2">
           Parcourir les annonces
         </Link>
       </div>
+
+      {favorites.length === 0 ? (
+        <div className="card p-12 text-center text-[#94A3B8]">
+          <span className="text-5xl block mb-3">❤️</span>
+          <p className="font-medium">Aucun favori pour le moment</p>
+          <p className="text-sm mt-1 mb-4">
+            Cliquez sur ❤️ sur une annonce pour la sauvegarder ici
+          </p>
+          <Link to="/annonces" className="btn-primary inline-block text-sm px-6 py-2">
+            Parcourir les annonces
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {favorites.map(listing => (
+            <ListingCard key={listing.id} listing={listing} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
