@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
+import { getImageUrl } from '../../lib/imageUrl';
+
 
 export default function PhotoGallery({ images, title }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const baseURL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
-
   const photos = images && images.length > 0
-    ? images.map(img => ({ url: `${baseURL}${img.image_url}` }))
-    : [{ url: null }];
+  ? images.map(img => ({ url: getImageUrl(img.image_url) }))
+  : [{ url: null }];
 
   const prev = () => setSelectedIndex(i => (i - 1 + photos.length) % photos.length);
   const next = () => setSelectedIndex(i => (i + 1) % photos.length);

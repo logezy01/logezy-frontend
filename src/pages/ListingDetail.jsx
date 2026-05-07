@@ -9,6 +9,8 @@ import Navbar from '../components/common/Navbar';
 import api from '../lib/axios';
 import useAuthStore from '../store/authStore';
 import PhotoGallery from '../components/common/PhotoGallery';
+import { getImageUrl } from '../lib/imageUrl';
+
 
 export default function ListingDetail() {
   const { id } = useParams();
@@ -86,7 +88,8 @@ setTimeout(() => {
   if (!listing) return null;
 
   const images = listing.listing_images || [];
-  const coverImage = images.find(i => i.is_cover)?.image_url;
+  const coverImagePath = images.find(i => i.is_cover)?.image_url;
+const coverImage = getImageUrl(coverImagePath);
 
   const EQUIPMENTS = [
     { key: 'is_furnished', label: 'Meublé', icon: '🛋' },

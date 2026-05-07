@@ -57,8 +57,8 @@ export default function ImageUploader({ listingId, onUploadComplete }) {
       files.forEach(file => formData.append('images', file));
 
       const token = localStorage.getItem('logezy_token');
-      const baseURL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
-const res = await fetch(`${baseURL}/api/listings/${listingId}/images`, {
+      const apiURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const res = await fetch(`${apiURL}/listings/${listingId}/images`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,

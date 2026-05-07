@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Bed, Bath, Maximize } from 'lucide-react';
+import { getImageUrl } from '../../lib/imageUrl';
 
 export default function ListingCard({ listing }) {
-  const coverImage = listing.listing_images?.find(img => img.is_cover)?.image_url;
+  const coverImagePath = listing.listing_images?.find(img => img.is_cover)?.image_url;
+const coverImage = getImageUrl(coverImagePath);
 const baseURL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
   const formatPrice = (price, period) => {
@@ -17,7 +19,7 @@ const baseURL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://loc
       <div className="relative h-48 bg-gradient-to-br from-[#E8F5EE] to-[#DBEAFE] overflow-hidden">
         {coverImage ? (
           <img
-            src={`${baseURL}${coverImage}`}
+            src={coverImage}
             alt={listing.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
