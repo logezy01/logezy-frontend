@@ -1,6 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { LogOut, User, LayoutDashboard } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
+import NotificationBell from './NotificationBell';
+
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuthStore();
@@ -47,21 +49,22 @@ export default function Navbar() {
         {/* Droite */}
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
-            <>
-              <Link to={getDashboardLink()} className="flex items-center gap-2 text-sm text-[#334155] hover:text-[#1A6B3C] transition-colors">
-                <LayoutDashboard size={16} />
-                <span className="hidden md:block">Dashboard</span>
-              </Link>
-              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#E8F5EE]">
-                <User size={14} className="text-[#1A6B3C]" />
-                <span className="text-sm font-medium text-[#1A6B3C] hidden md:block">
-                  {user?.full_name?.split(' ')[0]}
-                </span>
-              </div>
-              <button onClick={handleLogout} className="p-2 rounded-xl hover:bg-red-50 text-[#94A3B8] hover:text-red-500 transition-colors">
-                <LogOut size={16} />
-              </button>
-            </>
+  <>
+    <Link to={getDashboardLink()} className="flex items-center gap-2 text-sm text-[#334155] hover:text-[#1A6B3C] transition-colors">
+      <LayoutDashboard size={16} />
+      <span className="hidden md:block">Dashboard</span>
+    </Link>
+    <NotificationBell />
+    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#E8F5EE]">
+      <User size={14} className="text-[#1A6B3C]" />
+      <span className="text-sm font-medium text-[#1A6B3C] hidden md:block">
+        {user?.full_name?.split(' ')[0]}
+      </span>
+    </div>
+    <button onClick={handleLogout} className="p-2 rounded-xl hover:bg-red-50 text-[#94A3B8] hover:text-red-500 transition-colors">
+      <LogOut size={16} />
+    </button>
+  </>
           ) : (
             <>
               <Link to="/login" className="btn-secondary text-sm px-4 py-2">

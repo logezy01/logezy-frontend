@@ -309,12 +309,25 @@ function Messages() {
     }
   };
 
-  const sendMessage = async (e) => {
+ const sendMessage = async (e) => {
     e.preventDefault();
     if (!newMsg.trim()) return;
     try {
       const res = await api.post(`/chat/conversations/${selected.id}/messages`, { content: newMsg });
       setMessages(prev => [...prev, res.data.message]);
+
+      // Envoyer via Socket.io
+      const { getSocket } = await import('../../lib/socket');
+      const socket = getSocket();
+      const other = selected.buyer_id === user?.id ? selected.owner : selected.buyer;
+      socket.emit('send_message', {
+        room: selected.id,
+        recipientId: other?.id,
+        senderName: user?.full_name,
+        content: newMsg,
+        message: res.data.message,
+      });
+
       setNewMsg('');
     } catch (e) {
       toast.error('Erreur envoi message');
