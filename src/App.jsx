@@ -6,6 +6,8 @@ import BottomNav from './components/common/BottomNav';
 import Home from './pages/Home';
 import Listings from './pages/Listings';
 import ListingDetail from './pages/ListingDetail';
+import Privacy from './pages/Privacy';
+import Settings from './pages/Settings';
 
 // Auth
 import Login from './pages/auth/Login';
@@ -33,6 +35,14 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/annonces" element={<Listings />} />
         <Route path="/annonces/:id" element={<ListingDetail />} />
+        <Route path="/confidentialite" element={<Privacy />} />
+
+        {/* Paramètres — protégé */}
+        <Route path="/parametres" element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        } />
 
         {/* Auth */}
         <Route path="/login" element={<Login />} />
