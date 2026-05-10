@@ -5,6 +5,8 @@ import useAuthStore from '../../store/authStore';
 import NotificationBell from './NotificationBell';
 import Logo from './Logo';
 import toast from 'react-hot-toast';
+import useThemeStore from '../../store/themeStore';
+import { Sun, Moon } from 'lucide-react';
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuthStore();
@@ -12,6 +14,7 @@ export default function Navbar() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useThemeStore();
 
   const handleLogout = () => {
     logout();
@@ -69,6 +72,17 @@ export default function Navbar() {
             <div className="hidden md:flex items-center gap-2">
               {isAuthenticated ? (
                 <>
+                {/* Toggle thème */}
+                  <button
+                    onClick={toggleTheme}
+                    className="p-2 rounded-btn hover:bg-[#EBF5ED] dark:hover:bg-[#2A2A2A] text-[#64748B] dark:text-[#94A3B8] transition-all"
+                    title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+                  >
+                    {theme === 'dark'
+                      ? <Sun size={18} className="text-yellow-400" />
+                      : <Moon size={18} />
+                    }
+                  </button>
                   <NotificationBell />
 
                   {/* Menu utilisateur */}

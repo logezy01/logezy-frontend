@@ -5,10 +5,12 @@ import toast from 'react-hot-toast';
 import Navbar from '../components/common/Navbar';
 import useAuthStore from '../store/authStore';
 import api from '../lib/axios';
+import useThemeStore from '../store/themeStore';
 
 export default function Settings() {
   const { user, logout, updateUser } = useAuthStore();
   const navigate = useNavigate();
+  const themeStore = useThemeStore();
 
   const [theme, setTheme] = useState(localStorage.getItem('logezy_theme') || 'light');
   const [notifications, setNotifications] = useState({
@@ -30,13 +32,8 @@ export default function Settings() {
 
   const handleTheme = (t) => {
     setTheme(t);
-    localStorage.setItem('logezy_theme', t);
-    if (t === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    toast.success(`Thème ${t === 'dark' ? 'sombre' : 'clair'} activé`);
+    themeStore.setTheme(t);
+    toast.success(`Thème ${t === 'dark' ? '🌙 sombre' : '☀️ clair'} activé`);
   };
 
   const handleNotification = (key) => {
