@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
-import { Search, Heart, MessageSquare, Bell } from 'lucide-react';
+import { Search, Heart, MessageSquare, Bell, Trash2, ToggleLeft, ToggleRight, Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ListingCard from '../../components/common/ListingCard';
@@ -9,12 +9,192 @@ import useAuthStore from '../../store/authStore';
 
 
 
+
 const MENU = [
   { path: '/dashboard/locataire', icon: '📊', label: 'Vue générale' },
   { path: '/dashboard/locataire/recherche', icon: '🔍', label: 'Rechercher' },
   { path: '/dashboard/locataire/favoris', icon: '❤️', label: 'Mes favoris' },
+  { path: '/dashboard/locataire/alertes', icon: '🔔', label: 'Mes alertes' },
   { path: '/dashboard/locataire/messages', icon: '💬', label: 'Messages' },
 ];
+
+
+
+function Alerts() {
+  const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [testing, setTesting] = useState(null);
+
+  const fetchAlerts = async () => {
+    try {
+      const res = await api.get('/alerts');
+      setAlerts(res.data.alerts || []);
+    } catch (e) {
+      toast.error('Erreur chargement alertes');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchAlerts(); }, []);
+
+  const handleToggle = async (id) => {
+    try {
+      const res = await api.put(`/alerts/${id}/toggle`);
+      toast.success(res.data.message);
+      fetchAlerts();
+    } catch (e) {
+      toast.error('Erreur mise à jour');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Supprimer cette alerte ?')) return;
+    try {
+      await api.delete(`/alerts/${id}`);
+      toast.success('Alerte supprimée');
+      fetchAlerts();
+    } catch (e) {
+      toast.error('Erreur suppression');
+    }
+  };
+
+  const handleTest = async (id) => {
+    setTesting(id);
+    try {
+      const res = await api.post(`/alerts/${id}/test`);
+      toast.success(res.data.message);
+    } catch (e) {
+      toast.error('Erreur test email');
+    } finally {
+      setTesting(null);
+    }
+  };
+
+  if (loading) return (
+    <div className="space-y-3">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="card h-20 animate-pulse bg-[#F5F5F7]" />
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="font-bold text-[#0F172A] dark:text-white">
+          Mes alertes ({alerts.length})
+        </h2>
+        <Link to="/annonces" className="btn-primary text-sm px-4 py-2 flex items-center gap-2">
+          <Bell size={14} /> Créer une alerte
+        </Link>
+      </div>
+
+      {alerts.length === 0 ? (
+        <div className="card p-12 text-center text-[#94A3B8]">
+          <Bell size={40} className="mx-auto mb-3 opacity-30" />
+          <p className="font-medium dark:text-white">Aucune alerte créée</p>
+          <p className="text-sm mt-1 mb-4">
+            Sauvegardez une recherche pour être notifié par email
+          </p>
+          <Link to="/annonces" className="btn-primary inline-block text-sm px-6 py-2">
+            Aller aux annonces
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {alerts.map(alert => (
+            <div key={alert.id} className="card p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                    alert.is_active ? 'bg-[#EBF5ED]' : 'bg-[#F5F5F7] dark:bg-[#2A2A2A]'
+                  }`}>
+                    <Bell size={18} className={alert.is_active ? 'text-[#3A7D44]' : 'text-[#94A3B8]'} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-sm text-[#0F172A] dark:text-white">
+                        {alert.name}
+                      </span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                        alert.is_active
+                          ? 'bg-[#EBF5ED] text-[#3A7D44]'
+                          : 'bg-[#F5F5F7] dark:bg-[#2A2A2A] text-[#94A3B8]'
+                      }`}>
+                        {alert.is_active ? '✅ Active' : '⏸ Inactive'}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {alert.city && (
+                        <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">📍 {alert.city}</span>
+                      )}
+                      {alert.type && (
+                        <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">
+                          {alert.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
+                        </span>
+                      )}
+                      {alert.bedrooms && (
+                        <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">🛏 {alert.bedrooms}+ ch.</span>
+                      )}
+                      {alert.min_price && (
+                        <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">
+                          Min: {new Intl.NumberFormat('fr-FR').format(alert.min_price)} FCFA
+                        </span>
+                      )}
+                      {alert.max_price && (
+                        <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">
+                          Max: {new Intl.NumberFormat('fr-FR').format(alert.max_price)} FCFA
+                        </span>
+                      )}
+                    </div>
+                    {alert.last_sent_at && (
+                      <p className="text-xs text-[#94A3B8] mt-1">
+                        Dernier email : {new Date(alert.last_sent_at).toLocaleDateString('fr-FR')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    onClick={() => handleTest(alert.id)}
+                    disabled={testing === alert.id}
+                    className="p-2 rounded-xl bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors"
+                    title="Tester l'email"
+                  >
+                    {testing === alert.id ? (
+                      <div className="w-4 h-4 border-2 border-[#3A7D44] border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Mail size={16} />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleToggle(alert.id)}
+                    className="p-2 rounded-xl bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors"
+                    title={alert.is_active ? 'Désactiver' : 'Activer'}
+                  >
+                    {alert.is_active
+                      ? <ToggleRight size={16} className="text-[#3A7D44]" />
+                      : <ToggleLeft size={16} />
+                    }
+                  </button>
+                  <button
+                    onClick={() => handleDelete(alert.id)}
+                    className="p-2 rounded-xl bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-red-50 text-[#64748B] hover:text-red-500 transition-colors"
+                    title="Supprimer"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── VUE GÉNÉRALE ────────────────────────────────────────────
 function Overview() {
@@ -418,6 +598,7 @@ export default function DashboardTenant() {
         <Route index element={<Overview />} />
         <Route path="recherche" element={<Search_ />} />
         <Route path="favoris" element={<Favorites />} />
+        <Route path="alertes" element={<Alerts />} />
         <Route path="messages" element={<Messages />} />
       </Routes>
     </DashboardLayout>
