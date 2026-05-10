@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import useAuthStore from './store/authStore';
 import BottomNav from './components/common/BottomNav';
+import CompareBar from './components/common/CompareBar';
 
 // Pages publiques
 import Home from './pages/Home';
@@ -8,6 +9,7 @@ import Listings from './pages/Listings';
 import ListingDetail from './pages/ListingDetail';
 import Privacy from './pages/Privacy';
 import Settings from './pages/Settings';
+import Compare from './pages/Compare';
 
 // Auth
 import Login from './pages/auth/Login';
@@ -36,8 +38,9 @@ export default function App() {
         <Route path="/annonces" element={<Listings />} />
         <Route path="/annonces/:id" element={<ListingDetail />} />
         <Route path="/confidentialite" element={<Privacy />} />
+        <Route path="/comparer" element={<Compare />} />
 
-        {/* Paramètres — protégé */}
+        {/* Paramètres protégé */}
         <Route path="/parametres" element={
           <ProtectedRoute>
             <Settings />
@@ -74,8 +77,9 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
 
-      {/* Bottom Navigation Mobile */}
+      {/* Composants globaux */}
       <BottomNav />
+      <CompareBar />
     </>
   );
 }
