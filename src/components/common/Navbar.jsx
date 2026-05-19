@@ -36,10 +36,12 @@ export default function Navbar() {
 
   const isActive = (path) => location.pathname === path;
 
-  const navLinks = [
+ const navLinks = [
     { path: '/annonces', label: 'Annonces' },
     { path: '/annonces?type=location', label: 'Location' },
     { path: '/annonces?type=vente', label: 'Vente' },
+    { path: '/a-propos', label: 'À propos' },
+    { path: '/contact', label: 'Contact' },
   ];
 
   return (

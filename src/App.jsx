@@ -10,6 +10,9 @@ import ListingDetail from './pages/ListingDetail';
 import Privacy from './pages/Privacy';
 import Settings from './pages/Settings';
 import Compare from './pages/Compare';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Terms from './pages/Terms';
 
 // Auth
 import Login from './pages/auth/Login';
@@ -38,6 +41,9 @@ export default function App() {
         <Route path="/annonces" element={<Listings />} />
         <Route path="/annonces/:id" element={<ListingDetail />} />
         <Route path="/confidentialite" element={<Privacy />} />
+        <Route path="/conditions" element={<Terms />} />
+        <Route path="/a-propos" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/comparer" element={<Compare />} />
 
         {/* Paramètres protégé */}

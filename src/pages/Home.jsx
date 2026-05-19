@@ -349,21 +349,23 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            <div>
-              <h4 className="font-bold text-sm mb-3">Légal</h4>
-              <div className="space-y-2">
-                {[
-                  { to: '/confidentialite', label: 'Politique de confidentialité' },
-                  { to: '/conditions', label: "Conditions d'utilisation" },
-                  { to: '/parametres', label: 'Paramètres' },
-                ].map(link => (
-                  <Link key={link.to} to={link.to}
-                    className="block text-sm text-[#64748B] hover:text-white transition-colors">
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
+          <div>
+  <h4 className="font-bold text-sm mb-3">Légal</h4>
+  <div className="space-y-2">
+    {[
+      { to: '/a-propos', label: 'À propos' },
+      { to: '/contact', label: 'Contact' },
+      { to: '/confidentialite', label: 'Confidentialité' },
+      { to: '/conditions', label: "Conditions d'utilisation" },
+      { to: '/parametres', label: 'Paramètres' },
+    ].map(link => (
+      <Link key={link.to} to={link.to}
+        className="block text-sm text-[#64748B] hover:text-white transition-colors">
+        {link.label}
+      </Link>
+    ))}
+  </div>
+</div>
           </div>
           <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
             <p className="text-[#64748B] text-sm">© 2026 Logezy — Tous droits réservés.</p>
