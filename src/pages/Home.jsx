@@ -94,92 +94,112 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#F5F5F7] pb-20 md:pb-0">
       <Navbar />
+{/* ── HERO ─────────────────────────────────────────── */}
+<section className="relative min-h-[90vh] flex items-center overflow-hidden">
+  {/* Image de fond */}
+  <div className="absolute inset-0 z-0">
+    <img
+      src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80"
+      alt="Belle maison"
+      className="w-full h-full object-cover"
+    />
+    {/* Overlay gradient */}
+    <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
+  </div>
 
-      {/* ── HERO ─────────────────────────────────────────── */}
-      <section className="relative bg-[#2D3A8C] overflow-hidden">
-        {/* Motif décoratif */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 right-10 w-64 h-64 rounded-full bg-[#E8472A] blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-white blur-3xl" />
+  <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 w-full">
+    <div className="max-w-2xl">
+
+      {/* Badge */}
+      <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-white text-sm font-medium mb-8 animate-fade-in">
+        <span className="w-2 h-2 bg-[#3A7D44] rounded-full animate-pulse" />
+        🇧🇯 N°1 de l'immobilier au Bénin
+      </div>
+
+      {/* Titre */}
+      <h1 className="font-display text-5xl md:text-7xl font-black text-white mb-6 leading-tight animate-slide-up">
+        Trouvez votre
+        <span className="block text-[#4CAF50]">maison idéale</span>
+        au Bénin
+      </h1>
+
+      <p className="text-white/80 text-xl mb-10 max-w-xl animate-fade-in leading-relaxed">
+        Des milliers d'annonces vérifiées à louer ou à acheter partout au Bénin.
+      </p>
+
+      {/* Tabs */}
+      <div className="inline-flex bg-white/10 backdrop-blur-sm rounded-xl p-1 mb-6 gap-1">
+        {[
+          { value: '', label: 'Tout' },
+          { value: 'location', label: '🔑 Location' },
+          { value: 'vente', label: '🏷️ Vente' },
+        ].map(t => (
+          <button
+            key={t.value}
+            onClick={() => setSearchType(t.value)}
+            className={`px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${
+              searchType === t.value
+                ? 'bg-white text-[#3A7D44] shadow-md'
+                : 'text-white hover:bg-white/10'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Barre de recherche */}
+      <form onSubmit={handleSearch} className="bg-white rounded-2xl p-2 flex flex-col md:flex-row gap-2 shadow-2xl animate-scale-in max-w-xl">
+        <div className="flex items-center gap-2 flex-1 px-3">
+          <MapPin size={18} className="text-[#3A7D44] shrink-0" />
+          <select
+            value={searchCity}
+            onChange={(e) => setSearchCity(e.target.value)}
+            className="flex-1 text-[#0F172A] text-sm outline-none py-2 bg-transparent font-medium"
+          >
+            <option value="">Toutes les villes</option>
+            {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
         </div>
+        <button type="submit" className="btn-primary flex items-center gap-2 justify-center px-8 py-3 rounded-xl">
+          <Search size={16} />
+          Rechercher
+        </button>
+      </form>
 
-        <div className="relative max-w-6xl mx-auto px-6 py-16 md:py-24">
-          <div className="max-w-3xl mx-auto text-center">
+      {/* Recherches populaires */}
+      <div className="flex flex-wrap items-center gap-2 mt-5">
+        <span className="text-white/50 text-xs">Populaire :</span>
+        {['Cotonou', 'Porto-Novo', 'Abomey-Calavi', 'Parakou'].map(city => (
+          <button
+            key={city}
+            onClick={() => navigate(`/annonces?city=${city}`)}
+            className="text-xs text-white/80 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition-all border border-white/10"
+          >
+            {city}
+          </button>
+        ))}
+      </div>
+    </div>
 
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-white text-sm font-medium mb-8 animate-fade-in">
-              <span className="w-2 h-2 bg-[#E8472A] rounded-full animate-pulse" />
-              🇧🇯 N°1 de l'immobilier au Bénin
-            </div>
-
-            {/* Titre */}
-            <h1 className="font-display text-4xl md:text-6xl font-black text-white mb-6 leading-tight animate-slide-up">
-              Trouvez votre
-              <span className="text-[#E8472A]"> maison idéale</span>
-              <br />au Bénin
-            </h1>
-
-            <p className="text-white/70 text-lg mb-10 max-w-xl mx-auto animate-fade-in">
-              Des milliers d'annonces vérifiées à louer ou à acheter partout au Bénin.
-            </p>
-
-            {/* Tabs Location/Vente */}
-            <div className="inline-flex bg-white/10 backdrop-blur rounded-btn p-1 mb-6">
-              {[
-                { value: '', label: 'Tout' },
-                { value: 'location', label: '🔑 Location' },
-                { value: 'vente', label: '🏷️ Vente' },
-              ].map(t => (
-                <button
-                  key={t.value}
-                  onClick={() => setSearchType(t.value)}
-                  className={`px-5 py-2 rounded-btn text-sm font-bold transition-all ${
-                    searchType === t.value
-                      ? 'bg-white text-[#2D3A8C]'
-                      : 'text-white hover:bg-white/10'
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Barre de recherche */}
-            <form onSubmit={handleSearch} className="bg-white rounded-2xl p-2 flex flex-col md:flex-row gap-2 shadow-2xl animate-scale-in">
-              <div className="flex items-center gap-2 flex-1 px-3">
-                <MapPin size={18} className="text-[#E8472A] shrink-0" />
-                <select
-                  value={searchCity}
-                  onChange={(e) => setSearchCity(e.target.value)}
-                  className="flex-1 text-[#0F172A] text-sm outline-none py-2 bg-transparent"
-                >
-                  <option value="">Toutes les villes</option>
-                  {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              <div className="w-px bg-[#E2E8F0] hidden md:block" />
-              <button type="submit" className="btn-accent flex items-center gap-2 justify-center px-8 py-3">
-                <Search size={16} />
-                Rechercher
-              </button>
-            </form>
-
-            {/* Recherches populaires */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-              <span className="text-white/50 text-xs">Populaire :</span>
-              {['Cotonou', 'Porto-Novo', 'Abomey-Calavi', 'Parakou'].map(city => (
-                <button
-                  key={city}
-                  onClick={() => { setSearchCity(city); navigate(`/annonces?city=${city}`); }}
-                  className="text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full transition-all"
-                >
-                  {city}
-                </button>
-              ))}
-            </div>
+    {/* Stats flottantes */}
+    <div className="absolute bottom-8 right-6 hidden lg:flex flex-col gap-3">
+      {[
+        { value: '500+', label: 'Annonces', emoji: '🏠' },
+        { value: '1000+', label: 'Utilisateurs', emoji: '👥' },
+        { value: '98%', label: 'Satisfaction', emoji: '⭐' },
+      ].map((stat, i) => (
+        <div key={i} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 flex items-center gap-3">
+          <span className="text-2xl">{stat.emoji}</span>
+          <div>
+            <div className="font-display font-black text-white text-lg leading-none">{stat.value}</div>
+            <div className="text-white/60 text-xs">{stat.label}</div>
           </div>
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
 
       {/* ── STATS ────────────────────────────────────────── */}
       <section className="bg-white border-b border-[#E2E8F0]">
@@ -369,7 +389,7 @@ export default function Home() {
           </div>
           <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
             <p className="text-[#64748B] text-sm">© 2026 Logezy — Tous droits réservés.</p>
-            <p className="text-[#64748B] text-sm">Made with ❤️ in Bénin 🇧🇯</p>
+            <p className="text-[#64748B] text-sm">Made in Bénin 🇧🇯</p>
           </div>
         </div>
       </footer>
