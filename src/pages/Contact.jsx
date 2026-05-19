@@ -18,9 +18,9 @@ export default function Contact() {
   };
 
   const contacts = [
-    { icon: <Mail size={20} className="text-[#3A7D44]" />, label: 'Email', value: 'contact@logezy.bj', link: 'mailto:contact@logezy.bj' },
-    { icon: <Phone size={20} className="text-[#3A7D44]" />, label: 'Téléphone', value: '+229 97 00 00 00', link: 'tel:+22997000000' },
-    { icon: <MessageSquare size={20} className="text-[#3A7D44]" />, label: 'WhatsApp', value: '+229 97 00 00 00', link: 'https://wa.me/22997000000' },
+    { icon: <Mail size={20} className="text-[#3A7D44]" />, label: 'Email', value: 'logezyafrique@gmail.com', link: 'mailto:logezyafrique@gmail.com' },
+    { icon: <Phone size={20} className="text-[#3A7D44]" />, label: 'Téléphone', value: '+229 90 82 12 82', link: 'tel:+22990821282' },
+    { icon: <MessageSquare size={20} className="text-[#3A7D44]" />, label: 'WhatsApp', value: '+229 90 82 12 82 ', link: 'https://wa.me/22990821282' },
     { icon: <MapPin size={20} className="text-[#3A7D44]" />, label: 'Adresse', value: 'Cotonou, Bénin', link: null },
   ];
 
