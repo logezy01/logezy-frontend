@@ -9,7 +9,7 @@ import ImageUploader from '../../components/common/ImageUploader';
 
 const MENU = [
   { path: '/dashboard/agent', icon: '📊', label: 'Vue générale' },
-  { path: '/dashboard/agent/annonces', icon: '🏠', label: 'Mes annonces' },
+  { path: '/dashboard/agent/annonces', icon: '🏘️', label: 'Mes annonces' },
   { path: '/dashboard/agent/messages', icon: '💬', label: 'Messages' },
   { path: '/dashboard/agent/publier', icon: '➕', label: 'Publier une annonce' },
 ];

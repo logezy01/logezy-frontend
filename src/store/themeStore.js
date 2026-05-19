@@ -3,9 +3,7 @@ import { create } from 'zustand';
 const getInitialTheme = () => {
   const saved = localStorage.getItem('logezy_theme');
   if (saved) return saved;
-  // Détecter la préférence système
-  if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
-  return 'light';
+  return 'light'; // Thème clair par défaut
 };
 
 const applyTheme = (theme) => {

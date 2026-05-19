@@ -38,9 +38,8 @@ export default function DashboardLayout({ children, menuItems, title }) {
         {/* Logo */}
         <div className="p-6 border-b border-white/10">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl">🏡</span>
-            <span className="font-playfair font-bold text-xl text-[#2D9A5F]">Logezy</span>
-          </Link>
+  <img src="/logo-dark.png" alt="Logezy" style={{ height: 40, width: 'auto' }} className="object-contain" />
+</Link>
         </div>
 
         {/* Profil */}
