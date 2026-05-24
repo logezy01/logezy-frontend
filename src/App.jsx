@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import useAuthStore from './store/authStore';
 import BottomNav from './components/common/BottomNav';
 import CompareBar from './components/common/CompareBar';
+import HowItWorks from './pages/HowItWorks';
 
 // Pages publiques
 import Home from './pages/Home';
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="/a-propos" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/comparer" element={<Compare />} />
+        <Route path="/comment-ca-marche" element={<HowItWorks />} />
 
         {/* Paramètres protégé */}
         <Route path="/parametres" element={

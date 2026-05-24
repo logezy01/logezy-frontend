@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Send, MessageSquare, Clock } from 'lucide-react';
 import Navbar from '../components/common/Navbar';
+import api from '../lib/axios';
 import toast from 'react-hot-toast';
 
 export default function Contact() {
@@ -10,18 +11,42 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
+    try {
+      await api.post('/alerts/contact', form);
       toast.success('Message envoyé ! Nous vous répondrons sous 24h. 📧');
       setForm({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      toast.error('Erreur lors de l\'envoi. Réessayez.');
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   const contacts = [
-    { icon: <Mail size={20} className="text-[#3A7D44]" />, label: 'Email', value: 'logezyafrique@gmail.com', link: 'mailto:logezyafrique@gmail.com' },
-    { icon: <Phone size={20} className="text-[#3A7D44]" />, label: 'Téléphone', value: '+229 90 82 12 82', link: 'tel:+22990821282' },
-    { icon: <MessageSquare size={20} className="text-[#3A7D44]" />, label: 'WhatsApp', value: '+229 90 82 12 82 ', link: 'https://wa.me/22990821282' },
-    { icon: <MapPin size={20} className="text-[#3A7D44]" />, label: 'Adresse', value: 'Cotonou, Bénin', link: null },
+    {
+      icon: <Mail size={20} className="text-[#3A7D44]" />,
+      label: 'Email',
+      value: 'miraclelohounme@gmail.com',
+      link: 'mailto:miraclelohounme@gmail.com'
+    },
+    {
+      icon: <Phone size={20} className="text-[#3A7D44]" />,
+      label: 'Téléphone',
+      value: '+229 01 90 82 12 82',
+      link: 'tel:+2290190821282'
+    },
+    {
+      icon: <MessageSquare size={20} className="text-[#3A7D44]" />,
+      label: 'WhatsApp',
+      value: '+229 01 90 82 12 82',
+      link: 'https://wa.me/2290190821282'
+    },
+    {
+      icon: <MapPin size={20} className="text-[#3A7D44]" />,
+      label: 'Adresse',
+      value: 'Cotonou, Bénin',
+      link: null
+    },
   ];
 
   return (
@@ -58,7 +83,8 @@ export default function Contact() {
                 <div>
                   <div className="text-xs text-[#64748B] dark:text-[#94A3B8]">{contact.label}</div>
                   {contact.link ? (
-                    <a href={contact.link} className="text-sm font-bold text-[#0F172A] dark:text-white hover:text-[#3A7D44] transition-colors">
+                    <a href={contact.link}
+                      className="text-sm font-bold text-[#0F172A] dark:text-white hover:text-[#3A7D44] transition-colors">
                       {contact.value}
                     </a>
                   ) : (
@@ -90,18 +116,21 @@ export default function Contact() {
               </div>
             </div>
 
-            {/* FAQ rapide */}
-            <div className="card p-4 bg-[#EBF5ED] border-[#3A7D44]/20 animate-slide-up">
-              <h3 className="font-bold text-sm text-[#3A7D44] mb-2">💡 FAQ rapide</h3>
-              <div className="space-y-2 text-xs text-[#64748B]">
+            {/* Réseaux sociaux */}
+            <div className="card p-4 animate-slide-up">
+              <h3 className="font-bold text-sm text-[#0F172A] dark:text-white mb-3">
+                📱 Réseaux sociaux
+              </h3>
+              <div className="space-y-2">
                 {[
-                  'Comment publier une annonce ?',
-                  'Comment contacter un propriétaire ?',
-                  'Comment créer une alerte ?',
-                ].map((q, i) => (
-                  <p key={i} className="hover:text-[#3A7D44] cursor-pointer transition-colors">
-                    → {q}
-                  </p>
+                  { label: 'Facebook', value: 'Logezy Bénin', link: 'https://facebook.com' },
+                  { label: 'Instagram', value: '@logezy_benin', link: 'https://instagram.com' },
+                ].map((social, i) => (
+                  <a key={i} href={social.link} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center justify-between text-sm hover:text-[#3A7D44] transition-colors">
+                    <span className="text-[#64748B] dark:text-[#94A3B8]">{social.label}</span>
+                    <span className="font-medium text-[#0F172A] dark:text-white">{social.value}</span>
+                  </a>
                 ))}
               </div>
             </div>
@@ -110,9 +139,12 @@ export default function Contact() {
           {/* Formulaire */}
           <div className="md:col-span-2">
             <div className="card p-6 animate-scale-in">
-              <h2 className="font-display font-bold text-[#0F172A] dark:text-white text-xl mb-6">
+              <h2 className="font-display font-bold text-[#0F172A] dark:text-white text-xl mb-2">
                 Envoyer un message
               </h2>
+              <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mb-6">
+                📧 Votre message sera envoyé directement à notre équipe.
+              </p>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -155,12 +187,12 @@ export default function Contact() {
                     required
                   >
                     <option value="">Choisir un sujet</option>
-                    <option value="annonce">Problème avec une annonce</option>
-                    <option value="compte">Problème de compte</option>
-                    <option value="paiement">Question sur les paiements</option>
-                    <option value="signalement">Signaler une arnaque</option>
-                    <option value="partenariat">Proposition de partenariat</option>
-                    <option value="autre">Autre</option>
+                    <option value="Problème avec une annonce">Problème avec une annonce</option>
+                    <option value="Problème de compte">Problème de compte</option>
+                    <option value="Question sur les paiements">Question sur les paiements</option>
+                    <option value="Signalement d'une arnaque">Signaler une arnaque</option>
+                    <option value="Proposition de partenariat">Proposition de partenariat</option>
+                    <option value="Autre">Autre</option>
                   </select>
                 </div>
 

@@ -42,6 +42,7 @@ export default function Navbar() {
     { path: '/annonces?type=vente', label: 'Vente' },
     { path: '/a-propos', label: 'À propos' },
     { path: '/contact', label: 'Contact' },
+    { path: '/comment-ca-marche', label: 'Comment ça marche' },
   ];
 
   return (

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { SlidersHorizontal, X, Map, List } from 'lucide-react';
+import { SlidersHorizontal, X, Map, List, Bell } from 'lucide-react';
 import Navbar from '../components/common/Navbar';
 import ListingCard from '../components/common/ListingCard';
 import MapView from '../components/common/MapView';
-import api from '../lib/axios';
 import SaveSearch from '../components/common/SaveSearch';
+import api from '../lib/axios';
 
 const CITIES = ['Cotonou', 'Porto-Novo', 'Parakou', 'Abomey-Calavi', 'Bohicon', 'Natitingou', 'Ouidah', 'Lokossa'];
 
@@ -25,7 +25,8 @@ export default function Listings() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState('list'); // 'list' ou 'map'
+  const [showMap, setShowMap] = useState(false);
+  const [showAlertHelper, setShowAlertHelper] = useState(false);
   const [filters, setFilters] = useState({
     city: searchParams.get('city') || '',
     type: searchParams.get('type') || '',
@@ -61,10 +62,7 @@ export default function Listings() {
   };
 
   const update = (f, v) => setFilters(p => ({ ...p, [f]: v }));
-
   const activeFiltersCount = Object.values(filters).filter(v => v !== '').length;
-
-  // Centre de la carte selon la ville sélectionnée
   const mapCenter = filters.city && CITY_COORDS[filters.city]
     ? CITY_COORDS[filters.city]
     : [6.3654, 2.4183];
@@ -76,7 +74,7 @@ export default function Listings() {
       {/* Header */}
       <div className="bg-white dark:bg-[#1A1A1A] border-b border-[#E2E8F0] dark:border-[#2A2A2A] px-6 py-4 sticky top-16 z-30">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
               <h1 className="font-display text-xl font-bold text-[#0F172A] dark:text-[#F1F5F9]">
                 Annonces immobilières
@@ -86,33 +84,80 @@ export default function Listings() {
               </p>
             </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
-                    <SaveSearch filters={filters} />
-                    {/* Toggle vue liste/carte */}
-              <div className="flex bg-[#F5F5F7] dark:bg-[#2A2A2A] border border-[#E2E8F0] dark:border-[#3A3A3A] rounded-btn p-1">
+            <div className="flex items-center gap-2 flex-wrap">
+
+              {/* Bouton Carte */}
+              <button
+                onClick={() => setShowMap(!showMap)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-btn border-2 text-sm font-medium transition-all ${
+                  showMap
+                    ? 'border-[#3A7D44] bg-[#EBF5ED] text-[#3A7D44]'
+                    : 'border-[#E2E8F0] dark:border-[#2A2A2A] text-[#334155] dark:text-[#94A3B8] hover:border-[#3A7D44]'
+                }`}
+              >
+                <Map size={16} />
+                {showMap ? 'Masquer la carte' : 'Voir la carte'}
+              </button>
+
+              {/* Alerte */}
+              <div className="relative">
                 <button
-                  onClick={() => setViewMode('list')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-bold transition-all ${
-                    viewMode === 'list'
-                      ? 'bg-white dark:bg-[#1A1A1A] text-[#3A7D44] shadow-sm'
-                      : 'text-[#64748B] hover:text-[#0F172A] dark:hover:text-white'
-                  }`}
+                  onClick={() => {
+                    setShowMap(false); // Ferme la carte
+                    setShowAlertHelper(!showAlertHelper);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-btn border-2 border-[#3A7D44] text-[#3A7D44] text-sm font-bold hover:bg-[#EBF5ED] transition-all dark:border-[#4CAF50] dark:text-[#4CAF50]"
                 >
-                  <List size={14} /> Liste
+                  <Bell size={16} />
+                  Créer une alerte
                 </button>
-                <button
-                  onClick={() => setViewMode('map')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-bold transition-all ${
-                    viewMode === 'map'
-                      ? 'bg-white dark:bg-[#1A1A1A] text-[#3A7D44] shadow-sm'
-                      : 'text-[#64748B] hover:text-[#0F172A] dark:hover:text-white'
-                  }`}
-                >
-                  <Map size={14} /> Carte
-                </button>
+
+                {/* Popup aide */}
+                {showAlertHelper && (
+                  <div className="absolute right-0 top-12 w-80 bg-white dark:bg-[#1A1A1A] rounded-2xl shadow-float border border-[#E2E8F0] dark:border-[#2A2A2A] z-50 p-4 animate-slide-down">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-bold text-sm text-[#0F172A] dark:text-white flex items-center gap-2">
+                      💡 Comment ça marche ?
+                    </h3>
+                    <button onClick={() => setShowAlertHelper(false)}
+                      className="p-1 rounded-lg hover:bg-[#F5F5F7] text-[#94A3B8]">
+                      <X size={14} />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3 mb-4">
+                    {[
+                      { step: '1', title: 'Définissez vos critères', desc: 'Utilisez les filtres pour choisir ville, type, prix et chambres.' },
+                      { step: '2', title: 'Créez votre alerte', desc: 'Cliquez sur "Créer une alerte" et donnez un nom à votre recherche.' },
+                      { step: '3', title: 'Recevez des notifications', desc: 'Dès qu\'une nouvelle annonce correspond à vos critères, vous recevez un email automatiquement.' },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-[#3A7D44] text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                          {item.step}
+                        </div>
+                        <div>
+                          <div className="font-medium text-sm text-[#0F172A] dark:text-white">{item.title}</div>
+                          <div className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">{item.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="bg-[#EBF5ED] dark:bg-[#2A2A2A] rounded-xl p-3 mb-3">
+                    <p className="text-xs text-[#3A7D44] font-medium">
+                      📧 Les alertes sont envoyées par email. Assurez-vous d'avoir un compte Logezy avec un email valide.
+                    </p>
+                  </div>
+
+                  <SaveSearch
+                    filters={filters}
+                    onSaved={() => setShowAlertHelper(false)}
+                  />
+                </div>
+                )}
               </div>
 
-              {/* Bouton filtres */}
+              {/* Filtres */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-btn border-2 text-sm font-medium transition-all ${
@@ -185,7 +230,29 @@ export default function Listings() {
         </div>
       </div>
 
-      {/* Contenu */}
+      {/* CARTE PAYSAGE */}
+      {showMap && (
+        <div className="relative w-full animate-slide-down" style={{ height: '450px' }}>
+          <MapView
+            listings={listings}
+            center={mapCenter}
+            zoom={filters.city ? 13 : 11}
+            height="450px"
+          />
+          {/* Bouton X pour fermer */}
+          <button
+            onClick={() => setShowMap(false)}
+            className="absolute top-4 right-4 z-[1000] w-10 h-10 bg-white dark:bg-[#1A1A1A] rounded-full shadow-float flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all border border-[#E2E8F0]"
+          >
+            <X size={18} />
+          </button>
+          <div className="absolute top-4 left-4 z-[1000] bg-white dark:bg-[#1A1A1A] rounded-xl shadow-float px-3 py-2 text-xs font-bold text-[#3A7D44] border border-[#E2E8F0]">
+            🗺️ {listings.filter(l => l.latitude && l.longitude).length} biens sur la carte
+          </div>
+        </div>
+      )}
+
+      {/* Liste annonces */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -202,47 +269,9 @@ export default function Listings() {
               Voir toutes les annonces
             </button>
           </div>
-        ) : viewMode === 'list' ? (
-          /* VUE LISTE */
+        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 animate-fade-in">
             {listings.map(l => <ListingCard key={l.id} listing={l} />)}
-          </div>
-        ) : (
-          /* VUE CARTE */
-          <div className="animate-fade-in">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Carte */}
-              <div className="lg:col-span-2">
-                <MapView
-                  listings={listings}
-                  center={mapCenter}
-                  zoom={filters.city ? 13 : 11}
-                  height="600px"
-                />
-              </div>
-
-              {/* Liste latérale */}
-              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-                <p className="text-sm font-bold text-[#64748B] dark:text-[#94A3B8] sticky top-0 bg-[#F5F5F7] dark:bg-[#0F0F0F] py-2">
-                  {listings.length} annonce(s)
-                </p>
-                {listings.map(l => (
-                  <a key={l.id} href={`/annonces/${l.id}`}
-                    className="card p-3 flex gap-3 hover:shadow-float transition-all cursor-pointer block">
-                    <div className="w-16 h-16 bg-[#EBF5ED] rounded-xl flex items-center justify-center text-2xl shrink-0">
-                      🏠
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-xs text-[#0F172A] dark:text-white line-clamp-2">{l.title}</div>
-                      <div className="text-xs text-[#64748B] mt-0.5">📍 {l.city}</div>
-                      <div className="font-black text-xs text-[#3A7D44] mt-1">
-                        {new Intl.NumberFormat('fr-FR').format(l.price)} FCFA
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
           </div>
         )}
       </div>

@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
 
-export default function SaveSearch({ filters = {} }) {
+export default function SaveSearch({ filters = {}, onSaved }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,6 +33,7 @@ export default function SaveSearch({ filters = {} }) {
       toast.success('🔔 Alerte créée ! Vous serez notifié par email.');
       setOpen(false);
       setName('');
+      onSaved && onSaved();
     } catch (e) {
       toast.error(e.response?.data?.error || 'Erreur création alerte');
     } finally {
