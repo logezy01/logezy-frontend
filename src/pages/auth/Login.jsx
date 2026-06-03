@@ -4,11 +4,13 @@ import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
+import { supabase } from '../../lib/supabase';
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const { login } = useAuthStore();
   const navigate = useNavigate();
 
@@ -30,6 +32,22 @@ export default function Login() {
       toast.error(error.response?.data?.error || 'Email ou mot de passe incorrect');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      toast.error('Erreur connexion Google');
+      setGoogleLoading(false);
     }
   };
 
@@ -81,39 +99,30 @@ export default function Login() {
       <div className="flex-1 flex items-center justify-center p-6 bg-white">
         <div className="w-full max-w-md animate-scale-in">
 
-          {/* Logo avec effet flottant — mobile */}
+          {/* Logo mobile */}
           <div className="lg:hidden text-center mb-8">
             <div className="inline-block animate-bounce">
               <img src="/logo-light.png" alt="Logezy"
                 style={{ height: 80, width: 'auto' }}
                 className="object-contain mx-auto" />
             </div>
-            <h1 className="font-display text-4xl font-black text-[#3A7D44] mt-2">
-              Logezy
-            </h1>
+            <h1 className="font-display text-4xl font-black text-[#3A7D44] mt-2">Logezy</h1>
             <p className="text-[#64748B] text-sm mt-1">Votre logement facile</p>
           </div>
 
-          {/* Logo desktop */}
+          {/* Logo desktop avec effet flottant */}
           <div className="hidden lg:block mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <div
-                className="inline-block"
-                style={{
-                  animation: 'float 3s ease-in-out infinite',
-                }}
-              >
-                <img src="/logo-light.png" alt="Logezy"
-                  style={{ height: 60, width: 'auto' }}
-                  className="object-contain" />
-              </div>
-            </div>
             <style>{`
               @keyframes float {
                 0%, 100% { transform: translateY(0px); }
                 50% { transform: translateY(-8px); }
               }
             `}</style>
+            <div style={{ animation: 'float 3s ease-in-out infinite' }}>
+              <img src="/logo-light.png" alt="Logezy"
+                style={{ height: 60, width: 'auto' }}
+                className="object-contain" />
+            </div>
           </div>
 
           <h1 className="font-display text-3xl font-bold text-[#0F172A] mb-2">
@@ -122,6 +131,29 @@ export default function Login() {
           <p className="text-[#64748B] text-sm mb-8">
             Connectez-vous à votre compte Logezy
           </p>
+
+          {/* Bouton Google */}
+          <button
+            onClick={handleGoogleLogin}
+            disabled={googleLoading}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-btn border-2 border-[#E2E8F0] hover:border-[#3A7D44] hover:bg-[#EBF5ED] transition-all text-sm font-medium text-[#334155] mb-6"
+          >
+            {googleLoading ? (
+              <div className="w-5 h-5 border-2 border-[#3A7D44] border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+                Continuer avec Google
+              </>
+            )}
+          </button>
+
+          {/* Séparateur */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px bg-[#E2E8F0]" />
+            <span className="text-xs text-[#94A3B8]">ou avec email</span>
+            <div className="flex-1 h-px bg-[#E2E8F0]" />
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -175,22 +207,6 @@ export default function Login() {
               ) : 'Se connecter →'}
             </button>
           </form>
-
-          {/* Séparateur */}
-          <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-[#E2E8F0]" />
-            <span className="text-xs text-[#94A3B8]">ou</span>
-            <div className="flex-1 h-px bg-[#E2E8F0]" />
-          </div>
-
-          {/* Google (bientôt) */}
-          <button
-            onClick={() => toast.error('Connexion Google bientôt disponible !')}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-btn border-2 border-[#E2E8F0] hover:border-[#3A7D44] hover:bg-[#EBF5ED] transition-all text-sm font-medium text-[#334155]"
-          >
-            <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
-            Continuer avec Google
-          </button>
 
           <p className="text-center text-sm text-[#64748B] mt-6">
             Pas encore de compte ?{' '}

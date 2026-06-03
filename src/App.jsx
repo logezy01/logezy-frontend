@@ -3,6 +3,8 @@ import useAuthStore from './store/authStore';
 import BottomNav from './components/common/BottomNav';
 import CompareBar from './components/common/CompareBar';
 import HowItWorks from './pages/HowItWorks';
+import AuthCallback from './pages/auth/AuthCallback';
+import GoogleComplete from './pages/auth/GoogleComplete';
 
 // Pages publiques
 import Home from './pages/Home';
@@ -58,7 +60,9 @@ export default function App() {
         {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/auth/complete" element={<GoogleComplete />} />
+        
         {/* Dashboards protégés */}
         <Route path="/dashboard/proprietaire/*" element={
           <ProtectedRoute roles={['proprietaire']}>
