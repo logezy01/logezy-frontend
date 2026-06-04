@@ -123,8 +123,8 @@ export default function Contact() {
               </h3>
               <div className="space-y-2">
                 {[
-                  { label: 'Facebook', value: 'Logezy Bénin', link: 'https://facebook.com' },
-                  { label: 'Instagram', value: '@logezy_benin', link: 'https://instagram.com' },
+                  { label: 'Facebook', value: 'Logezy Immobilier Digitale', link: 'https://www.facebook.com/profile.php?id=logezyimmobilierdigitale' },
+{ label: 'Instagram', value: '@logezy_benin', link: 'https://instagram.com' },
                 ].map((social, i) => (
                   <a key={i} href={social.link} target="_blank" rel="noopener noreferrer"
                     className="flex items-center justify-between text-sm hover:text-[#3A7D44] transition-colors">
