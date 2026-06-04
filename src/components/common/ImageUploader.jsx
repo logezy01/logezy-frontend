@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Upload, X, Image } from 'lucide-react';
+import { Upload, X, Camera, Image } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ImageUploader({ listingId, onUploadComplete }) {
@@ -7,6 +7,7 @@ export default function ImageUploader({ listingId, onUploadComplete }) {
   const [previews, setPreviews] = useState([]);
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef(null);
+  const cameraRef = useRef(null);
 
   const handleSelect = (e) => {
     const selected = Array.from(e.target.files);
@@ -58,7 +59,7 @@ export default function ImageUploader({ listingId, onUploadComplete }) {
 
       const token = localStorage.getItem('logezy_token');
       const apiURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const res = await fetch(`${apiURL}/listings/${listingId}/images`, {
+      const res = await fetch(`${apiURL}/listings/${listingId}/images`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -78,50 +79,103 @@ const res = await fetch(`${apiURL}/listings/${listingId}/images`, {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
 
-      {/* Zone de dépôt */}
-      <div
-        onClick={() => inputRef.current?.click()}
-        className="border-2 border-dashed border-[#E2E8F0] rounded-xl p-6 text-center cursor-pointer hover:border-[#1A6B3C] hover:bg-[#E8F5EE]/50 transition-all"
-      >
-        <Upload size={24} className="mx-auto text-[#94A3B8] mb-2" />
-        <p className="text-sm font-medium text-[#334155]">Cliquez pour sélectionner des photos</p>
-        <p className="text-xs text-[#94A3B8] mt-1">JPG, PNG, WEBP · Max 5MB · 10 photos maximum</p>
-        <input
-          ref={inputRef}
-          type="file"
-          multiple
-          accept="image/jpeg,image/jpg,image/png,image/webp"
-          onChange={handleSelect}
-          className="hidden"
-        />
+      {/* Boutons de sélection — optimisés mobile */}
+      <div className="grid grid-cols-2 gap-3">
+
+        {/* Galerie photos */}
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="flex flex-col items-center justify-center gap-2 p-5 border-2 border-dashed border-[#E2E8F0] dark:border-[#2A2A2A] rounded-xl hover:border-[#3A7D44] hover:bg-[#EBF5ED] dark:hover:bg-[#2A2A2A] transition-all active:scale-95"
+        >
+          <Image size={28} className="text-[#3A7D44]" />
+          <span className="text-sm font-medium text-[#334155] dark:text-[#94A3B8]">
+            Galerie
+          </span>
+          <span className="text-xs text-[#94A3B8]">
+            Choisir des photos
+          </span>
+        </button>
+
+        {/* Appareil photo */}
+        <button
+          type="button"
+          onClick={() => cameraRef.current?.click()}
+          className="flex flex-col items-center justify-center gap-2 p-5 border-2 border-dashed border-[#E2E8F0] dark:border-[#2A2A2A] rounded-xl hover:border-[#3A7D44] hover:bg-[#EBF5ED] dark:hover:bg-[#2A2A2A] transition-all active:scale-95"
+        >
+          <Camera size={28} className="text-[#3A7D44]" />
+          <span className="text-sm font-medium text-[#334155] dark:text-[#94A3B8]">
+            Appareil photo
+          </span>
+          <span className="text-xs text-[#94A3B8]">
+            Prendre une photo
+          </span>
+        </button>
       </div>
+
+      {/* Inputs cachés */}
+      <input
+        ref={inputRef}
+        type="file"
+        multiple
+        accept="image/jpeg,image/jpg,image/png,image/webp"
+        onChange={handleSelect}
+        className="hidden"
+      />
+      <input
+        ref={cameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleSelect}
+        className="hidden"
+      />
+
+      {/* Info */}
+      <p className="text-xs text-center text-[#94A3B8]">
+        JPG, PNG, WEBP · Max 5MB par photo · 10 photos maximum
+      </p>
 
       {/* Aperçus */}
       {previews.length > 0 && (
-        <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-          {previews.map((preview, i) => (
-            <div key={i} className="relative group aspect-square">
-              <img
-                src={preview}
-                alt={`Photo ${i + 1}`}
-                className="w-full h-full object-cover rounded-xl border border-[#E2E8F0]"
-              />
-              {i === 0 && (
-                <span className="absolute bottom-1 left-1 bg-[#1A6B3C] text-white text-xs px-2 py-0.5 rounded-full font-bold">
-                  Couverture
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); removeFile(i); }}
-                className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X size={12} />
-              </button>
-            </div>
-          ))}
+        <div>
+          <p className="text-xs font-medium text-[#334155] dark:text-[#94A3B8] mb-2">
+            {previews.length} photo(s) sélectionnée(s)
+            {previews.length > 0 && <span className="text-[#3A7D44]"> — La 1ère sera la photo de couverture</span>}
+          </p>
+          <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+            {previews.map((preview, i) => (
+              <div key={i} className="relative group aspect-square">
+                <img
+                  src={preview}
+                  alt={`Photo ${i + 1}`}
+                  className="w-full h-full object-cover rounded-xl border-2 border-[#E2E8F0] dark:border-[#2A2A2A]"
+                />
+                {i === 0 && (
+                  <span className="absolute bottom-1 left-1 bg-[#3A7D44] text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
+                    Cover
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeFile(i)}
+                  className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 md:opacity-0 transition-opacity active:opacity-100"
+                >
+                  <X size={12} />
+                </button>
+                {/* Bouton supprimer visible sur mobile */}
+                <button
+                  type="button"
+                  onClick={() => removeFile(i)}
+                  className="absolute top-1 right-1 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center md:hidden"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -131,16 +185,16 @@ const res = await fetch(`${apiURL}/listings/${listingId}/images`, {
           type="button"
           onClick={handleUpload}
           disabled={uploading}
-          className="btn-primary w-full py-2.5 flex items-center justify-center gap-2"
+          className="btn-primary w-full py-4 flex items-center justify-center gap-2 text-base active:scale-95"
         >
           {uploading ? (
             <>
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Upload en cours...
             </>
           ) : (
             <>
-              <Upload size={16} />
+              <Upload size={18} />
               Uploader {files.length} photo(s)
             </>
           )}
