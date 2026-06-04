@@ -15,6 +15,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { theme, toggleTheme } = useThemeStore();
+  
 
   const handleLogout = () => {
     logout();
@@ -122,6 +123,16 @@ export default function Navbar() {
                             <LayoutDashboard size={16} />
                             Dashboard
                           </Link>
+                        {user?.role !== 'locataire' && (
+  <Link
+    to={user?.role === 'proprietaire' ? '/dashboard/proprietaire/publier' : '/dashboard/agent/publier'}
+    onClick={() => setUserMenuOpen(false)}
+    className="flex items-center gap-2 px-3 py-2 rounded-btn text-sm text-[#334155] hover:bg-[#EBF5ED] hover:text-[#3A7D44] transition-colors"
+  >
+    ➕ Publier une annonce
+  </Link>
+)}
+
                           <Link
                             to="/parametres"
                             onClick={() => setUserMenuOpen(false)}
@@ -203,6 +214,15 @@ export default function Navbar() {
                     className="flex items-center gap-2 px-3 py-3 rounded-btn text-sm text-[#334155] hover:bg-[#EEF0FB] transition-colors">
                     <LayoutDashboard size={16} /> Dashboard
                   </Link>
+                  {user?.role !== 'locataire' && (
+  <Link
+    to={user?.role === 'proprietaire' ? '/dashboard/proprietaire/publier' : '/dashboard/agent/publier'}
+    onClick={() => setUserMenuOpen(false)}
+    className="flex items-center gap-2 px-3 py-2 rounded-btn text-sm text-[#334155] hover:bg-[#EBF5ED] hover:text-[#3A7D44] transition-colors"
+  >
+    ➕ Publier une annonce
+  </Link>
+)}
                   <Link to="/parametres" onClick={() => setMobileOpen(false)}
                     className="flex items-center gap-2 px-3 py-3 rounded-btn text-sm text-[#334155] hover:bg-[#EEF0FB] transition-colors">
                     ⚙️ Paramètres

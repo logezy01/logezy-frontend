@@ -5,6 +5,7 @@ import Navbar from '../components/common/Navbar';
 import ListingCard from '../components/common/ListingCard';
 import Logo from '../components/common/Logo';
 import api from '../lib/axios';
+import useAuthStore from '../store/authStore';
 
 // Hook pour les animations au scroll
 function useInView(threshold = 0.1) {
@@ -68,6 +69,7 @@ export default function Home() {
   const [searchType, setSearchType] = useState('');
   const [activeType, setActiveType] = useState('all');
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuthStore();     
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -320,28 +322,44 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── CTA ───────────────────────────────────────────── */}
-      <section className="relative bg-[#2D3A8C] py-16 px-6 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[#E8472A] blur-3xl" />
+{/* ── CTA ───────────────────────────────────────────── */}
+<section className="relative bg-[#3A7D44] py-16 px-6 overflow-hidden">
+  <div className="absolute inset-0 opacity-10">
+    <div className="absolute top-0 right-0 w-64 h-64 bg-[#E8472A] rounded-full blur-3xl" />
+  </div>
+  <AnimatedSection className="relative max-w-3xl mx-auto text-center">
+    {user?.role === 'locataire' || !isAuthenticated ? (
+      <>
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
+          Trouvez votre maison idéale au Bénin
+        </h2>
+        <p className="text-white/70 mb-8 max-w-lg mx-auto">
+          Des milliers d'annonces vérifiées vous attendent. Commencez votre recherche maintenant.
+        </p>
+        <Link to="/annonces" className="bg-white text-[#3A7D44] font-bold px-8 py-4 rounded-btn hover:bg-[#EBF5ED] transition-all inline-flex items-center gap-2 justify-center">
+          Parcourir les annonces <ArrowRight size={16} />
+        </Link>
+      </>
+    ) : (
+      <>
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
+          Vous avez un bien à louer ou à vendre ?
+        </h2>
+        <p className="text-white/70 mb-8 max-w-lg mx-auto">
+          Publiez votre annonce gratuitement et touchez des milliers d'acheteurs et locataires potentiels.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Link to="/register" className="bg-white text-[#3A7D44] font-bold px-8 py-4 rounded-btn hover:bg-[#EBF5ED] transition-all inline-flex items-center gap-2 justify-center">
+            Publier une annonce <ArrowRight size={16} />
+          </Link>
+          <Link to="/annonces" className="bg-white/10 hover:bg-white/20 text-white font-bold px-8 py-4 rounded-btn transition-all inline-flex items-center gap-2 justify-center">
+            Parcourir les annonces
+          </Link>
         </div>
-        <AnimatedSection className="relative max-w-3xl mx-auto text-center">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
-            Vous avez un bien à louer ou à vendre ?
-          </h2>
-          <p className="text-white/70 mb-8 max-w-lg mx-auto">
-            Publiez votre annonce gratuitement et touchez des milliers d'acheteurs et locataires potentiels.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to="/register" className="btn-accent inline-flex items-center gap-2 justify-center px-8 py-4">
-              Publier une annonce <ArrowRight size={16} />
-            </Link>
-            <Link to="/annonces" className="bg-white/10 hover:bg-white/20 text-white font-bold px-8 py-4 rounded-btn transition-all inline-flex items-center gap-2 justify-center">
-              Parcourir les annonces
-            </Link>
-          </div>
-        </AnimatedSection>
-      </section>
+      </>
+    )}
+  </AnimatedSection>
+</section>
 
       {/* ── FOOTER ────────────────────────────────────────── */}
       <footer className="bg-[#0F172A] text-white py-12 px-6">
@@ -354,21 +372,21 @@ export default function Home() {
               </p>
             </div>
             <div>
-              <h4 className="font-bold text-sm mb-3">Navigation</h4>
-              <div className="space-y-2">
-                {[
-                  { to: '/annonces', label: 'Annonces' },
-                  { to: '/annonces?type=location', label: 'Location' },
-                  { to: '/annonces?type=vente', label: 'Vente' },
-                  { to: '/register', label: 'Publier une annonce' },
-                ].map(link => (
-                  <Link key={link.to} to={link.to}
-                    className="block text-sm text-[#64748B] hover:text-white transition-colors">
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
+  <h4 className="font-bold text-sm mb-3">Navigation</h4>
+  <div className="space-y-2">
+    {[
+      { to: '/annonces', label: 'Annonces' },
+      { to: '/annonces?type=location', label: 'Location' },
+      { to: '/annonces?type=vente', label: 'Vente' },
+      ...(user?.role !== 'locataire' ? [{ to: '/register', label: 'Publier une annonce' }] : []),
+    ].map(link => (
+      <Link key={link.to} to={link.to}
+        className="block text-sm text-[#64748B] hover:text-white transition-colors">
+        {link.label}
+      </Link>
+    ))}
+  </div>
+</div>
           <div>
   <h4 className="font-bold text-sm mb-3">Légal</h4>
   <div className="space-y-2">
