@@ -286,9 +286,14 @@ function MyListings() {
                         {l.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
                       </span>
                       <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                        l.status === 'active' ? 'bg-[#EBF5ED] text-[#3A7D44]' : 'bg-[#F5F5F7] text-[#94A3B8]'
+                        l.status === 'active' ? 'bg-[#EBF5ED] text-[#3A7D44]' :
+                        l.status === 'pending' ? 'bg-[#FEF3C7] text-yellow-600' :
+                        l.status === 'rejected' ? 'bg-red-100 text-red-500' :
+                        'bg-[#F5F5F7] text-[#94A3B8]'
                       }`}>
-                        {l.status === 'active' ? '✅ Actif' : '⏸ Inactif'}
+                        {l.status === 'active' ? '✅ Actif' :
+                        l.status === 'pending' ? '⏳ En attente de validation' :
+                        l.status === 'rejected' ? '❌ Rejeté' : '⏸ Inactif'}
                       </span>
                     </div>
                   </div>
