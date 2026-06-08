@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ArrowRight, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
 
 const ROLES = [
-  { value: 'locataire', emoji: '🔍', label: 'Locataire / Acheteur', desc: 'Je cherche une maison à louer ou à acheter' },
-  { value: 'proprietaire', emoji: '🏠', label: 'Propriétaire', desc: 'Je veux publier mes biens immobiliers' },
-  { value: 'agent', emoji: '🤝', label: 'Agent immobilier', desc: 'Je gère des biens pour plusieurs propriétaires' },
+  { value: 'locataire', emoji: '🔍', label: 'Locataire / Acheteur', desc: 'Je cherche une maison à louer ou à acheter', color: 'border-[#3B82F6] bg-[#EFF6FF] text-[#3B82F6]' },
+  { value: 'proprietaire', emoji: '🏠', label: 'Propriétaire', desc: 'Je veux publier mes biens immobiliers', color: 'border-[#3A7D44] bg-[#EBF5ED] text-[#3A7D44]' },
+  { value: 'agent', emoji: '🤝', label: 'Agent immobilier', desc: 'Je gère des biens pour plusieurs propriétaires', color: 'border-[#F59E0B] bg-[#FEF3C7] text-[#F59E0B]' },
 ];
 
 export default function GoogleComplete() {
@@ -17,20 +18,11 @@ export default function GoogleComplete() {
   const [role, setRole] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Récupérer les données Google passées via navigation
   const googleData = location.state;
-
-  if (!googleData) {
-    navigate('/login');
-    return null;
-  }
+  if (!googleData) { navigate('/login'); return null; }
 
   const handleComplete = async () => {
-    if (!role) {
-      toast.error('Veuillez choisir un type de compte');
-      return;
-    }
-
+    if (!role) { toast.error('Veuillez choisir un type de compte'); return; }
     setLoading(true);
     try {
       const res = await api.post('/auth/google/complete', {
@@ -40,10 +32,8 @@ export default function GoogleComplete() {
         google_id: googleData.google_id,
         role,
       });
-
       login(res.data.user, res.data.token);
       toast.success('Compte créé avec succès ! 🎉');
-
       switch (res.data.user.role) {
         case 'proprietaire': navigate('/dashboard/proprietaire'); break;
         case 'agent': navigate('/dashboard/agent'); break;
@@ -57,71 +47,76 @@ export default function GoogleComplete() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7] flex items-center justify-center p-6">
-      <div className="w-full max-w-md animate-scale-in">
+    <div className="min-h-screen bg-white dark:bg-[#0F172A] flex items-center justify-center p-6">
+      <div className="w-full max-w-lg animate-scale-in">
 
-        {/* Logo */}
-        <div className="text-center mb-8">
+        {/* Header */}
+        <div className="text-center mb-10">
           <img src="/logo-light.png" alt="Logezy"
-            style={{ height: 60, width: 'auto' }}
-            className="object-contain mx-auto mb-3" />
-          <h1 className="font-display text-2xl font-bold text-[#0F172A]">
+            style={{ height: 48, width: 'auto' }}
+            className="object-contain mx-auto mb-6" />
+          <div className="inline-flex items-center gap-2 bg-[#EBF5ED] text-[#3A7D44] text-xs font-bold px-3 py-1.5 rounded-full mb-4">
+            <CheckCircle size={12} />
+            Connecté avec Google
+          </div>
+          <h1 className="font-display text-3xl font-black text-[#0F172A] dark:text-white mb-2">
             Bienvenue sur Logezy ! 🎉
           </h1>
-          <p className="text-[#64748B] text-sm mt-2">
+          <p className="text-[#64748B] dark:text-[#94A3B8]">
             Dernière étape — choisissez votre type de compte
           </p>
         </div>
 
         {/* Infos Google */}
-        <div className="card p-4 mb-6 flex items-center gap-3">
+        <div className="bg-[#F8F9FA] dark:bg-[#1A1A1A] border border-[#E8E8E8] dark:border-[#2A2A2A] rounded-2xl p-4 mb-8 flex items-center gap-4">
           {googleData.avatar_url ? (
             <img src={googleData.avatar_url} alt={googleData.full_name}
-              className="w-12 h-12 rounded-full" />
+              className="w-12 h-12 rounded-full border-2 border-[#E8E8E8]" />
           ) : (
             <div className="w-12 h-12 rounded-full bg-[#3A7D44] text-white flex items-center justify-center font-bold text-lg">
               {googleData.full_name?.charAt(0).toUpperCase()}
             </div>
           )}
           <div>
-            <div className="font-bold text-sm text-[#0F172A]">{googleData.full_name}</div>
-            <div className="text-xs text-[#64748B]">{googleData.email}</div>
-            <div className="text-xs text-[#3A7D44] font-medium mt-0.5">✓ Connecté avec Google</div>
+            <div className="font-bold text-[#0F172A] dark:text-white">{googleData.full_name}</div>
+            <div className="text-sm text-[#64748B] dark:text-[#94A3B8]">{googleData.email}</div>
+          </div>
+          <div className="ml-auto">
+            <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5 opacity-50" />
           </div>
         </div>
 
         {/* Choix du rôle */}
-        <div className="space-y-3 mb-6">
-          <p className="text-sm font-medium text-[#334155]">Je suis...</p>
+        <div className="space-y-3 mb-8">
+          <p className="text-sm font-bold text-[#334155] dark:text-[#94A3B8] mb-4">Je suis...</p>
           {ROLES.map(r => (
             <button key={r.value} onClick={() => setRole(r.value)}
-              className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${
+              className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left ${
                 role === r.value
-                  ? 'border-[#3A7D44] bg-[#EBF5ED]'
-                  : 'border-[#E2E8F0] bg-white hover:border-[#3A7D44]/30'
+                  ? `${r.color} border-opacity-100`
+                  : 'border-[#E8E8E8] dark:border-[#2A2A2A] bg-white dark:bg-[#1A1A1A] hover:border-[#3A7D44]/30'
               }`}>
-              <span className="text-2xl">{r.emoji}</span>
-              <div>
-                <div className="font-bold text-sm text-[#0F172A]">{r.label}</div>
-                <div className="text-xs text-[#64748B]">{r.desc}</div>
+              <span className="text-3xl">{r.emoji}</span>
+              <div className="flex-1">
+                <div className="font-bold text-sm text-[#0F172A] dark:text-white">{r.label}</div>
+                <div className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">{r.desc}</div>
               </div>
-              {role === r.value && (
-                <span className="ml-auto text-[#3A7D44] font-bold">✓</span>
-              )}
+              {role === r.value && <CheckCircle size={20} className="text-[#3A7D44] shrink-0" />}
             </button>
           ))}
         </div>
 
         <button onClick={handleComplete} disabled={loading || !role}
-          className="btn-primary w-full py-3 flex items-center justify-center gap-2">
-          {loading ? (
-            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          ) : 'Créer mon compte →'}
+          className="w-full bg-[#3A7D44] hover:bg-[#2D6235] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(58,125,68,0.3)]">
+          {loading
+            ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            : <>Créer mon compte <ArrowRight size={18} /></>
+          }
         </button>
 
-        <p className="text-center text-xs text-[#94A3B8] mt-4">
+        <p className="text-center text-xs text-[#94A3B8] mt-5">
           En créant un compte, vous acceptez nos{' '}
-          <a href="/conditions" className="text-[#3A7D44] hover:underline">conditions d'utilisation</a>
+          <a href="/conditions" className="text-[#3A7D44] hover:underline font-medium">conditions d'utilisation</a>
         </p>
       </div>
     </div>
