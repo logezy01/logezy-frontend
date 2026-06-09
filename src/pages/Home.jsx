@@ -492,7 +492,7 @@ export default function Home() {
           <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-3">
             <p className="text-[#334155] text-sm">© 2026 Logezy — Tous droits réservés.</p>
             <p className="text-[#334155] text-sm flex items-center gap-1">
-              Made in Bénin 🇧🇯
+              Made in Bénin 
             </p>
           </div>
         </div>
