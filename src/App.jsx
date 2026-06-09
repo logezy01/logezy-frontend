@@ -5,6 +5,7 @@ import CompareBar from './components/common/CompareBar';
 import HowItWorks from './pages/HowItWorks';
 import AuthCallback from './pages/auth/AuthCallback';
 import GoogleComplete from './pages/auth/GoogleComplete';
+import VerifyEmail from './pages/auth/VerifyEmail';
 
 // Pages publiques
 import Home from './pages/Home';
@@ -62,6 +63,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/auth/complete" element={<GoogleComplete />} />
+        <Route path="/auth/verify-email" element={<VerifyEmail />} />
         
         {/* Dashboards protégés */}
         <Route path="/dashboard/proprietaire/*" element={

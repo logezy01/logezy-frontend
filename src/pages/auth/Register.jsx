@@ -25,18 +25,18 @@ export default function Register() {
     if (!form.role) { toast.error('Choisissez un type de compte'); return; }
     if (form.password.length < 6) { toast.error('Mot de passe minimum 6 caractères'); return; }
     setLoading(true);
-    try {
-      const res = await api.post('/auth/register', form);
-      login(res.data.user, res.data.token);
-      toast.success('Compte créé avec succès ! 🎉');
-      switch (res.data.user.role) {
-        case 'proprietaire': navigate('/dashboard/proprietaire'); break;
-        case 'agent': navigate('/dashboard/agent'); break;
-        default: navigate('/dashboard/locataire');
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.error || 'Erreur création compte');
-    } finally {
+        try {
+          const res = await api.post('/auth/register', form);
+          toast.success('Code envoyé ! Vérifiez votre email 📧');
+          navigate('/auth/verify-email', {
+            state: {
+              userId: res.data.userId,
+              email: res.data.email,
+            }
+          });
+        } catch (error) {
+          toast.error(error.response?.data?.error || 'Erreur création compte');
+        } finally {
       setLoading(false);
     }
   };
