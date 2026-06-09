@@ -57,6 +57,14 @@ export default function Home() {
   const [searchType, setSearchType] = useState('');
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
+const [heroIndex, setHeroIndex] = useState(0);
+
+useEffect(() => {
+  const timer = setInterval(() => {
+    setHeroIndex(prev => (prev + 1) % 5);
+  }, 5000);
+  return () => clearInterval(timer);
+}, []);
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -86,16 +94,39 @@ export default function Home() {
 
       {/* ── HERO ─────────────────────────────────────────── */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
-        {/* Image de fond */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80"
-            alt="Belle maison au Bénin"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/20" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+{/* Slider d'images */}
+{(() => {
+  const HERO_IMAGES = [
+    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80',
+    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80',
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1920&q=80',
+    'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1920&q=80',
+    'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1920&q=80',
+  ];
+  return (
+    <div className="absolute inset-0 z-0">
+      {HERO_IMAGES.map((img, i) => (
+        <div key={i} className="absolute inset-0 transition-opacity duration-1000"
+          style={{ opacity: heroIndex === i ? 1 : 0 }}>
+          <img src={img} alt={`Maison ${i + 1}`}
+            className="w-full h-full object-cover" />
         </div>
+      ))}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/20" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+
+      {/* Indicateurs */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        {HERO_IMAGES.map((_, i) => (
+          <button key={i} onClick={() => setHeroIndex(i)}
+            className={`transition-all duration-300 rounded-full ${
+              heroIndex === i ? 'w-6 h-2 bg-white' : 'w-2 h-2 bg-white/40 hover:bg-white/70'
+            }`} />
+        ))}
+      </div>
+    </div>
+  );
+})()}
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 w-full">
           <div className="max-w-2xl">
