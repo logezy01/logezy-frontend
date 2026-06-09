@@ -45,7 +45,7 @@ export default function Login() {
       if (error) throw error;
     } catch (error) {
       toast.error('Erreur connexion Google');
-      setGoogleLoading(false);
+      setGoogleLoading(false); 
     }
   };
 

@@ -6,6 +6,7 @@ import DashboardLayout from '../../components/common/DashboardLayout';
 import ImageUploader from '../../components/common/ImageUploader';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
+import AdminMessages from '../../components/common/AdminMessages';
 
 const MENU = [
   { path: '/dashboard/proprietaire', icon: '📊', label: 'Vue générale' },
@@ -13,6 +14,7 @@ const MENU = [
   { path: '/dashboard/proprietaire/messages', icon: '💬', label: 'Messages' },
   { path: '/dashboard/proprietaire/publier', icon: '➕', label: 'Publier une annonce' },
   { path: '/dashboard/proprietaire/profil', icon: '👤', label: 'Mon profil' },
+  { path: '/dashboard/proprietaire/admin-messages', icon: '🛡️', label: 'Messages admin' },
 ];
 
 // ─── STAT CARD ───────────────────────────────────────────────
@@ -756,6 +758,7 @@ export default function DashboardOwner() {
         <Route path="messages" element={<Messages />} />
         <Route path="publier" element={<PublishListing />} />
         <Route path="profil" element={<Profile />} />
+        <Route path="admin-messages" element={<AdminMessages />} />
       </Routes>
     </DashboardLayout>
   );

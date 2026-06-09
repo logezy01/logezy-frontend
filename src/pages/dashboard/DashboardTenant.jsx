@@ -6,6 +6,7 @@ import DashboardLayout from '../../components/common/DashboardLayout';
 import ListingCard from '../../components/common/ListingCard';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
+import AdminMessages from '../../components/common/AdminMessages';
 
 const MENU = [
   { path: '/dashboard/locataire', icon: '📊', label: 'Vue générale' },
@@ -14,6 +15,7 @@ const MENU = [
   { path: '/dashboard/locataire/alertes', icon: '🔔', label: 'Mes alertes' },
   { path: '/dashboard/locataire/messages', icon: '💬', label: 'Messages' },
   { path: '/dashboard/locataire/profil', icon: '👤', label: 'Mon profil' },
+  { path: '/dashboard/locataire/admin-messages', icon: '🛡️', label: 'Messages admin' },
 ];
 
 // ─── VUE GÉNÉRALE ────────────────────────────────────────────
@@ -679,6 +681,7 @@ export default function DashboardTenant() {
         <Route path="alertes" element={<Alerts />} />
         <Route path="messages" element={<Messages />} />
         <Route path="profil" element={<Profile />} />
+        <Route path="admin-messages" element={<AdminMessages />} />
       </Routes>
     </DashboardLayout>
   );

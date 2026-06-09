@@ -20,7 +20,7 @@ export default function Register() {
   const { login } = useAuthStore();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => { 
     e.preventDefault();
     if (!form.role) { toast.error('Choisissez un type de compte'); return; }
     if (form.password.length < 6) { toast.error('Mot de passe minimum 6 caractères'); return; }

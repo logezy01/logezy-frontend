@@ -6,6 +6,7 @@ import DashboardLayout from '../../components/common/DashboardLayout';
 import ImageUploader from '../../components/common/ImageUploader';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
+import AdminMessages from '../../components/common/AdminMessages';
 
 const MENU = [
   { path: '/dashboard/agent', icon: '📊', label: 'Vue générale' },
@@ -13,6 +14,7 @@ const MENU = [
   { path: '/dashboard/agent/messages', icon: '💬', label: 'Messages' },
   { path: '/dashboard/agent/publier', icon: '➕', label: 'Publier une annonce' },
   { path: '/dashboard/agent/profil', icon: '👤', label: 'Mon profil' },
+  { path: '/dashboard/agent/admin-messages', icon: '🛡️', label: 'Messages admin' },
 ];
 
 function StatCard({ emoji, label, value, color = 'green' }) {
@@ -722,6 +724,7 @@ export default function DashboardAgent() {
         <Route path="messages" element={<Messages />} />
         <Route path="publier" element={<PublishListing />} />
         <Route path="profil" element={<Profile />} />
+        <Route path="admin-messages" element={<AdminMessages />} />
       </Routes>
     </DashboardLayout>
   );
