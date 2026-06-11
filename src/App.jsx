@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import useAuthStore from './store/authStore';
 import BottomNav from './components/common/BottomNav';
 import CompareBar from './components/common/CompareBar';
+import ChatBot from './components/common/ChatBot';
 import HowItWorks from './pages/HowItWorks';
 import AuthCallback from './pages/auth/AuthCallback';
 import GoogleComplete from './pages/auth/GoogleComplete';
@@ -28,7 +29,6 @@ import DashboardAgent from './pages/dashboard/DashboardAgent';
 import DashboardTenant from './pages/dashboard/DashboardTenant';
 import DashboardAdmin from './pages/dashboard/DashboardAdmin';
 
-// Route protégée
 const ProtectedRoute = ({ children, roles }) => {
   const { isAuthenticated, user } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" />;
@@ -64,7 +64,7 @@ export default function App() {
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/auth/complete" element={<GoogleComplete />} />
         <Route path="/auth/verify-email" element={<VerifyEmail />} />
-        
+
         {/* Dashboards protégés */}
         <Route path="/dashboard/proprietaire/*" element={
           <ProtectedRoute roles={['proprietaire']}>
@@ -94,6 +94,7 @@ export default function App() {
       {/* Composants globaux */}
       <BottomNav />
       <CompareBar />
+      <ChatBot />
     </>
   );
 }
