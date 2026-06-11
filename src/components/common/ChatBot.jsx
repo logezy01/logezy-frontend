@@ -51,31 +51,33 @@ export default function ChatBot() {
     setLoading(true);
 
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': import.meta.env.VITE_CLAUDE_API_KEY,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 500,
-          system: SYSTEM_PROMPT,
-          messages: newMessages.map(m => ({
-            role: m.role,
-            content: m.content,
-          })),
-        }),
-      });
+          const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
+            },
+            body: JSON.stringify({
+              model: 'llama-3.3-70b-versatile',
+              max_tokens: 500,
+              messages: [
+                { role: 'system', content: SYSTEM_PROMPT },
+                ...newMessages.map(m => ({
+                  role: m.role,
+                  content: m.content,
+                })),
+              ],
+            }),
+          });
 
-      const data = await response.json();
-      const assistantMessage = {
-        role: 'assistant',
-        content: data.content[0].text,
-      };
-      setMessages(prev => [...prev, assistantMessage]);
+          const data = await response.json();
+          console.log('Réponse Groq:', data);
+
+          const assistantMessage = {
+            role: 'assistant',
+            content: data.choices[0].message.content,
+          };
+          setMessages(prev => [...prev, assistantMessage]);
     } catch (e) {
       setMessages(prev => [...prev, {
         role: 'assistant',
