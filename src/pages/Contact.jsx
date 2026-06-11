@@ -26,8 +26,8 @@ export default function Contact() {
     {
       icon: <Mail size={20} className="text-[#3A7D44]" />,
       label: 'Email',
-      value: 'miraclelohounme@gmail.com',
-      link: 'mailto:miraclelohounme@gmail.com'
+      value: 'logezyafrique @gmail.com',
+      link: 'mailto:logezyafrique@gmail.com'
     },
     {
       icon: <Phone size={20} className="text-[#3A7D44]" />,

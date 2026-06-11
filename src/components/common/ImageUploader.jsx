@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Upload, X, Camera, Image } from 'lucide-react';
 import toast from 'react-hot-toast';
+import imageCompression from 'browser-image-compression';
 
 export default function ImageUploader({ listingId, onUploadComplete }) {
   const [files, setFiles] = useState([]);
@@ -9,28 +10,51 @@ export default function ImageUploader({ listingId, onUploadComplete }) {
   const inputRef = useRef(null);
   const cameraRef = useRef(null);
 
-  const handleSelect = (e) => {
-    const selected = Array.from(e.target.files);
-    if (selected.length + files.length > 10) {
-      toast.error('Maximum 10 photos');
-      return;
+const handleSelect = async (e) => {
+  const selected = Array.from(e.target.files);
+  if (selected.length + files.length > 10) {
+    toast.error('Maximum 10 photos');
+    return;
+  }
+
+  const newFiles = [];
+  const newPreviews = [];
+
+  for (const file of selected) {
+    if (!file.type.match(/image\/(jpeg|jpg|png|webp)/)) {
+      toast.error(`${file.name} — format non supporté`);
+      continue;
     }
 
-    const newFiles = [];
-    const newPreviews = [];
+    try {
+      // Compression automatique
+      const compressed = await imageCompression(file, {
+        maxSizeMB: 0.5,          // Max 500KB par photo
+        maxWidthOrHeight: 1280,   // Max 1280px
+        useWebWorker: true,
+        onProgress: (progress) => {
+          console.log(`Compression ${file.name}: ${progress}%`);
+        },
+      });
 
-    selected.forEach(file => {
-      if (!file.type.match(/image\/(jpeg|jpg|png|webp)/)) {
-        toast.error(`${file.name} — format non supporté`);
-        return;
+      console.log(`${file.name}: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressed.size / 1024 / 1024).toFixed(2)}MB`);
+
+      newFiles.push(compressed);
+      newPreviews.push(URL.createObjectURL(compressed));
+      toast.success(`Photo compressée ✅`);
+    } catch (err) {
+      console.error('Erreur compression:', err);
+      // Si compression échoue, utilise l'original
+      if (file.size <= 5 * 1024 * 1024) {
+        newFiles.push(file);
+        newPreviews.push(URL.createObjectURL(file));
+      } else {
+        toast.error(`${file.name} trop lourd (max 5MB)`);
       }
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error(`${file.name} — fichier trop lourd (max 5MB)`);
-        return;
-      }
-      newFiles.push(file);
-      newPreviews.push(URL.createObjectURL(file));
-    });
+    }
+  }
+
+
 
     setFiles(prev => [...prev, ...newFiles]);
     setPreviews(prev => [...prev, ...newPreviews]);

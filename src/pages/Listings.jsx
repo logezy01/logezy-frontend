@@ -70,7 +70,7 @@ export default function Listings() {
                 <h1 className="font-display text-lg font-black text-[#0F172A] dark:text-white">
                   Annonces immobilières
                 </h1>
-                <p className="text-xs text-[#94A3B8] mt-0.5 flex items-center gap-1">
+               <div className="text-xs text-[#94A3B8] mt-0.5 flex items-center gap-1">
                   {loading ? (
                     <span className="inline-flex items-center gap-1">
                       <div className="w-3 h-3 border-2 border-[#3A7D44] border-t-transparent rounded-full animate-spin" />
@@ -82,7 +82,7 @@ export default function Listings() {
                       {filters.city && ` à ${filters.city}`}
                     </span>
                   )}
-                </p>
+                </div>  
               </div>
 
               {/* Filtres actifs */}
