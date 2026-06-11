@@ -51,31 +51,28 @@ export default function ChatBot() {
     setLoading(true);
 
     try {
-          const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/chatbot/message`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
             },
             body: JSON.stringify({
-              model: 'llama-3.3-70b-versatile',
-              max_tokens: 500,
-              messages: [
-                { role: 'system', content: SYSTEM_PROMPT },
-                ...newMessages.map(m => ({
-                  role: m.role,
-                  content: m.content,
-                })),
-              ],
+              messages: newMessages.map(m => ({
+                role: m.role,
+                content: m.content,
+              })),
             }),
           });
 
           const data = await response.json();
-          console.log('Réponse Groq:', data);
+
+          if (data.error) {
+            throw new Error(data.error);
+          }
 
           const assistantMessage = {
             role: 'assistant',
-            content: data.choices[0].message.content,
+            content: data.message,
           };
           setMessages(prev => [...prev, assistantMessage]);
     } catch (e) {
