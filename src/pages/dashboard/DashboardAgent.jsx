@@ -478,13 +478,14 @@ function Messages() {
 
 // ─── PUBLIER ──────────────────────────────────────────────────
 function PublishListing() {
-  const [form, setForm] = useState({
-    title: '', description: '', type: 'location', price: '',
-    price_period: 'mois', city: '', neighborhood: '',
-    bedrooms: 0, bathrooms: 0, living_rooms: 0, area: '',
-    floors: 0, is_furnished: false, has_parking: false,
-    has_garden: false, has_pool: false, has_security: false,
-  });
+    const [form, setForm] = useState({
+      title: '', description: '', type: 'location', price: '',
+      price_period: 'mois', city: '', neighborhood: '',
+      bedrooms: 0, bathrooms: 0, living_rooms: 0, area: '',
+      floors: 0, is_furnished: false, has_parking: false,
+      has_garden: false, has_pool: false, has_security: false,
+      info_supplementaires: '',
+    });
   const [loading, setLoading] = useState(false);
   const [createdListingId, setCreatedListingId] = useState(null);
   const navigate = useNavigate();
@@ -563,15 +564,16 @@ function PublishListing() {
               <input type="number" placeholder="Ex: 150000" value={form.price}
                 onChange={(e) => update('price', e.target.value)} className="input-field" required />
             </div>
-            {form.type === 'location' && (
-              <div>
-                <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Période</label>
-                <select value={form.price_period} onChange={(e) => update('price_period', e.target.value)} className="input-field">
-                  <option value="mois">Par mois</option>
-                  <option value="an">Par an</option>
-                </select>
-              </div>
-            )}
+                {form.type === 'location' && (
+                  <div>
+                    <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Période de location</label>
+                    <select value={form.price_period} onChange={(e) => update('price_period', e.target.value)} className="input-field">
+                      <option value="jour">Par jour</option>
+                      <option value="mois">Par mois</option>
+                      <option value="an">Par an</option>
+                    </select>
+                  </div>
+                )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -639,6 +641,26 @@ function PublishListing() {
             </div>
           </div>
 
+
+            {/* Informations supplémentaires */}
+                <div>
+                  <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">
+                    📋 Informations supplémentaires
+                    <span className="text-[#94A3B8] font-normal text-xs ml-2">(optionnel)</span>
+                  </label>
+                  <div className="bg-[#EBF5ED] dark:bg-[#2A2A2A] rounded-xl p-3 mb-2">
+                    <p className="text-xs text-[#3A7D44] font-medium">
+                      💡 Exemples : Avance de 3 mois exigée, Caution eau 50 000 FCFA, Charges comprises, Pas d'animaux, etc.
+                    </p>
+                  </div>
+                  <textarea
+                    placeholder="Ex: Avance de 2 mois requise. Caution eau : 25 000 FCFA. Charges non comprises. Pas d'animaux acceptés."
+                    value={form.info_supplementaires}
+                    onChange={(e) => update('info_supplementaires', e.target.value)}
+                    className="input-field min-h-[100px] resize-none"
+                    rows={4}
+                  />
+                </div>
           <button type="submit" disabled={loading}
             className="btn-primary w-full py-3 flex items-center justify-center gap-2">
             {loading
