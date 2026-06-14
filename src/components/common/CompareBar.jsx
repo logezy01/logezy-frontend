@@ -4,7 +4,7 @@ import useCompareStore from '../../store/compareStore';
 import { getImageUrl } from '../../lib/imageUrl';
 
 export default function CompareBar() {
-  const { items, removeItem, clearItems } = useCompareStore();
+  const{ items, removeItem, clearItems } = useCompareStore();
   const navigate = useNavigate();
 
   if (items.length === 0) return null;
