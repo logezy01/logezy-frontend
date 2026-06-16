@@ -883,7 +883,7 @@ export default function Home() {
           </div>
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
             <p style={{ color: '#334155', fontSize: 14 }}>© 2026 Logezy — Tous droits réservés.</p>
-            <p style={{ color: '#334155', fontSize: 14 }}>Made with ❤️ in Bénin 🇧🇯</p>
+            <p style={{ color: '#334155', fontSize: 14 }}>Made in Bénin 🇧🇯</p>
           </div>
         </div>
       </footer>
