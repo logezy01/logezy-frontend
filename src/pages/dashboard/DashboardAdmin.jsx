@@ -4,6 +4,7 @@ import { Eye, CheckCircle, XCircle, Users, Home, Search, Trash2, Ban, Mail, Send
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import api from '../../lib/axios';
+import useAuthStore from '../../store/authStore';
 
 const MENU = [
   { path: '/dashboard/admin', icon: '📊', label: 'Vue générale' },
@@ -94,7 +95,6 @@ function Overview() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
       <div className="bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#334155] rounded-2xl p-6 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-48 h-48 bg-[#3A7D44] rounded-full opacity-10 blur-3xl" />
         <div className="relative z-10 flex items-center justify-between">
@@ -124,7 +124,6 @@ function Overview() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard emoji="👥" label="Utilisateurs" value={stats?.total_users || 0} color="blue" loading={loading} />
         <StatCard emoji="✅" label="Annonces actives" value={stats?.listings_by_status?.active || 0} color="green" loading={loading} />
@@ -132,7 +131,6 @@ function Overview() {
         <StatCard emoji="💬" label="Conversations" value={stats?.total_conversations || 0} color="purple" loading={loading} />
       </div>
 
-      {/* Raccourcis */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {[
           { to: '/dashboard/admin/validation', icon: '⏳', label: 'Valider annonces', desc: `${stats?.pending_listings || 0} en attente`, color: 'bg-[#FEF3C7]', urgent: (stats?.pending_listings || 0) > 0 },
@@ -151,7 +149,6 @@ function Overview() {
         ))}
       </div>
 
-      {/* Derniers inscrits + annonces */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="card p-6">
           <div className="flex items-center justify-between mb-4">
@@ -165,7 +162,9 @@ function Overview() {
                   {u.full_name?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-xs text-[#0F172A] dark:text-white truncate">{u.full_name}</div>
+                  <div className="font-medium text-xs text-[#0F172A] dark:text-white truncate">
+                    {u.full_name} {u.is_super_admin && <span className="text-purple-500">👑</span>}
+                  </div>
                   <div className="text-xs text-[#64748B] dark:text-[#94A3B8] capitalize">{u.role}</div>
                 </div>
                 <div className="text-xs text-[#94A3B8]">{new Date(u.created_at).toLocaleDateString('fr-FR')}</div>
@@ -226,7 +225,7 @@ function ValidationListings() {
   const handleApprove = async (id) => {
     try {
       await api.put(`/admin/listings/${id}/approve`);
-      toast.success('✅ Annonce approuvée ! Email envoyé au propriétaire.');
+      toast.success('✅ Annonce approuvée !');
       fetchListings();
     } catch (e) {
       toast.error('Erreur approbation');
@@ -236,7 +235,7 @@ function ValidationListings() {
   const handleReject = async (id) => {
     try {
       await api.put(`/admin/listings/${id}/reject`, { reason: rejectReason });
-      toast.success('❌ Annonce rejetée. Email envoyé au propriétaire.');
+      toast.success('❌ Annonce rejetée.');
       setRejectModal(null);
       setRejectReason('');
       fetchListings();
@@ -264,7 +263,6 @@ function ValidationListings() {
         <div className="card p-12 text-center text-[#94A3B8]">
           <span className="text-5xl block mb-3">✅</span>
           <p className="font-medium dark:text-white">Aucune annonce en attente</p>
-          <p className="text-sm mt-1">Toutes les annonces ont été traitées</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -279,12 +277,8 @@ function ValidationListings() {
                     </span>
                   </div>
                   <h3 className="font-bold text-[#0F172A] dark:text-white mb-1">{l.title}</h3>
-                  <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mb-2">
-                    📍 {l.city} {l.neighborhood && `· ${l.neighborhood}`}
-                  </p>
-                  {l.description && (
-                    <p className="text-sm text-[#64748B] dark:text-[#94A3B8] line-clamp-2 mb-2">{l.description}</p>
-                  )}
+                  <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mb-2">📍 {l.city} {l.neighborhood && `· ${l.neighborhood}`}</p>
+                  {l.description && <p className="text-sm text-[#64748B] dark:text-[#94A3B8] line-clamp-2 mb-2">{l.description}</p>}
                   <div className="flex flex-wrap gap-3 text-xs text-[#64748B] dark:text-[#94A3B8]">
                     <span>💰 {new Intl.NumberFormat('fr-FR').format(l.price)} FCFA{l.price_period ? `/${l.price_period}` : ''}</span>
                     {l.bedrooms > 0 && <span>🛏 {l.bedrooms} ch.</span>}
@@ -292,19 +286,14 @@ function ValidationListings() {
                   </div>
                   <div className="mt-2 p-2 bg-[#F5F5F7] dark:bg-[#2A2A2A] rounded-lg">
                     <p className="text-xs text-[#64748B] dark:text-[#94A3B8]">
-                      👤 Publié par : <strong className="text-[#0F172A] dark:text-white">{l.users?.full_name}</strong>
+                      👤 <strong className="text-[#0F172A] dark:text-white">{l.users?.full_name}</strong>
                       {l.users?.email && ` (${l.users.email})`}
-                    </p>
-                    <p className="text-xs text-[#94A3B8] mt-0.5">
-                      📅 {new Date(l.created_at).toLocaleDateString('fr-FR')}
                     </p>
                   </div>
                 </div>
-
                 <div className="flex md:flex-col gap-2">
                   <a href={`/annonces/${l.id}`} target="_blank"
-                    className="p-2 rounded-xl bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors"
-                    title="Voir l'annonce">
+                    className="p-2 rounded-xl bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors">
                     <Eye size={16} />
                   </a>
                   <button onClick={() => handleApprove(l.id)}
@@ -322,35 +311,21 @@ function ValidationListings() {
         </div>
       )}
 
-      {/* Modal rejet */}
       {rejectModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-6 max-w-md w-full animate-scale-in">
             <h3 className="font-display font-bold text-[#0F172A] dark:text-white mb-2">Rejeter l'annonce</h3>
-            <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mb-4">
-              "{rejectModal.title}"
-            </p>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">
-                Raison du rejet (optionnel)
-              </label>
-              <textarea
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="Ex: Photos insuffisantes, informations incorrectes..."
-                className="input-field min-h-[100px] resize-none"
-                rows={4}
-              />
-            </div>
+            <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mb-4">"{rejectModal.title}"</p>
+            <textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Raison du rejet (optionnel)..."
+              className="input-field min-h-[100px] resize-none mb-4" rows={4} />
             <div className="flex gap-3">
               <button onClick={() => handleReject(rejectModal.id)}
-                className="btn-primary flex-1 py-2.5 bg-red-500 hover:bg-red-600 flex items-center justify-center gap-2">
-                <XCircle size={16} /> Confirmer le rejet
+                className="flex-1 py-2.5 bg-red-500 text-white rounded-btn font-bold flex items-center justify-center gap-2">
+                <XCircle size={16} /> Confirmer
               </button>
               <button onClick={() => { setRejectModal(null); setRejectReason(''); }}
-                className="btn-secondary flex-1 py-2.5">
-                Annuler
-              </button>
+                className="btn-secondary flex-1 py-2.5">Annuler</button>
             </div>
           </div>
         </div>
@@ -368,13 +343,19 @@ function UsersList() {
   const [messageModal, setMessageModal] = useState(null);
   const [banModal, setBanModal] = useState(null);
   const [deleteModal, setDeleteModal] = useState(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [msgForm, setMsgForm] = useState({ subject: '', message: '' });
   const [banReason, setBanReason] = useState('');
+  const { user } = useAuthStore();
 
   const fetchUsers = async () => {
     try {
       const res = await api.get('/admin/users');
-      setUsers(res.data.users || []);
+      const allUsers = res.data.users || [];
+      setUsers(allUsers);
+      // Vérifier si l'admin connecté est super admin
+      const me = allUsers.find(u => u.id === user?.id);
+      setIsSuperAdmin(me?.is_super_admin || false);
     } catch (e) {
       toast.error('Erreur chargement');
     } finally {
@@ -390,7 +371,7 @@ function UsersList() {
       toast.success(res.data.message);
       fetchUsers();
     } catch (e) {
-      toast.error('Erreur');
+      toast.error(e.response?.data?.error || 'Erreur');
     }
   };
 
@@ -402,7 +383,7 @@ function UsersList() {
       setBanReason('');
       fetchUsers();
     } catch (e) {
-      toast.error('Erreur bannissement');
+      toast.error(e.response?.data?.error || 'Erreur bannissement');
     }
   };
 
@@ -413,7 +394,17 @@ function UsersList() {
       setDeleteModal(null);
       fetchUsers();
     } catch (e) {
-      toast.error('Erreur suppression');
+      toast.error(e.response?.data?.error || 'Erreur suppression');
+    }
+  };
+
+  const handleChangeRole = async (id, newRole) => {
+    try {
+      const res = await api.put(`/admin/users/${id}/role`, { role: newRole });
+      toast.success(res.data.message);
+      fetchUsers();
+    } catch (e) {
+      toast.error(e.response?.data?.error || 'Erreur changement rôle');
     }
   };
 
@@ -443,6 +434,19 @@ function UsersList() {
 
   return (
     <div className="space-y-4 animate-fade-in">
+
+      {/* Bandeau super admin */}
+      {isSuperAdmin && (
+        <div className="p-3 rounded-xl flex items-center gap-3"
+          style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.1), rgba(139,92,246,0.05))', border: '1px solid rgba(139,92,246,0.2)' }}>
+          <span className="text-xl">👑</span>
+          <div>
+            <div className="text-sm font-bold text-purple-600">Vous êtes Super Admin</div>
+            <div className="text-xs text-[#94A3B8]">Vous pouvez gérer tous les comptes, y compris les admins</div>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <h2 className="font-display font-bold text-[#0F172A] dark:text-white">
           Utilisateurs ({users.length})
@@ -460,6 +464,7 @@ function UsersList() {
               { value: 'locataire', label: '🔍' },
               { value: 'proprietaire', label: '🏠' },
               { value: 'agent', label: '🤝' },
+              { value: 'admin', label: '⚙️' },
               { value: 'banned', label: '🚫' },
             ].map(f => (
               <button key={f.value} onClick={() => setFilter(f.value)}
@@ -485,16 +490,22 @@ function UsersList() {
             </thead>
             <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#2A2A2A]">
               {filtered.map(u => (
-                <tr key={u.id} className={`hover:bg-[#F5F5F7] dark:hover:bg-[#2A2A2A] transition-colors ${u.is_banned ? 'bg-red-50/50 dark:bg-red-900/10' : ''}`}>
+                <tr key={u.id} className={`hover:bg-[#F5F5F7] dark:hover:bg-[#2A2A2A] transition-colors ${u.is_banned ? 'bg-red-50/50 dark:bg-red-900/10' : ''} ${u.is_super_admin ? 'bg-purple-50/30 dark:bg-purple-900/10' : ''}`}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full text-white flex items-center justify-center font-bold text-xs ${u.is_banned ? 'bg-red-500' : 'bg-[#3A7D44]'}`}>
-                        {u.is_banned ? '🚫' : u.full_name?.charAt(0).toUpperCase()}
+                      <div className={`w-8 h-8 rounded-full text-white flex items-center justify-center font-bold text-xs ${
+                        u.is_super_admin ? 'bg-purple-500' :
+                        u.is_banned ? 'bg-red-500' : 'bg-[#3A7D44]'
+                      }`}>
+                        {u.is_super_admin ? '👑' : u.is_banned ? '🚫' : u.full_name?.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <div className="font-medium text-sm text-[#0F172A] dark:text-white">{u.full_name}</div>
+                        <div className="font-medium text-sm text-[#0F172A] dark:text-white flex items-center gap-1">
+                          {u.full_name}
+                          {u.is_super_admin && <span className="text-xs bg-purple-100 text-purple-600 font-bold px-1.5 py-0.5 rounded-full">👑 Super Admin</span>}
+                        </div>
                         <div className="text-xs text-[#64748B] dark:text-[#94A3B8]">{u.email}</div>
-                        {u.is_banned && <div className="text-xs text-red-500 font-bold">🚫 Banni — {u.ban_reason}</div>}
+                        {u.is_banned && <div className="text-xs text-red-500 font-bold">🚫 {u.ban_reason}</div>}
                       </div>
                     </div>
                   </td>
@@ -515,35 +526,58 @@ function UsersList() {
                     {new Date(u.created_at).toLocaleDateString('fr-FR')}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      {/* Écrire */}
+                    <div className="flex items-center gap-1 flex-wrap">
+
+                      {/* Écrire — toujours disponible */}
                       <button onClick={() => setMessageModal(u)}
                         className="p-1.5 rounded-lg bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors"
                         title="Envoyer un message">
                         <Mail size={14} />
                       </button>
-                      {/* Activer/Désactiver */}
-                      <button onClick={() => handleToggle(u.id)}
-                        className="p-1.5 rounded-lg bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors"
-                        title={u.is_active ? 'Désactiver' : 'Activer'}>
-                        <CheckCircle size={14} />
-                      </button>
-                      {/* Bannir */}
-                      <button onClick={() => setBanModal(u)}
-                        className={`p-1.5 rounded-lg transition-colors ${
-                          u.is_banned
-                            ? 'bg-[#EBF5ED] text-[#3A7D44] hover:bg-[#3A7D44] hover:text-white'
-                            : 'bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-orange-50 text-[#64748B] hover:text-orange-500'
-                        }`}
-                        title={u.is_banned ? 'Lever le bannissement' : 'Bannir'}>
-                        <Ban size={14} />
-                      </button>
-                      {/* Supprimer */}
-                      <button onClick={() => setDeleteModal(u)}
-                        className="p-1.5 rounded-lg bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-red-50 text-[#64748B] hover:text-red-500 transition-colors"
-                        title="Supprimer définitivement">
-                        <Trash2 size={14} />
-                      </button>
+
+                      {/* Activer/Désactiver — pas pour super admin */}
+                      {!u.is_super_admin && (
+                        <button onClick={() => handleToggle(u.id)}
+                          className="p-1.5 rounded-lg bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors"
+                          title={u.is_active ? 'Désactiver' : 'Activer'}>
+                          <CheckCircle size={14} />
+                        </button>
+                      )}
+
+                      {/* Bannir — pas pour super admin */}
+                      {!u.is_super_admin && (
+                        <button onClick={() => setBanModal(u)}
+                          className={`p-1.5 rounded-lg transition-colors ${
+                            u.is_banned
+                              ? 'bg-[#EBF5ED] text-[#3A7D44]'
+                              : 'bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-orange-50 text-[#64748B] hover:text-orange-500'
+                          }`}
+                          title={u.is_banned ? 'Lever le bannissement' : 'Bannir'}>
+                          <Ban size={14} />
+                        </button>
+                      )}
+
+                      {/* Changer rôle — super admin uniquement, pas sur soi-même */}
+                      {isSuperAdmin && !u.is_super_admin && u.id !== user?.id && (
+                        <select value={u.role}
+                          onChange={(e) => handleChangeRole(u.id, e.target.value)}
+                          className="text-xs border border-[#E2E8F0] dark:border-[#2A2A2A] rounded-lg px-1.5 py-1 bg-white dark:bg-[#2A2A2A] text-[#334155] dark:text-[#94A3B8] cursor-pointer"
+                          title="Changer le rôle">
+                          <option value="locataire">Locataire</option>
+                          <option value="proprietaire">Propriétaire</option>
+                          <option value="agent">Agent</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      )}
+
+                      {/* Supprimer — pas pour super admin, admin normal ne peut pas supprimer autre admin */}
+                      {!u.is_super_admin && (isSuperAdmin || u.role !== 'admin') && u.id !== user?.id && (
+                        <button onClick={() => setDeleteModal(u)}
+                          className="p-1.5 rounded-lg bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-red-50 text-[#64748B] hover:text-red-500 transition-colors"
+                          title="Supprimer définitivement">
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -568,18 +602,12 @@ function UsersList() {
             </h3>
             <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mb-4">{messageModal.email}</p>
             <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-1">Sujet</label>
-                <input type="text" value={msgForm.subject}
-                  onChange={(e) => setMsgForm({ ...msgForm, subject: e.target.value })}
-                  placeholder="Ex: Information importante" className="input-field" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-1">Message</label>
-                <textarea value={msgForm.message}
-                  onChange={(e) => setMsgForm({ ...msgForm, message: e.target.value })}
-                  placeholder="Votre message..." className="input-field min-h-[120px] resize-none" rows={5} />
-              </div>
+              <input type="text" value={msgForm.subject}
+                onChange={(e) => setMsgForm({ ...msgForm, subject: e.target.value })}
+                placeholder="Sujet" className="input-field" />
+              <textarea value={msgForm.message}
+                onChange={(e) => setMsgForm({ ...msgForm, message: e.target.value })}
+                placeholder="Votre message..." className="input-field min-h-[120px] resize-none" rows={5} />
             </div>
             <div className="flex gap-3 mt-4">
               <button onClick={() => handleSendMessage(messageModal.id)}
@@ -597,23 +625,18 @@ function UsersList() {
       {banModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-6 max-w-md w-full animate-scale-in">
-            <h3 className="font-display font-bold text-[#0F172A] dark:text-white mb-1">
+            <h3 className="font-display font-bold text-[#0F172A] dark:text-white mb-3">
               {banModal.is_banned ? '✅ Lever le bannissement' : '🚫 Bannir'} — {banModal.full_name}
             </h3>
             {!banModal.is_banned && (
-              <div className="mt-3">
-                <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-1">
-                  Raison du bannissement
-                </label>
-                <input type="text" value={banReason}
-                  onChange={(e) => setBanReason(e.target.value)}
-                  placeholder="Ex: Spam, fausses annonces..." className="input-field" />
-              </div>
+              <input type="text" value={banReason}
+                onChange={(e) => setBanReason(e.target.value)}
+                placeholder="Raison du bannissement..." className="input-field mb-3" />
             )}
-            <div className="flex gap-3 mt-4">
+            <div className="flex gap-3">
               <button onClick={() => handleBan(banModal.id)}
                 className={`flex-1 py-2.5 rounded-btn font-bold text-sm flex items-center justify-center gap-2 ${
-                  banModal.is_banned ? 'bg-[#3A7D44] text-white' : 'bg-red-500 text-white hover:bg-red-600'
+                  banModal.is_banned ? 'bg-[#3A7D44] text-white' : 'bg-red-500 text-white'
                 }`}>
                 <Ban size={16} />
                 {banModal.is_banned ? 'Lever le bannissement' : 'Bannir'}
@@ -630,23 +653,17 @@ function UsersList() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-6 max-w-md w-full animate-scale-in">
             <h3 className="font-display font-bold text-red-500 mb-2">⚠️ Suppression définitive</h3>
-            <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mb-2">
-              Vous allez supprimer définitivement le compte de :
-            </p>
             <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl mb-4">
               <p className="font-bold text-[#0F172A] dark:text-white">{deleteModal.full_name}</p>
               <p className="text-xs text-[#64748B] dark:text-[#94A3B8]">{deleteModal.email}</p>
             </div>
-            <p className="text-xs text-red-500 font-bold mb-4">
-              ⚠️ Cette action est irréversible ! Toutes les annonces et données seront supprimées.
-            </p>
+            <p className="text-xs text-red-500 font-bold mb-4">⚠️ Cette action est irréversible !</p>
             <div className="flex gap-3">
               <button onClick={() => handleDelete(deleteModal.id)}
-                className="flex-1 py-2.5 rounded-btn bg-red-500 text-white font-bold text-sm hover:bg-red-600 flex items-center justify-center gap-2">
+                className="flex-1 py-2.5 rounded-btn bg-red-500 text-white font-bold text-sm flex items-center justify-center gap-2">
                 <Trash2 size={16} /> Supprimer définitivement
               </button>
-              <button onClick={() => setDeleteModal(null)}
-                className="btn-secondary flex-1 py-2.5">Annuler</button>
+              <button onClick={() => setDeleteModal(null)} className="btn-secondary flex-1 py-2.5">Annuler</button>
             </div>
           </div>
         </div>
@@ -681,9 +698,7 @@ function ListingsAdmin() {
       await api.put(`/admin/listings/${id}/status`, { status });
       toast.success('Statut mis à jour');
       fetchListings();
-    } catch (e) {
-      toast.error('Erreur');
-    }
+    } catch (e) { toast.error('Erreur'); }
   };
 
   const handleDelete = async (id) => {
@@ -692,9 +707,7 @@ function ListingsAdmin() {
       toast.success('Annonce supprimée définitivement');
       setDeleteModal(null);
       fetchListings();
-    } catch (e) {
-      toast.error('Erreur suppression');
-    }
+    } catch (e) { toast.error('Erreur suppression'); }
   };
 
   const filtered = listings
@@ -706,9 +719,7 @@ function ListingsAdmin() {
   return (
     <div className="space-y-4 animate-fade-in">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <h2 className="font-display font-bold text-[#0F172A] dark:text-white">
-          Toutes les annonces ({listings.length})
-        </h2>
+        <h2 className="font-display font-bold text-[#0F172A] dark:text-white">Toutes les annonces ({listings.length})</h2>
         <div className="flex items-center gap-2 flex-wrap">
           <div className="relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
@@ -771,9 +782,7 @@ function ListingsAdmin() {
                       l.status === 'rejected' ? 'bg-red-100 text-red-500' :
                       'bg-[#F5F5F7] text-[#94A3B8]'
                     }`}>
-                      {l.status === 'active' ? '✅ Actif' :
-                       l.status === 'pending' ? '⏳ En attente' :
-                       l.status === 'rejected' ? '❌ Rejeté' : '⏸ Inactif'}
+                      {l.status === 'active' ? '✅ Actif' : l.status === 'pending' ? '⏳ En attente' : l.status === 'rejected' ? '❌ Rejeté' : '⏸ Inactif'}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -784,18 +793,18 @@ function ListingsAdmin() {
                       </a>
                       {l.status !== 'active' && (
                         <button onClick={() => handleStatus(l.id, 'active')}
-                          className="p-1.5 rounded-lg bg-[#EBF5ED] text-[#3A7D44] hover:bg-[#3A7D44] hover:text-white transition-colors" title="Activer">
+                          className="p-1.5 rounded-lg bg-[#EBF5ED] text-[#3A7D44] hover:bg-[#3A7D44] hover:text-white transition-colors">
                           <CheckCircle size={14} />
                         </button>
                       )}
                       {l.status === 'active' && (
                         <button onClick={() => handleStatus(l.id, 'inactive')}
-                          className="p-1.5 rounded-lg bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-orange-50 text-[#64748B] hover:text-orange-500 transition-colors" title="Désactiver">
+                          className="p-1.5 rounded-lg bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-orange-50 text-[#64748B] hover:text-orange-500 transition-colors">
                           <XCircle size={14} />
                         </button>
                       )}
                       <button onClick={() => setDeleteModal(l)}
-                        className="p-1.5 rounded-lg bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-red-50 text-[#64748B] hover:text-red-500 transition-colors" title="Supprimer définitivement">
+                        className="p-1.5 rounded-lg bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-red-50 text-[#64748B] hover:text-red-500 transition-colors">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -807,19 +816,17 @@ function ListingsAdmin() {
         </div>
       </div>
 
-      {/* Modal suppression annonce */}
       {deleteModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-6 max-w-md w-full animate-scale-in">
             <h3 className="font-display font-bold text-red-500 mb-2">⚠️ Supprimer définitivement</h3>
             <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl mb-4">
               <p className="font-bold text-[#0F172A] dark:text-white">{deleteModal.title}</p>
-              <p className="text-xs text-[#64748B] dark:text-[#94A3B8]">{deleteModal.city}</p>
             </div>
             <p className="text-xs text-red-500 font-bold mb-4">⚠️ Cette action est irréversible !</p>
             <div className="flex gap-3">
               <button onClick={() => handleDelete(deleteModal.id)}
-                className="flex-1 py-2.5 rounded-btn bg-red-500 text-white font-bold text-sm hover:bg-red-600 flex items-center justify-center gap-2">
+                className="flex-1 py-2.5 rounded-btn bg-red-500 text-white font-bold text-sm flex items-center justify-center gap-2">
                 <Trash2 size={16} /> Supprimer
               </button>
               <button onClick={() => setDeleteModal(null)} className="btn-secondary flex-1 py-2.5">Annuler</button>
@@ -870,16 +877,12 @@ function WriteToUsers() {
   return (
     <div className="space-y-4 animate-fade-in">
       <h2 className="font-display font-bold text-[#0F172A] dark:text-white">✉️ Écrire à un utilisateur</h2>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Sélection utilisateur */}
         <div className="card p-5">
-          <h3 className="font-bold text-sm text-[#0F172A] dark:text-white mb-3">
-            1. Choisir le destinataire
-          </h3>
+          <h3 className="font-bold text-sm text-[#0F172A] dark:text-white mb-3">1. Choisir le destinataire</h3>
           <div className="relative mb-3">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
-            <input type="text" placeholder="Rechercher un utilisateur..." value={search}
+            <input type="text" placeholder="Rechercher..." value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="input-field pl-8 py-2 text-xs" />
           </div>
@@ -892,26 +895,23 @@ function WriteToUsers() {
                 <div className="w-8 h-8 rounded-full bg-[#3A7D44] text-white flex items-center justify-center font-bold text-xs shrink-0">
                   {u.full_name?.charAt(0).toUpperCase()}
                 </div>
-                <div className="min-w-0">
-                  <div className="font-medium text-xs text-[#0F172A] dark:text-white truncate">{u.full_name}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-xs text-[#0F172A] dark:text-white truncate">
+                    {u.full_name} {u.is_super_admin && '👑'}
+                  </div>
                   <div className="text-xs text-[#64748B] dark:text-[#94A3B8] truncate">{u.email}</div>
                 </div>
-                {selected?.id === u.id && <span className="ml-auto text-[#3A7D44] font-bold shrink-0">✓</span>}
+                {selected?.id === u.id && <span className="text-[#3A7D44] font-bold">✓</span>}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Formulaire message */}
         <div className="card p-5">
-          <h3 className="font-bold text-sm text-[#0F172A] dark:text-white mb-3">
-            2. Rédiger le message
-          </h3>
+          <h3 className="font-bold text-sm text-[#0F172A] dark:text-white mb-3">2. Rédiger le message</h3>
           {selected ? (
             <div className="mb-3 p-2 bg-[#EBF5ED] dark:bg-[#2A2A2A] rounded-lg">
-              <p className="text-xs font-bold text-[#3A7D44]">
-                À : {selected.full_name} ({selected.email})
-              </p>
+              <p className="text-xs font-bold text-[#3A7D44]">À : {selected.full_name} ({selected.email})</p>
             </div>
           ) : (
             <div className="mb-3 p-2 bg-[#F5F5F7] dark:bg-[#2A2A2A] rounded-lg">
@@ -919,18 +919,12 @@ function WriteToUsers() {
             </div>
           )}
           <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium text-[#334155] dark:text-[#94A3B8] mb-1">Sujet</label>
-              <input type="text" value={form.subject}
-                onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                placeholder="Ex: Information importante" className="input-field text-sm" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-[#334155] dark:text-[#94A3B8] mb-1">Message</label>
-              <textarea value={form.message}
-                onChange={(e) => setForm({ ...form, message: e.target.value })}
-                placeholder="Votre message..." className="input-field min-h-[150px] resize-none text-sm" rows={6} />
-            </div>
+            <input type="text" value={form.subject}
+              onChange={(e) => setForm({ ...form, subject: e.target.value })}
+              placeholder="Sujet" className="input-field text-sm" />
+            <textarea value={form.message}
+              onChange={(e) => setForm({ ...form, message: e.target.value })}
+              placeholder="Votre message..." className="input-field min-h-[150px] resize-none text-sm" rows={6} />
             <button onClick={handleSend} disabled={loading || !selected}
               className="btn-primary w-full py-3 flex items-center justify-center gap-2">
               {loading
