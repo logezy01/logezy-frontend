@@ -542,58 +542,53 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Visuel droit — Maison 3D */}
-          <div className="hero-img hidden lg:flex items-center justify-center relative" style={{ perspective: '1200px' }}>
+{/* Visuel droit — Stats premium */}
+<div className="hero-img hidden lg:flex flex-col gap-4 items-end justify-center relative">
 
-            {/* Fond radial */}
-            <div className="absolute inset-0 rounded-full" style={{ background: 'radial-gradient(circle, rgba(58,125,68,0.2) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+  {/* Carte principale */}
+  <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(58,125,68,0.3)', borderRadius: 20, padding: '24px', minWidth: 280 }}>
+    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, marginBottom: 8 }}>🏠 Annonces disponibles</div>
+    <div style={{ color: '#4ade80', fontSize: 42, fontWeight: 900, lineHeight: 1 }}>500+</div>
+    <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 4 }}>dans 12 villes du Bénin</div>
+    <div style={{ marginTop: 16, display: 'flex', gap: 6 }}>
+      {['Cotonou', 'Porto-Novo', 'Parakou'].map(c => (
+        <span key={c} style={{ fontSize: 10, background: 'rgba(58,125,68,0.2)', color: '#4ade80', border: '1px solid rgba(58,125,68,0.3)', borderRadius: 100, padding: '4px 10px', fontWeight: 600 }}>
+          {c}
+        </span>
+      ))}
+    </div>
+  </div>
 
-            {/* Maison principale */}
-            <div style={{
-              width: 320, height: 280,
-              transform: `rotateX(${mousePos.y * 0.3}deg) rotateY(${mousePos.x * 0.3}deg)`,
-              transition: 'transform 0.1s ease',
-              transformStyle: 'preserve-3d',
-              animation: 'float3d 4s ease-in-out infinite',
-            }}>
-              <House3D />
-            </div>
+  {/* Carte satisfaction */}
+  <FloatingCard delay={0.5} style={{ alignSelf: 'flex-start' }}>
+    <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 16, padding: '16px 20px', minWidth: 200 }}>
+      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, marginBottom: 6 }}>⭐ Satisfaction clients</div>
+      <div style={{ display: 'flex', gap: 2, marginBottom: 4 }}>
+        {[...Array(5)].map((_, i) => <span key={i} style={{ color: '#FCD34D', fontSize: 16 }}>★</span>)}
+      </div>
+      <div style={{ color: 'white', fontSize: 22, fontWeight: 900 }}>98%</div>
+    </div>
+  </FloatingCard>
 
-            {/* Cartes flottantes autour */}
-            <FloatingCard delay={0} style={{ position: 'absolute', top: '5%', left: '-5%' }}>
-              <div style={{ background: 'rgba(10,20,15,0.9)', backdropFilter: 'blur(20px)', border: '1px solid rgba(58,125,68,0.3)', borderRadius: 16, padding: '12px 16px', minWidth: 160 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80', animation: 'pulse 2s infinite' }} />
-                  <span style={{ color: '#4ade80', fontSize: 11, fontWeight: 700 }}>NOUVELLE</span>
-                </div>
-                <div style={{ color: 'white', fontSize: 13, fontWeight: 700 }}>Villa Cotonou</div>
-                <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>250 000 FCFA/mois</div>
-              </div>
-            </FloatingCard>
+  {/* Carte nouvelle annonce */}
+  <FloatingCard delay={1}>
+    <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 16, padding: '14px 18px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} className="animate-pulse" />
+        <span style={{ color: '#4ade80', fontSize: 11, fontWeight: 700 }}>EN DIRECT</span>
+      </div>
+      <div style={{ color: 'white', fontSize: 13, fontWeight: 700, marginTop: 4 }}>🔥 +12 annonces aujourd'hui</div>
+    </div>
+  </FloatingCard>
 
-            <FloatingCard delay={1} style={{ position: 'absolute', bottom: '10%', right: '-8%' }}>
-              <div style={{ background: 'rgba(10,20,15,0.9)', backdropFilter: 'blur(20px)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 16, padding: '12px 16px', minWidth: 150 }}>
-                <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, marginBottom: 4 }}>🏆 Satisfaction</div>
-                <div style={{ display: 'flex', gap: 2, marginBottom: 4 }}>
-                  {[...Array(5)].map((_, i) => <span key={i} style={{ color: '#FCD34D', fontSize: 14 }}>★</span>)}
-                </div>
-                <div style={{ color: 'white', fontSize: 13, fontWeight: 700 }}>98% clients satisfaits</div>
-              </div>
-            </FloatingCard>
-
-            <FloatingCard delay={0.5} style={{ position: 'absolute', top: '40%', right: '-12%' }}>
-              <div style={{ background: 'rgba(10,20,15,0.9)', backdropFilter: 'blur(20px)', border: '1px solid rgba(58,125,68,0.3)', borderRadius: 16, padding: '10px 14px' }}>
-                <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, marginBottom: 2 }}>📍 Villes couvertes</div>
-                <div style={{ color: '#4ade80', fontSize: 22, fontWeight: 900 }}>12</div>
-              </div>
-            </FloatingCard>
-
-            <FloatingCard delay={1.5} style={{ position: 'absolute', top: '15%', right: '5%' }}>
-              <div style={{ background: 'rgba(245,158,11,0.15)', backdropFilter: 'blur(20px)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 12, padding: '8px 12px' }}>
-                <div style={{ color: '#FCD34D', fontSize: 11, fontWeight: 700 }}>🔥 +12 annonces aujourd'hui</div>
-              </div>
-            </FloatingCard>
-          </div>
+  {/* Carte utilisateurs */}
+  <FloatingCard delay={1.5} style={{ alignSelf: 'flex-start' }}>
+    <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 16, padding: '14px 18px' }}>
+      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, marginBottom: 4 }}>👥 Utilisateurs actifs</div>
+      <div style={{ color: '#a78bfa', fontSize: 24, fontWeight: 900 }}>1 000+</div>
+    </div>
+  </FloatingCard>
+</div>
         </div>
 
         {/* Indicateurs slider */}

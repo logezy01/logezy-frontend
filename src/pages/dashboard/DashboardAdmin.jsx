@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
+import SwipeValidation from '../../components/admin/SwipeValidation';
 
 const MENU = [
   { path: '/dashboard/admin', icon: '📊', label: 'Vue générale' },
@@ -208,6 +209,7 @@ function ValidationListings() {
   const [loading, setLoading] = useState(true);
   const [rejectModal, setRejectModal] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [swipeMode, setSwipeMode] = useState(false);
 
   const fetchListings = async () => {
     try {
@@ -244,73 +246,125 @@ function ValidationListings() {
     }
   };
 
-  if (loading) return <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="card h-32 animate-pulse" />)}</div>;
+  if (loading) return (
+    <div className="space-y-3">
+      {[...Array(3)].map((_, i) => <div key={i} className="card h-32 animate-pulse" />)}
+    </div>
+  );
 
   return (
     <div className="space-y-4 animate-fade-in">
+
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="font-display font-bold text-[#0F172A] dark:text-white">
           Annonces en attente ({listings.length})
         </h2>
-        {listings.length > 0 && (
-          <span className="text-xs bg-yellow-100 text-yellow-700 font-bold px-3 py-1 rounded-full animate-pulse">
-            ⚠️ {listings.length} à valider
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {listings.length > 0 && (
+            <span className="text-xs bg-yellow-100 text-yellow-700 font-bold px-3 py-1 rounded-full animate-pulse">
+              ⚠️ {listings.length} à valider
+            </span>
+          )}
+          {listings.length > 0 && (
+            <button onClick={() => setSwipeMode(!swipeMode)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                swipeMode
+                  ? 'bg-[#3A7D44] text-white shadow-lg'
+                  : 'bg-[#F5F5F7] dark:bg-[#2A2A2A] text-[#64748B] hover:bg-[#EBF5ED] hover:text-[#3A7D44]'
+              }`}>
+              {swipeMode ? '📋 Vue liste' : '👆 Mode Swipe'}
+            </button>
+          )}
+        </div>
       </div>
 
-      {listings.length === 0 ? (
-        <div className="card p-12 text-center text-[#94A3B8]">
-          <span className="text-5xl block mb-3">✅</span>
-          <p className="font-medium dark:text-white">Aucune annonce en attente</p>
-        </div>
+      {/* Mode Swipe */}
+      {swipeMode && listings.length > 0 ? (
+        <SwipeValidation
+          listings={listings}
+          onApprove={async (id) => {
+            await api.put(`/admin/listings/${id}/approve`);
+            toast.success('✅ Annonce approuvée !');
+          }}
+          onReject={async (id) => {
+            await api.put(`/admin/listings/${id}/reject`, { reason: 'Rejeté via mode swipe' });
+            toast.error('❌ Annonce rejetée');
+          }}
+          onAllDone={() => {
+            setSwipeMode(false);
+            fetchListings();
+          }}
+        />
       ) : (
-        <div className="space-y-4">
-          {listings.map(l => (
-            <div key={l.id} className="card p-5 border-l-4 border-yellow-400">
-              <div className="flex flex-col md:flex-row md:items-start gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs bg-[#FEF3C7] text-yellow-700 font-bold px-2 py-0.5 rounded-full">⏳ En attente</span>
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${l.type === 'location' ? 'bg-blue-100 text-blue-600' : 'bg-[#FEF3C7] text-yellow-700'}`}>
-                      {l.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
-                    </span>
-                  </div>
-                  <h3 className="font-bold text-[#0F172A] dark:text-white mb-1">{l.title}</h3>
-                  <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mb-2">📍 {l.city} {l.neighborhood && `· ${l.neighborhood}`}</p>
-                  {l.description && <p className="text-sm text-[#64748B] dark:text-[#94A3B8] line-clamp-2 mb-2">{l.description}</p>}
-                  <div className="flex flex-wrap gap-3 text-xs text-[#64748B] dark:text-[#94A3B8]">
-                    <span>💰 {new Intl.NumberFormat('fr-FR').format(l.price)} FCFA{l.price_period ? `/${l.price_period}` : ''}</span>
-                    {l.bedrooms > 0 && <span>🛏 {l.bedrooms} ch.</span>}
-                    {l.area && <span>📐 {l.area}m²</span>}
-                  </div>
-                  <div className="mt-2 p-2 bg-[#F5F5F7] dark:bg-[#2A2A2A] rounded-lg">
-                    <p className="text-xs text-[#64748B] dark:text-[#94A3B8]">
-                      👤 <strong className="text-[#0F172A] dark:text-white">{l.users?.full_name}</strong>
-                      {l.users?.email && ` (${l.users.email})`}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex md:flex-col gap-2">
-                  <a href={`/annonces/${l.id}`} target="_blank"
-                    className="p-2 rounded-xl bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors">
-                    <Eye size={16} />
-                  </a>
-                  <button onClick={() => handleApprove(l.id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#3A7D44] text-white rounded-xl text-sm font-bold hover:bg-[#2D6235] transition-colors">
-                    <CheckCircle size={16} /> Approuver
-                  </button>
-                  <button onClick={() => setRejectModal(l)}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-500 rounded-xl text-sm font-bold hover:bg-red-100 transition-colors">
-                    <XCircle size={16} /> Rejeter
-                  </button>
-                </div>
-              </div>
+        <>
+          {/* Vue liste classique */}
+          {listings.length === 0 ? (
+            <div className="card p-12 text-center text-[#94A3B8]">
+              <span className="text-5xl block mb-3">✅</span>
+              <p className="font-medium dark:text-white">Aucune annonce en attente</p>
+              <p className="text-sm mt-1">Toutes les annonces ont été traitées</p>
             </div>
-          ))}
-        </div>
+          ) : (
+            <div className="space-y-4">
+              {listings.map(l => (
+                <div key={l.id} className="card p-5 border-l-4 border-yellow-400">
+                  <div className="flex flex-col md:flex-row md:items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs bg-[#FEF3C7] text-yellow-700 font-bold px-2 py-0.5 rounded-full">
+                          ⏳ En attente
+                        </span>
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                          l.type === 'location' ? 'bg-blue-100 text-blue-600' : 'bg-[#FEF3C7] text-yellow-700'
+                        }`}>
+                          {l.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
+                        </span>
+                      </div>
+                      <h3 className="font-bold text-[#0F172A] dark:text-white mb-1">{l.title}</h3>
+                      <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mb-2">
+                        📍 {l.city} {l.neighborhood && `· ${l.neighborhood}`}
+                      </p>
+                      {l.description && (
+                        <p className="text-sm text-[#64748B] dark:text-[#94A3B8] line-clamp-2 mb-2">
+                          {l.description}
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-3 text-xs text-[#64748B] dark:text-[#94A3B8]">
+                        <span>💰 {new Intl.NumberFormat('fr-FR').format(l.price)} FCFA{l.price_period ? `/${l.price_period}` : ''}</span>
+                        {l.bedrooms > 0 && <span>🛏 {l.bedrooms} ch.</span>}
+                        {l.area && <span>📐 {l.area}m²</span>}
+                      </div>
+                      <div className="mt-2 p-2 bg-[#F5F5F7] dark:bg-[#2A2A2A] rounded-lg">
+                        <p className="text-xs text-[#64748B] dark:text-[#94A3B8]">
+                          👤 <strong className="text-[#0F172A] dark:text-white">{l.users?.full_name}</strong>
+                          {l.users?.email && ` (${l.users.email})`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex md:flex-col gap-2">
+                      <a href={`/annonces/${l.id}`} target="_blank"
+                        className="p-2 rounded-xl bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors">
+                        <Eye size={16} />
+                      </a>
+                      <button onClick={() => handleApprove(l.id)}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#3A7D44] text-white rounded-xl text-sm font-bold hover:bg-[#2D6235] transition-colors">
+                        <CheckCircle size={16} /> Approuver
+                      </button>
+                      <button onClick={() => setRejectModal(l)}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-500 rounded-xl text-sm font-bold hover:bg-red-100 transition-colors">
+                        <XCircle size={16} /> Rejeter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
+      {/* Modal rejet */}
       {rejectModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-6 max-w-md w-full animate-scale-in">
