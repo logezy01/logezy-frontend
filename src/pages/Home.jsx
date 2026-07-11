@@ -430,7 +430,7 @@ export default function Home() {
         </div>
 
         {/* Particules 3D */}
-        <ParticlesCanvas />
+        
 
         {/* Grille futuriste */}
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1,
