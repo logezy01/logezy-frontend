@@ -30,10 +30,87 @@
   ::-webkit-scrollbar-thumb:hover { background: #3A7D44; }
 
   /* MODE SOMBRE */
-  .dark body {
-    background-color: #0F0F0F;
-    color: #F1F5F9;
-  }
+/* MODE SOMBRE — Global */
+.dark body {
+  background-color: #080B14 !important;
+  color: #F1F5F9 !important;
+}
+
+.dark ::-webkit-scrollbar-track { background: #1A1A1A; }
+
+/* Tous les fonds blancs deviennent sombres */
+.dark .bg-white { background-color: #1A1A1A !important; }
+.dark .bg-\[\#F8F9FA\] { background-color: #080B14 !important; }
+.dark .bg-\[\#F8FAFC\] { background-color: #080B14 !important; }
+.dark .bg-\[\#F5F5F7\] { background-color: #111827 !important; }
+.dark .bg-\[\#F0F4F8\] { background-color: #080B14 !important; }
+
+/* Textes */
+.dark .text-\[\#0F172A\] { color: #F1F5F9 !important; }
+.dark .text-\[\#334155\] { color: #CBD5E1 !important; }
+.dark .text-\[\#64748B\] { color: #94A3B8 !important; }
+
+/* Bordures */
+.dark .border-\[\#E8E8E8\] { border-color: #2A2A2A !important; }
+.dark .border-\[\#E2E8F0\] { border-color: #2A2A2A !important; }
+
+/* Sections spécifiques Home */
+.dark section { background-color: transparent; }
+
+/* Stats band */
+.dark .bg-white.border-b { background-color: #111827 !important; }
+
+/* Cards annonces */
+.dark .card {
+  background-color: #1A1A1A !important;
+  border-color: #2A2A2A !important;
+}
+
+/* Section pourquoi Logezy - déjà dark, on garde */
+/* Section villes */
+.dark .city-card {
+  background-color: #1A1A1A !important;
+  border-color: #2A2A2A !important;
+}
+.dark .city-card:hover {
+  border-color: rgba(58,125,68,0.4) !important;
+}
+
+/* Footer */
+.dark footer { background-color: #030810 !important; }
+
+/* Navbar */
+.dark nav,
+.dark header:not(.header-glass) {
+  background-color: #080B14 !important;
+  border-color: #2A2A2A !important;
+}
+
+/* Inputs */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #1A1A1A !important;
+  border-color: #2A2A2A !important;
+  color: #F1F5F9 !important;
+}
+
+/* Modals */
+.dark .fixed .bg-white {
+  background-color: #1A1A1A !important;
+}
+
+/* Boutons secondaires */
+.dark .bg-\[\#F5F5F7\] {
+  background-color: #1A1A1A !important;
+}
+.dark .bg-\[\#EBF5ED\] {
+  background-color: rgba(58,125,68,0.15) !important;
+}
+
+/* Textes sur fond coloré — garder lisibles */
+.dark .text-white { color: #ffffff !important; }
+.dark .text-emerald-400 { color: #4ade80 !important; }
   .dark ::-webkit-scrollbar-track { background: #1A1A1A; }
 }
 
