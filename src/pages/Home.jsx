@@ -617,27 +617,7 @@ export default function Home() {
         {/* Fond animé */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(58,125,68,0.02) 0%, transparent 50%, rgba(59,130,246,0.02) 100%)', animation: 'moveGradient 8s ease infinite', backgroundSize: '200% 200%' }} />
         <div className="max-w-5xl mx-auto px-6 py-14 relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { target: 500, suffix: '+', label: 'Annonces actives', icon: '🏠', color: '#3A7D44', bg: 'rgba(58,125,68,0.08)' },
-              { target: 12, suffix: '', label: 'Villes couvertes', icon: '📍', color: '#3B82F6', bg: 'rgba(59,130,246,0.08)' },
-              { target: 1000, suffix: '+', label: 'Utilisateurs', icon: '👥', color: '#F59E0B', bg: 'rgba(245,158,11,0.08)' },
-              { target: 98, suffix: '%', label: 'Satisfaction', icon: '⭐', color: '#8B5CF6', bg: 'rgba(139,92,246,0.08)' },
-            ].map((stat, i) => (
-              <AnimatedSection key={i} delay={i * 100}>
-                <div className="card-3d text-center p-6 rounded-2xl cursor-default"
-                  style={{ background: stat.bg, border: `1px solid ${stat.color}20` }}>
-                  <div className="text-3xl mb-3" style={{ animation: `float3d ${3 + i * 0.5}s ease-in-out infinite` }}>
-                    {stat.icon}
-                  </div>
-                  <div style={{ fontSize: '2.5rem', fontWeight: 900, color: stat.color, lineHeight: 1 }}>
-                    <Counter target={stat.target} suffix={stat.suffix} />
-                  </div>
-                  <div style={{ fontSize: 13, color: '#64748B', marginTop: 6, fontWeight: 500 }}>{stat.label}</div>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
+
         </div>
       </section>
 
