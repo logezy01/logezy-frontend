@@ -123,7 +123,7 @@ export default function ListingCard({ listing }) {
               {new Intl.NumberFormat('fr-FR').format(listing.price)}
             </div>
             <div className="text-xs text-[#94A3B8] mt-0.5">
-              FCFA{listing.price_period ? `/${listing.price_period}` : ''}
+              FCFA{listing.type === 'location' && listing.price_period && `/${listing.price_period}`}
             </div>
           </div>
 
