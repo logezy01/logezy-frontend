@@ -20,7 +20,7 @@ export default function Login() {
     try {
       const res = await api.post('/auth/login', form);
       login(res.data.user, res.data.token);
-      toast.success(`Bienvenue ${res.data.user.full_name} ! 👋`);
+      toast.success(`Bienvenue ${res.data.user.full_name} !!`);
       switch (res.data.user.role) {
         case 'proprietaire': navigate('/dashboard/proprietaire'); break;
         case 'agent': navigate('/dashboard/agent'); break;

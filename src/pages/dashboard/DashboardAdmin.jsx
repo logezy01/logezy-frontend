@@ -37,7 +37,7 @@ function StatCard({ emoji, label, value, color = 'green', loading, urgent }) {
         {emoji}
       </div>
       <div className={`font-display font-black text-3xl ${textColors[color]} ${loading ? 'animate-pulse' : ''}`}>
-        {loading ? '...' : value}
+        {loading ? '...👣' : value}
       </div>
       <div className="text-sm text-[#64748B] dark:text-[#94A3B8] mt-1">{label}</div>
       {urgent && value > 0 && (
