@@ -1,33 +1,42 @@
+import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import useAuthStore from './store/authStore';
 import BottomNav from './components/common/BottomNav';
 import CompareBar from './components/common/CompareBar';
 import ChatBot from './components/common/ChatBot';
-import HowItWorks from './pages/HowItWorks';
-import AuthCallback from './pages/auth/AuthCallback';
-import GoogleComplete from './pages/auth/GoogleComplete';
-import VerifyEmail from './pages/auth/VerifyEmail';
 
-// Pages publiques
-import Home from './pages/Home';
-import Listings from './pages/Listings';
-import ListingDetail from './pages/ListingDetail';
-import Privacy from './pages/Privacy';
-import Settings from './pages/Settings';
-import Compare from './pages/Compare';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Terms from './pages/Terms';
+// Lazy loading — chaque page est chargée seulement quand nécessaire
+const Home = lazy(() => import('./pages/Home'));
+const Listings = lazy(() => import('./pages/Listings'));
+const ListingDetail = lazy(() => import('./pages/ListingDetail'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Compare = lazy(() => import('./pages/Compare'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Terms = lazy(() => import('./pages/Terms'));
+const HowItWorks = lazy(() => import('./pages/HowItWorks'));
+const Login = lazy(() => import('./pages/auth/Login'));
+const Register = lazy(() => import('./pages/auth/Register'));
+const VerifyEmail = lazy(() => import('./pages/auth/VerifyEmail'));
+const AuthCallback = lazy(() => import('./pages/auth/AuthCallback'));
+const GoogleComplete = lazy(() => import('./pages/auth/GoogleComplete'));
+const DashboardOwner = lazy(() => import('./pages/dashboard/DashboardOwner'));
+const DashboardAgent = lazy(() => import('./pages/dashboard/DashboardAgent'));
+const DashboardTenant = lazy(() => import('./pages/dashboard/DashboardTenant'));
+const DashboardAdmin = lazy(() => import('./pages/dashboard/DashboardAdmin'));
 
-// Auth
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-
-// Dashboards
-import DashboardOwner from './pages/dashboard/DashboardOwner';
-import DashboardAgent from './pages/dashboard/DashboardAgent';
-import DashboardTenant from './pages/dashboard/DashboardTenant';
-import DashboardAdmin from './pages/dashboard/DashboardAdmin';
+// Composant de chargement pendant le lazy loading
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#080B14]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-4 border-[#EBF5ED] border-t-[#3A7D44] rounded-full animate-spin" />
+        <p className="text-sm text-[#94A3B8] font-medium">Chargement...</p>
+      </div>
+    </div>
+  );
+}
 
 const ProtectedRoute = ({ children, roles }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -38,9 +47,8 @@ const ProtectedRoute = ({ children, roles }) => {
 
 export default function App() {
   return (
-    <>
+    <Suspense fallback={<PageLoader />}>
       <Routes>
-        {/* Pages publiques */}
         <Route path="/" element={<Home />} />
         <Route path="/annonces" element={<Listings />} />
         <Route path="/annonces/:id" element={<ListingDetail />} />
@@ -50,51 +58,31 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/comparer" element={<Compare />} />
         <Route path="/comment-ca-marche" element={<HowItWorks />} />
-
-        {/* Paramètres protégé */}
         <Route path="/parametres" element={
-          <ProtectedRoute>
-            <Settings />
-          </ProtectedRoute>
+          <ProtectedRoute><Settings /></ProtectedRoute>
         } />
-
-        {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/auth/verify-email" element={<VerifyEmail />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/auth/complete" element={<GoogleComplete />} />
-        <Route path="/auth/verify-email" element={<VerifyEmail />} />
-
-        {/* Dashboards protégés */}
         <Route path="/dashboard/proprietaire/*" element={
-          <ProtectedRoute roles={['proprietaire']}>
-            <DashboardOwner />
-          </ProtectedRoute>
+          <ProtectedRoute roles={['proprietaire']}><DashboardOwner /></ProtectedRoute>
         } />
         <Route path="/dashboard/agent/*" element={
-          <ProtectedRoute roles={['agent']}>
-            <DashboardAgent />
-          </ProtectedRoute>
+          <ProtectedRoute roles={['agent']}><DashboardAgent /></ProtectedRoute>
         } />
         <Route path="/dashboard/locataire/*" element={
-          <ProtectedRoute roles={['locataire']}>
-            <DashboardTenant />
-          </ProtectedRoute>
+          <ProtectedRoute roles={['locataire']}><DashboardTenant /></ProtectedRoute>
         } />
         <Route path="/dashboard/admin/*" element={
-          <ProtectedRoute roles={['admin']}>
-            <DashboardAdmin />
-          </ProtectedRoute>
+          <ProtectedRoute roles={['admin']}><DashboardAdmin /></ProtectedRoute>
         } />
-
-        {/* Redirect 404 */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-
-      {/* Composants globaux */}
       <BottomNav />
       <CompareBar />
       <ChatBot />
-    </>
+    </Suspense>
   );
 }
