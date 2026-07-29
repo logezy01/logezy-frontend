@@ -1,45 +1,68 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="google-site-verification" content="fhBspY8a4aKWCkx2bf07D3yhhjbngWnmHaYoehLXpaA" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Theme color (barre navigateur mobile) -->
     <meta name="theme-color" content="#3A7D44" />
+    <meta name="msapplication-TileColor" content="#3A7D44" />
+
+    <!-- PWA / Mobile -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Logezy" />
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="google" content="notranslate" />
 
     <!-- SEO Principal -->
-    <meta name="description" content="Logezy — N°1 de l'immobilier au Bénin. Trouvez des maisons à louer ou à acheter à Cotonou, Porto-Novo, Parakou et partout au Bénin. Annonces vérifiées, chat direct avec les propriétaires." />
-    <meta name="keywords" content="immobilier bénin, maison à louer cotonou, appartement bénin, location bénin, vente maison bénin, logezy, immobilier cotonou, maison porto-novo, terrain bénin" />
-    <meta name="author" content="Logezy" />
+    <title>Logezy — N°1 de l'immobilier au Bénin</title>
+    <meta name="title" content="Logezy — Trouvez votre maison idéale au Bénin" />
+    <meta name="description" content="Plateforme immobilière digitale au Bénin. Trouvez des annonces vérifiées de maisons, appartements et villas à louer ou acheter à Cotonou, Porto-Novo, Parakou et partout au Bénin." />
+    <meta name="keywords" content="immobilier Bénin, location Cotonou, appartement Porto-Novo, maison Bénin, villa Cotonou, location appartement Bénin, acheter maison Bénin, Logezy" />
+    <meta name="author" content="Logezy — MIRACLE DIGITAL" />
     <meta name="robots" content="index, follow" />
-    <meta name="language" content="French" />
-    <meta name="revisit-after" content="7 days" />
+    <link rel="canonical" href="https://logezy-frontend.vercel.app/" />
 
-    <!-- Open Graph (Facebook, WhatsApp) -->
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://logezy-frontend.vercel.app" />
-    <meta property="og:title" content="Logezy — N°1 de l'immobilier au Bénin" />
-    <meta property="og:description" content="Trouvez des maisons à louer ou à acheter au Bénin. Des milliers d'annonces vérifiées à Cotonou, Porto-Novo, Parakou et partout au Bénin." />
-    <meta property="og:image" content="https://logezy-frontend.vercel.app/logo-light.png" />
-    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:url" content="https://logezy-frontend.vercel.app/" />
     <meta property="og:site_name" content="Logezy" />
+    <meta property="og:title" content="Logezy — Trouvez votre maison idéale au Bénin" />
+    <meta property="og:description" content="Des milliers d'annonces vérifiées à louer ou acheter dans toutes les villes du Bénin. Votre maison idéale n'a jamais été aussi proche." />
+    <meta property="og:image" content="https://logezy-frontend.vercel.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="fr_BJ" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Logezy — N°1 de l'immobilier au Bénin" />
-    <meta name="twitter:description" content="Trouvez des maisons à louer ou à acheter au Bénin. Des milliers d'annonces vérifiées." />
-    <meta name="twitter:image" content="https://logezy-frontend.vercel.app/logo-light.png" />
+    <meta name="twitter:url" content="https://logezy-frontend.vercel.app/" />
+    <meta name="twitter:title" content="Logezy — Trouvez votre maison idéale au Bénin" />
+    <meta name="twitter:description" content="Des milliers d'annonces vérifiées à louer ou acheter dans toutes les villes du Bénin." />
+    <meta name="twitter:image" content="https://logezy-frontend.vercel.app/og-image.png" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/logo-light.png" />
-    <link rel="apple-touch-icon" href="/logo-light.png" />
+    <!-- Google Verification -->
+    <meta name="google-site-verification" content="ton-code-google-search-console" />
 
-    <title>Logezy — Votre maison, en toute confiance au Bénin 🇧🇯</title>
+    <!-- Preconnect (chargement plus rapide des ressources externes) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://qbjrsaofbfpnarsarlqp.supabase.co" />
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
   </head>
-  <body translate="no">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
