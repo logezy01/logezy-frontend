@@ -1,48 +1,72 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { VitePWA } from 'vite-plugin-pwa'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Logezy — Immobilier Bénin',
+        name: 'Logezy',
         short_name: 'Logezy',
-        description: 'Trouvez votre maison au Bénin',
-        theme_color: '#1A6B3C',
+        description: 'N°1 de l\'immobilier au Bénin',
+        theme_color: '#3A7D44',
         background_color: '#ffffff',
         display: 'standalone',
-        orientation: 'portrait',
-        scope: '/',
         start_url: '/',
-        lang: 'fr',
-       icons: [
-  {
-    src: 'icon.svg',
-    sizes: 'any',
-    type: 'image/svg+xml'
-  }
-]
+        icons: [
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+        ],
       },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/logezy-backend\.onrender\.com\/api/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24
-              }
-            }
-          }
-        ]
-      }
-    })
+    }),
   ],
-})
+  build: {
+    // Code splitting automatique
+rollupOptions: {
+  output: {
+    manualChunks: (id) => {
+      if (id.includes('node_modules')) {
+        if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+          return 'vendor-react';
+        }
+        if (id.includes('framer-motion') || id.includes('lucide-react')) {
+          return 'vendor-ui';
+        }
+        if (id.includes('leaflet') || id.includes('react-leaflet')) {
+          return 'vendor-map';
+        }
+        if (id.includes('@supabase')) {
+          return 'vendor-supabase';
+        }
+        if (id.includes('socket.io')) {
+          return 'vendor-socket';
+        }
+        return 'vendor';
+      }
+    },
+  },
+},
+    // Compression
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,    // Supprime tous les console.log en prod
+        drop_debugger: true,   // Supprime les debugger
+      },
+    },
+    // Taille max des chunks avant avertissement
+    chunkSizeWarningLimit: 1000,
+  },
+  // Optimisation des imports
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'axios',
+      'zustand',
+    ],
+  },
+});

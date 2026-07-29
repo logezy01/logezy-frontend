@@ -122,7 +122,7 @@ export default function ListingDetail() {
 
             {/* Galerie */}
             <div className="relative rounded-2xl overflow-hidden">
-              <PhotoGallery images={listing.listing_images || []} title={listing.title} />
+              <PhotoGallery images={listing.listing_images || []} title={listing.title} loading="lazy" />
               <div className="absolute top-4 left-4 flex gap-2 z-10">
                 <span className={`text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-sm ${
                   listing.type === 'location'

@@ -26,6 +26,7 @@ export default function ListingCard({ listing }) {
           <img
             src={coverImage}
             alt={listing.title}
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
