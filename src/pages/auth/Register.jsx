@@ -210,7 +210,7 @@ try {
               <label className="block text-sm font-bold text-[#334155] dark:text-[#94A3B8] mb-2">Mot de passe</label>
               <div className="relative">
                 <Lock size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
-                <input type={showPassword ? 'text' : 'password'} placeholder="Minimum 6 caractères"
+                <input type={showPassword ? 'text' : 'password'} autoComplete="new-password" placeholder="Minimum 6 caractères"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   className="w-full pl-10 pr-12 py-3 rounded-2xl border-2 border-[#E8E8E8] dark:border-[#2A2A2A] bg-white dark:bg-[#1A1A1A] text-[#0F172A] dark:text-white text-sm outline-none focus:border-[#3A7D44] transition-colors placeholder:text-[#C0C0C0]"

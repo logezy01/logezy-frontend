@@ -163,7 +163,7 @@ export default function Login() {
               </label>
               <div className="relative">
                 <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
-                <input type={showPassword ? 'text' : 'password'} placeholder="••••••••"
+                <input type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="••••••••"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   className="w-full pl-11 pr-12 py-3.5 rounded-2xl border-2 border-[#E8E8E8] dark:border-[#2A2A2A] bg-white dark:bg-[#1A1A1A] text-[#0F172A] dark:text-white text-sm outline-none focus:border-[#3A7D44] transition-colors placeholder:text-[#C0C0C0]"

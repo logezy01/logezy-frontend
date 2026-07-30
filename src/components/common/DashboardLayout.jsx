@@ -7,54 +7,59 @@ import toast from 'react-hot-toast';
 
 function Particles({ dark }) {
   const canvasRef = useRef(null);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    const particles = Array.from({ length: 40 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: Math.random() * 2 + 0.5,
-      speedX: (Math.random() - 0.5) * 0.4,
-      speedY: (Math.random() - 0.5) * 0.4,
-      opacity: Math.random() * 0.5 + 0.1,
-    }));
-    let animId;
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const color = dark ? '74, 222, 128' : '58, 125, 68';
-      particles.forEach(p => {
-        p.x += p.speedX;
-        p.y += p.speedY;
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${color}, ${dark ? p.opacity : p.opacity * 0.4})`;
-        ctx.fill();
-      });
-      particles.forEach((p1, i) => {
-        particles.slice(i + 1).forEach(p2 => {
-          const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-          if (dist < 80) {
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(${color}, ${(dark ? 0.08 : 0.04) * (1 - dist / 80)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        });
-      });
-      animId = requestAnimationFrame(animate);
-    };
-    animate();
-    return () => cancelAnimationFrame(animId);
-  }, [dark]);
+useEffect(() => {
+  const canvas = canvasRef.current;
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+
+  // Réduire de 40 à 20 particules pour les performances
+  const particles = Array.from({ length: 20 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 1.5 + 0.5,
+    speedX: (Math.random() - 0.5) * 0.3,
+    speedY: (Math.random() - 0.5) * 0.3,
+    opacity: Math.random() * 0.4 + 0.1,
+  }));
+
+  let animId;
+  let lastTime = 0;
+  const FPS = 30; // Limite à 30 fps au lieu de 60
+  const interval = 1000 / FPS;
+
+  const animate = (timestamp) => {
+    animId = requestAnimationFrame(animate);
+
+    // Throttle — on saute les frames pour rester à 30fps
+    if (timestamp - lastTime < interval) return;
+    lastTime = timestamp;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const color = dark ? '74, 222, 128' : '58, 125, 68';
+
+    particles.forEach(p => {
+      p.x += p.speedX;
+      p.y += p.speedY;
+      if (p.x < 0) p.x = canvas.width;
+      if (p.x > canvas.width) p.x = 0;
+      if (p.y < 0) p.y = canvas.height;
+      if (p.y > canvas.height) p.y = 0;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${color}, ${dark ? p.opacity : p.opacity * 0.3})`;
+      ctx.fill();
+    });
+
+    // Connexions désactivées pour les performances
+    // (supprimées car trop coûteuses en calcul)
+  };
+
+  animate(0);
+  return () => cancelAnimationFrame(animId);
+}, [dark]);
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />;
 }
 
