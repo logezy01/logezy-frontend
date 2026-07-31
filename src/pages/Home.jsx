@@ -6,6 +6,7 @@ import ListingCard from '../components/common/ListingCard';
 import Logo from '../components/common/Logo';
 import api from '../lib/axios';
 import useAuthStore from '../store/authStore';
+import SkeletonCard from '../components/common/SkeletonCard';
 
 // ── Hook InView ───────────────────────────────────────────────
 function useInView(threshold = 0.1) {
@@ -622,50 +623,48 @@ export default function Home() {
       </section>
 
       {/* ══ ANNONCES RÉCENTES ══════════════════════════════════ */}
-      <section className="max-w-7xl mx-auto px-6 py-20">
-        <AnimatedSection>
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <div className="inline-flex items-center gap-2 mb-3 px-3 py-1.5 rounded-full text-xs font-bold"
-                style={{ background: 'rgba(58,125,68,0.1)', color: '#3A7D44', border: '1px solid rgba(58,125,68,0.2)' }}>
-                <Zap size={12} />
-                Nouvelles annonces
-              </div>
-              <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, color: '#0F172A', lineHeight: 1.1 }}>
-                Annonces récentes
-              </h2>
-              <p style={{ color: '#64748B', marginTop: 8 }}>Les dernières propriétés disponibles au Bénin</p>
-            </div>
-            <Link to="/annonces" className="hidden md:flex items-center gap-2 font-bold text-sm btn-3d px-5 py-2.5 rounded-xl"
-              style={{ color: '#3A7D44', background: 'rgba(58,125,68,0.08)', border: '1px solid rgba(58,125,68,0.2)' }}>
-              Voir tout <ArrowRight size={16} />
-            </Link>
+<section className="max-w-7xl mx-auto px-6 py-20">
+  <AnimatedSection>
+    <div className="flex items-end justify-between mb-10">
+      <div>
+        <div className="inline-flex items-center gap-2 mb-3 px-3 py-1.5 rounded-full text-xs font-bold"
+          style={{ background: 'rgba(58,125,68,0.1)', color: '#3A7D44', border: '1px solid rgba(58,125,68,0.2)' }}>
+          <Zap size={12} />
+          Nouvelles annonces
+        </div>
+        <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, color: '#0F172A', lineHeight: 1.1 }}>
+          Annonces récentes
+        </h2>
+        <p style={{ color: '#64748B', marginTop: 8 }}>Les dernières propriétés disponibles au Bénin</p>
+      </div>
+      <Link to="/annonces" className="hidden md:flex items-center gap-2 font-bold text-sm btn-3d px-5 py-2.5 rounded-xl"
+        style={{ color: '#3A7D44', background: 'rgba(58,125,68,0.08)', border: '1px solid rgba(58,125,68,0.2)' }}>
+        Voir tout <ArrowRight size={16} />
+      </Link>
+    </div>
+  </AnimatedSection>
+
+  {loading ? (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
+    </div>
+  ) : listings.length > 0 ? (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {listings.map((listing, i) => (
+        <AnimatedSection key={listing.id} delay={i * 80}>
+          <div className="card-3d">
+            <ListingCard listing={listing} />
           </div>
         </AnimatedSection>
-
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-2xl h-80 animate-pulse" style={{ background: 'linear-gradient(135deg, #f0f0f0, #e8e8e8)' }} />
-            ))}
-          </div>
-        ) : listings.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {listings.map((listing, i) => (
-              <AnimatedSection key={listing.id} delay={i * 80}>
-                <div className="card-3d">
-                  <ListingCard listing={listing} />
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20" style={{ color: '#94A3B8' }}>
-            <div style={{ fontSize: 64, marginBottom: 16 }}>🏠</div>
-            <p style={{ fontSize: 18, fontWeight: 600 }}>Aucune annonce pour le moment</p>
-          </div>
-        )}
-      </section>
+      ))}
+    </div>
+  ) : (
+    <div className="text-center py-20" style={{ color: '#94A3B8' }}>
+      <div style={{ fontSize: 64, marginBottom: 16 }}>🏠</div>
+      <p style={{ fontSize: 18, fontWeight: 600 }}>Aucune annonce pour le moment</p>
+    </div>
+  )}
+</section>
 
       {/* ══ POURQUOI LOGEZY 3D ═════════════════════════════════ */}
       <section style={{ padding: '80px 24px', background: 'linear-gradient(135deg, #0A1520 0%, #071210 50%, #0A1520 100%)', position: 'relative', overflow: 'hidden' }}>

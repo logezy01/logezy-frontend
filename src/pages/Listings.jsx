@@ -6,6 +6,8 @@ import ListingCard from '../components/common/ListingCard';
 import MapView from '../components/common/MapView';
 import SaveSearch from '../components/common/SaveSearch';
 import api from '../lib/axios';
+import SkeletonCard from '../components/common/SkeletonCard';
+
 
 const CITIES = ['Cotonou', 'Porto-Novo', 'Parakou', 'Abomey-Calavi', 'Bohicon', 'Natitingou', 'Ouidah', 'Lokossa'];
 const CITY_COORDS = {
@@ -71,12 +73,19 @@ export default function Listings() {
                   Annonces immobilières
                 </h1>
                <div className="text-xs text-[#94A3B8] mt-0.5 flex items-center gap-1">
-                  {loading ? (
-                    <span className="inline-flex items-center gap-1">
-                      <div className="w-3 h-3 border-2 border-[#3A7D44] border-t-transparent rounded-full animate-spin" />
-                      Chargement...
-                    </span>
-                  ) : (
+                {loading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(6)].map((_, i) => (
+                      <SkeletonCard key={i} />
+                    ))}
+                  </div>
+                ) : listings.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {listings.map(listing => (
+                      <ListingCard key={listing.id} listing={listing} />
+                    ))}
+                  </div>
+                ) : (
                     <span>
                       <strong className="text-[#3A7D44]">{listings.length}</strong> annonce(s) trouvée(s)
                       {filters.city && ` à ${filters.city}`}
