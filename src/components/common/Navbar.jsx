@@ -58,7 +58,7 @@ export default function Navbar() {
     { path: '/comment-ca-marche', label: 'Comment ça marche' },
     { path: '/a-propos', label: 'À propos' },
     { path: '/contact', label: 'Contact' },
-     { path: '/agences', label: 'Agences' },
+    { path: '/agences', label: 'Agences' },
 
 
   ];
