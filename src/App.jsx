@@ -25,6 +25,8 @@ const DashboardOwner = lazy(() => import('./pages/dashboard/DashboardOwner'));
 const DashboardAgent = lazy(() => import('./pages/dashboard/DashboardAgent'));
 const DashboardTenant = lazy(() => import('./pages/dashboard/DashboardTenant'));
 const DashboardAdmin = lazy(() => import('./pages/dashboard/DashboardAdmin'));
+const Agencies = lazy(() => import('./pages/Agencies'));
+const AgencyDetail = lazy(() => import('./pages/AgencyDetail'));
 
 // Composant de chargement pendant le lazy loading
 function PageLoader() {
@@ -61,6 +63,8 @@ export default function App() {
         <Route path="/parametres" element={
           <ProtectedRoute><Settings /></ProtectedRoute>
         } />
+        <Route path="/agences" element={<Agencies />} />
+        <Route path="/agences/:id" element={<AgencyDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/auth/verify-email" element={<VerifyEmail />} />
@@ -79,6 +83,8 @@ export default function App() {
           <ProtectedRoute roles={['admin']}><DashboardAdmin /></ProtectedRoute>
         } />
         <Route path="*" element={<Navigate to="/" />} />
+
+        
       </Routes>
       <BottomNav />
       <CompareBar />

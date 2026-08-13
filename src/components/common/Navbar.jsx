@@ -58,7 +58,11 @@ export default function Navbar() {
     { path: '/comment-ca-marche', label: 'Comment ça marche' },
     { path: '/a-propos', label: 'À propos' },
     { path: '/contact', label: 'Contact' },
+     { path: '/agences', label: 'Agences' },
+
+
   ];
+
 
   const navBg = isHome && !scrolled
     ? 'bg-transparent border-transparent'
@@ -90,7 +94,9 @@ export default function Navbar() {
                   }`}>
                   {link.label}
                 </Link>
+                
               ))}
+              
             </div>
 
             {/* Droite — Desktop */}

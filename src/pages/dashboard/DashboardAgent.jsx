@@ -7,6 +7,10 @@ import ImageUploader from '../../components/common/ImageUploader';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
 import AdminMessages from '../../components/common/AdminMessages';
+import { useState, useEffect, useRef } from 'react';
+import { Building2, Globe, Phone, Mail, Upload, Users, Plus, Trash2, CheckCircle, X, Search } from 'lucide-react';
+import api from '../../lib/axios';
+import toast from 'react-hot-toast';
 
 const MENU = [
   { path: '/dashboard/agent', icon: '📊', label: 'Vue générale' },
@@ -15,6 +19,7 @@ const MENU = [
   { path: '/dashboard/agent/publier', icon: '➕', label: 'Publier une annonce' },
   { path: '/dashboard/agent/profil', icon: '👤', label: 'Mon profil' },
   { path: '/dashboard/agent/admin-messages', icon: '🛡️', label: 'Messages admin' },
+  { path: '/dashboard/agent/agence', icon: '🏢', label: 'Mon agence' },
 ];
 
 function StatCard({ emoji, label, value, color = 'green' }) {
@@ -736,6 +741,388 @@ function Profile() {
   );
 }
 
+
+function AgencyManager() {
+  const [agency, setAgency] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [inviteSearch, setInviteSearch] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const logoRef = useRef(null);
+
+  const [form, setForm] = useState({
+    name: '', description: '', website_url: '',
+    phone: '', email: '', city: '', address: ''
+  });
+
+  const fetchAgency = async () => {
+    try {
+      const res = await api.get('/agencies/me/agency');
+      setAgency(res.data.agency);
+      if (res.data.agency) {
+        setForm({
+          name: res.data.agency.name || '',
+          description: res.data.agency.description || '',
+          website_url: res.data.agency.website_url || '',
+          phone: res.data.agency.phone || '',
+          email: res.data.agency.email || '',
+          city: res.data.agency.city || '',
+          address: res.data.agency.address || '',
+        });
+      }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { fetchAgency(); }, []);
+
+  const handleCreate = async () => {
+    if (!form.name) { toast.error('Nom de l\'agence requis'); return; }
+    try {
+      await api.post('/agencies', form);
+      toast.success('Agence créée ! 🎉');
+      fetchAgency();
+      setEditing(false);
+    } catch (e) {
+      toast.error(e.response?.data?.error || 'Erreur création');
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      await api.put(`/agencies/${agency.id}`, form);
+      toast.success('Agence mise à jour !');
+      fetchAgency();
+      setEditing(false);
+    } catch (e) {
+      toast.error(e.response?.data?.error || 'Erreur mise à jour');
+    }
+  };
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setLogoUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('logo', file);
+      const res = await api.post(`/agencies/${agency.id}/logo`, formData);
+      toast.success('Logo mis à jour !');
+      fetchAgency();
+    } catch (e) {
+      toast.error('Erreur upload logo');
+    } finally {
+      setLogoUploading(false);
+    }
+  };
+
+  const handleSearchAgent = async () => {
+    if (!inviteSearch.trim()) return;
+    setSearching(true);
+    try {
+      const res = await api.get(`/admin/users`);
+      const all = res.data.users || [];
+      const results = all.filter(u =>
+        (u.role === 'agent' || u.role === 'proprietaire') &&
+        !u.agency_id &&
+        (u.full_name?.toLowerCase().includes(inviteSearch.toLowerCase()) ||
+         u.email?.toLowerCase().includes(inviteSearch.toLowerCase()))
+      );
+      setSearchResults(results.slice(0, 5));
+    } catch (e) {
+      toast.error('Erreur recherche');
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleInvite = async (agentId, agentName) => {
+    try {
+      const res = await api.post(`/agencies/${agency.id}/invite`, { agent_id: agentId });
+      toast.success(res.data.message);
+      setSearchResults([]);
+      setInviteSearch('');
+      fetchAgency();
+    } catch (e) {
+      toast.error(e.response?.data?.error || 'Erreur invitation');
+    }
+  };
+
+  const handleRemoveMember = async (agentId) => {
+    try {
+      await api.delete(`/agencies/${agency.id}/members/${agentId}`);
+      toast.success('Membre retiré');
+      fetchAgency();
+    } catch (e) {
+      toast.error('Erreur');
+    }
+  };
+
+  if (loading) return (
+    <div className="space-y-3 animate-fade-in">
+      {[...Array(3)].map((_, i) => <div key={i} className="card h-20 animate-pulse" />)}
+    </div>
+  );
+
+  // Formulaire création / édition
+  const AgencyForm = () => (
+    <div className="card p-5 space-y-4 animate-fade-in">
+      <h3 className="font-bold text-[#0F172A] dark:text-white">
+        {agency ? 'Modifier mon agence' : 'Créer mon agence'}
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">
+            Nom de l'agence *
+          </label>
+          <input value={form.name} onChange={e => setForm({...form, name: e.target.value})}
+            placeholder="Ex: Immo Excellence Bénin"
+            className="input-field" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Ville</label>
+          <input value={form.city} onChange={e => setForm({...form, city: e.target.value})}
+            placeholder="Ex: Cotonou"
+            className="input-field" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Téléphone</label>
+          <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
+            placeholder="+229 01 XX XX XX XX"
+            className="input-field" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Email</label>
+          <input value={form.email} onChange={e => setForm({...form, email: e.target.value})}
+            placeholder="contact@agence.com"
+            className="input-field" type="email" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Site web</label>
+          <input value={form.website_url} onChange={e => setForm({...form, website_url: e.target.value})}
+            placeholder="https://monagence.com"
+            className="input-field" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Adresse</label>
+          <input value={form.address} onChange={e => setForm({...form, address: e.target.value})}
+            placeholder="Rue, quartier..."
+            className="input-field" />
+        </div>
+        <div className="md:col-span-2">
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Description</label>
+          <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})}
+            placeholder="Décrivez votre agence, vos services, votre expérience..."
+            className="input-field min-h-[80px] resize-none" rows={3} />
+        </div>
+      </div>
+      <div className="flex gap-3">
+        <button onClick={agency ? handleUpdate : handleCreate}
+          className="btn-primary px-6 py-2.5">
+          {agency ? 'Enregistrer' : 'Créer l\'agence'}
+        </button>
+        {agency && (
+          <button onClick={() => setEditing(false)}
+            className="btn-secondary px-6 py-2.5">
+            Annuler
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
+  // Pas d'agence encore
+  if (!agency) {
+    return (
+      <div className="space-y-4 animate-fade-in">
+        <div className="card p-8 text-center">
+          <Building2 size={48} className="mx-auto mb-4 text-[#94A3B8] opacity-40" />
+          <h3 className="font-bold text-lg text-[#0F172A] dark:text-white mb-2">
+            Vous n'avez pas encore d'agence
+          </h3>
+          <p className="text-sm text-[#94A3B8] mb-5">
+            Créez votre agence immobilière pour publier vos annonces sous votre marque, inviter des agents et afficher votre logo.
+          </p>
+          <button onClick={() => setEditing(true)} className="btn-primary flex items-center gap-2 mx-auto">
+            <Plus size={16} />
+            Créer mon agence
+          </button>
+        </div>
+        {editing && <AgencyForm />}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5 animate-fade-in">
+
+      {/* Header agence */}
+      <div className="card p-5">
+        <div className="flex items-start gap-4">
+
+          {/* Logo */}
+          <div className="relative shrink-0">
+            {agency.logo_url ? (
+              <img src={agency.logo_url} alt={agency.name}
+                className="w-20 h-20 rounded-2xl object-cover border border-[#E8E8E8] dark:border-[#2A2A2A]" />
+            ) : (
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#3A7D44] to-[#2D6235] flex items-center justify-center text-white font-black text-3xl">
+                {agency.name?.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <button onClick={() => logoRef.current?.click()}
+              disabled={logoUploading}
+              className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#3A7D44] hover:bg-[#2D6235] text-white rounded-full flex items-center justify-center shadow-lg transition-all">
+              {logoUploading
+                ? <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                : <Upload size={13} />
+              }
+            </button>
+            <input ref={logoRef} type="file" accept="image/*"
+              className="hidden" onChange={handleLogoUpload} />
+          </div>
+
+          {/* Infos */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="font-black text-lg text-[#0F172A] dark:text-white">{agency.name}</h2>
+              {agency.is_verified && (
+                <span className="text-xs bg-[#EBF5ED] text-[#3A7D44] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <CheckCircle size={10} /> Vérifiée
+                </span>
+              )}
+            </div>
+            {agency.city && (
+              <p className="text-xs text-[#94A3B8] mb-2">📍 {agency.city}</p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              {agency.phone && (
+                <span className="text-xs text-[#64748B] dark:text-[#94A3B8] flex items-center gap-1">
+                  <Phone size={11} className="text-[#3A7D44]" /> {agency.phone}
+                </span>
+              )}
+              {agency.website_url && (
+                <a href={agency.website_url} target="_blank" rel="noopener noreferrer"
+                  className="text-xs text-[#3A7D44] flex items-center gap-1 hover:underline">
+                  <Globe size={11} />
+                  {agency.website_url.replace('https://', '').replace('http://', '')}
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2 shrink-0">
+            <button onClick={() => setEditing(!editing)}
+              className="btn-secondary text-xs px-3 py-2">
+              {editing ? 'Fermer' : 'Modifier'}
+            </button>
+            <a href={`/agences/${agency.id}`} target="_blank"
+              className="btn-ghost text-xs px-3 py-2">
+              Voir la page
+            </a>
+          </div>
+        </div>
+
+        {agency.description && (
+          <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mt-3 pt-3 border-t border-[#F1F5F9] dark:border-[#2A2A2A]">
+            {agency.description}
+          </p>
+        )}
+      </div>
+
+      {/* Formulaire édition */}
+      {editing && <AgencyForm />}
+
+      {/* Membres de l'agence */}
+      <div className="card p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-[#0F172A] dark:text-white flex items-center gap-2">
+            <Users size={16} className="text-[#3A7D44]" />
+            Équipe ({agency.agents?.length || 0} membres)
+          </h3>
+        </div>
+
+        {/* Recherche agent */}
+        <div className="bg-[#F8F9FA] dark:bg-[#2A2A2A] rounded-xl p-3 mb-4">
+          <p className="text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-2">
+            Inviter un agent ou propriétaire
+          </p>
+          <div className="flex gap-2">
+            <input value={inviteSearch} onChange={e => setInviteSearch(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSearchAgent()}
+              placeholder="Nom ou email de l'agent..."
+              className="input-field py-2 text-xs flex-1" />
+            <button onClick={handleSearchAgent} disabled={searching}
+              className="btn-primary px-3 py-2 text-xs flex items-center gap-1">
+              {searching
+                ? <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                : <Search size={13} />
+              }
+              Chercher
+            </button>
+          </div>
+
+          {/* Résultats recherche */}
+          {searchResults.length > 0 && (
+            <div className="mt-2 space-y-1">
+              {searchResults.map(u => (
+                <div key={u.id} className="flex items-center gap-2 p-2 bg-white dark:bg-[#1A1A1A] rounded-xl">
+                  <div className="w-7 h-7 rounded-full bg-[#3A7D44] text-white flex items-center justify-center text-xs font-bold shrink-0">
+                    {u.full_name?.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-[#0F172A] dark:text-white truncate">{u.full_name}</p>
+                    <p className="text-xs text-[#94A3B8] truncate">{u.email}</p>
+                  </div>
+                  <button onClick={() => handleInvite(u.id, u.full_name)}
+                    className="text-xs bg-[#EBF5ED] text-[#3A7D44] font-bold px-2 py-1 rounded-lg hover:bg-[#3A7D44] hover:text-white transition-all">
+                    <Plus size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Liste membres */}
+        {agency.agents?.length === 0 ? (
+          <p className="text-sm text-[#94A3B8] text-center py-4">
+            Aucun membre pour le moment
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {agency.agents?.map(agent => (
+              <div key={agent.id} className="flex items-center gap-3 p-3 bg-[#F8F9FA] dark:bg-[#2A2A2A] rounded-xl">
+                {agent.avatar_url ? (
+                  <img src={agent.avatar_url} alt={agent.full_name}
+                    className="w-9 h-9 rounded-full object-cover shrink-0" />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-[#3A7D44] text-white flex items-center justify-center font-bold text-sm shrink-0">
+                    {agent.full_name?.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-[#0F172A] dark:text-white truncate">{agent.full_name}</p>
+                  <p className="text-xs text-[#94A3B8] capitalize">
+                    {agent.role === 'agent' ? 'Agent immobilier' : 'Propriétaire'}
+                  </p>
+                </div>
+                <button onClick={() => handleRemoveMember(agent.id)}
+                  className="p-1.5 rounded-lg hover:bg-red-50 text-[#94A3B8] hover:text-red-500 transition-colors">
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── COMPOSANT PRINCIPAL ──────────────────────────────────────
 export default function DashboardAgent() {
   return (
@@ -747,6 +1134,7 @@ export default function DashboardAgent() {
         <Route path="publier" element={<PublishListing />} />
         <Route path="profil" element={<Profile />} />
         <Route path="admin-messages" element={<AdminMessages />} />
+        <Route path="agence" element={<AgencyManager />} />
       </Routes>
     </DashboardLayout>
   );

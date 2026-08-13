@@ -1,0 +1,56 @@
+[33m7bf7d8f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m loading
+[33m826903d[m FIx manifest, autocomplete, optimisation particules 30fps
+[33m985375a[m Performance - lazy loading, code splitting, terser, PWA
+[33mc39e132[m  chargement lazy
+[33m97b613e[m SEO optimisation - meta tags, og, twitter card, preconnect
+[33mb6ac827[m suppression de verificztion avec email
+[33mef7abb8[m listingcard vente
+[33mbc258d4[m suppression de stat
+[33m88dc0be[m mode sombre
+[33mc26d9df[m suppression des paticules
+[33m7489128[m UI premium - swipe validation + suppression maison hero + stats cards
+[33m03fc5cb[m Super admin UI - protection + changement roles
+[33me6e8bd2[m foot
+[33m17d8ab9[m annime
+[33meb93a1a[m encore
+[33m40d8438[m claire
+[33m4455a53[m Securite - frontend protege
+[33m4b59e24[m par jour
+[33me283651[m Compression photos automatique
+[33m5353989[m Chatbot appel via backend
+[33m58ea5a6[m Chatbot Groq Llama3 gratuit
+[33md403b4a[m Chatbot IA Claude integre
+[33m2ba74cb[m api
+[33m1bd02b1[m tt
+[33ma28c83d[m Section messages admin dans tous les dashboards
+[33m2932382[m code email
+[33mfdd90c1[m hero change
+[33m5573706[m Google Search Console verification
+[33m26d882c[m seo
+[33mc8dcbe0[m Fix hydration error Listings + design premium complet
+[33made968e[m Design premium - Navbar + Home + Auth pages + ListingCar
+[33mf4caf4d[m Design premium - Navbar + Home + Auth pages + ListingCard
+[33md3fd50e[m Dashboard Admin premium - validation annonces + ban + messages
+[33md0e1f81[m SEO - meta tags + sitemap + robots.txt
+[33m1af7532[m Upload photos optimise mobile + bouton appareil photo
+[33mac8a937[m Lien Facebook Logezy Immobilier Digitale
+[33ma419688[m Masquer publier annonce pour locataires
+[33m52beb56[m connexion google
+[33m3e0613d[m Dashoard locataire ameliore
+[33m9814b33[m Agent Dashboard
+[33me24c26b[m dashord
+[33ma2e697d[m petite modiff
+[33m87264cf[m num
+[33md2888d9[m Fix image
+[33m376dde2[m Fix theme clair par defaut + logo dashboard
+[33m6c4ce01[m Lancement v1 - Pages About + Contact + Terms + Navbar
+[33m92ef41f[m Sprint 2 - Carte + Alertes + Comparaison biens
+[33mc1533d7[m Sprint 2 - Alertes recherche dashboard
+[33mb24a646[m Refonte charte and logo
+[33mf402e3b[m Refonte charte graphique + Parametre + Confidentialite
+[33maa099d7[m Backup avant refonte charte graphique
+[33mf5e9b48[m Sprint 1 - Système de favoris complet
+[33m9612335[m Fix URLs images HTTPS production
+[33m3001b51[m Fix icones PWA et URLs images HTTPS
+[33m2e7d4d2[m Sprint 1 - Carousel photos + PWA + Bottom Nav mobile
+[33ma67479a[m Initial commit - Logezy frontend
