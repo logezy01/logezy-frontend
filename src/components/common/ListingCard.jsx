@@ -1,10 +1,12 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MapPin, Bed, Bath, Maximize, Eye, ArrowUpRight } from 'lucide-react';
 import { getImageUrl } from '../../lib/imageUrl';
 import FavoriteButton from './FavoriteButton';
 import CompareButton from './CompareButton';
 
 export default function ListingCard({ listing }) {
+    const navigate = useNavigate();
+
   const coverImagePath = listing.listing_images?.find(img => img.is_cover)?.image_url;
   const coverImage = getImageUrl(coverImagePath);
 
@@ -16,10 +18,13 @@ export default function ListingCard({ listing }) {
   const photoCount = listing.listing_images?.length || 0;
 
   return (
-    <Link
-      to={`/annonces/${listing.id}`}
-      className="group block bg-white dark:bg-[#1A1A1A] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.12)] hover:-translate-y-1 border border-[#F0F0F0] dark:border-[#2A2A2A]"
-    >
+<div
+  onClick={() => navigate(`/annonces/${listing.id}`)}
+  role="link"
+  tabIndex={0}
+  onKeyDown={(e) => e.key === 'Enter' && navigate(`/annonces/${listing.id}`)}
+  className="group block bg-white dark:bg-[#1A1A1A] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.12)] hover:-translate-y-1 border border-[#F0F0F0] dark:border-[#2A2A2A] cursor-pointer"
+>
       {/* Image */}
       <div className="relative h-52 overflow-hidden bg-[#F5F5F7] dark:bg-[#2A2A2A]">
         {coverImage ? (
@@ -88,7 +93,29 @@ export default function ListingCard({ listing }) {
           </span>
         </div>
 
-        {/* Titre */}
+{/* Badge agence */}
+{listing.users?.agencies && (
+  <Link
+    to={`/agences/${listing.users.agencies.id}`}
+    onClick={(e) => e.stopPropagation()}
+    className="flex items-center gap-2 mb-3 w-fit bg-[#EBF5ED] dark:bg-[#1A2E20] pl-1 pr-3 py-1 rounded-full hover:bg-[#DCEEE0] dark:hover:bg-[#20402A] transition-colors border border-[#3A7D44]/20"
+  >
+    {listing.users.agencies.logo_url ? (
+      <img
+        src={listing.users.agencies.logo_url}
+        alt={listing.users.agencies.name}
+        className="w-6 h-6 rounded-full object-cover shrink-0"
+      />
+    ) : (
+      <div className="w-6 h-6 rounded-full bg-[#3A7D44] text-white flex items-center justify-center font-bold text-xs shrink-0">
+        {listing.users.agencies.name?.charAt(0).toUpperCase()}
+      </div>
+    )}
+    <span className="text-xs font-bold text-[#3A7D44] truncate max-w-[120px]">
+      🏢 {listing.users.agencies.name}
+    </span>
+  </Link>
+)}     {/* Titre */}
         <h3 className="font-bold text-sm text-[#0F172A] dark:text-white mb-3 line-clamp-2 leading-snug group-hover:text-[#3A7D44] transition-colors">
           {listing.title}
         </h3>
@@ -142,6 +169,6 @@ export default function ListingCard({ listing }) {
           )}
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

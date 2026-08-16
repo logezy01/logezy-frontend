@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Plus, Eye, Trash2, CheckCircle, Camera, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ImageUploader from '../../components/common/ImageUploader';
-import api from '../../lib/axios';
+
 import useAuthStore from '../../store/authStore';
 import AdminMessages from '../../components/common/AdminMessages';
-import { useState, useEffect, useRef } from 'react';
-import { Building2, Globe, Phone, Mail, Upload, Users, Plus, Trash2, CheckCircle, X, Search } from 'lucide-react';
+
+import { Building2, Globe, Phone, Mail, Upload, Users, X} from 'lucide-react';
 import api from '../../lib/axios';
-import toast from 'react-hot-toast';
+
 
 const MENU = [
   { path: '/dashboard/agent', icon: '📊', label: 'Vue générale' },
@@ -741,6 +741,74 @@ function Profile() {
   );
 }
 
+function AgencyForm({ form, setForm, agency, onSubmit, onCancel }) {
+  return (
+    <div className="card p-5 space-y-4 animate-fade-in">
+      <h3 className="font-bold text-[#0F172A] dark:text-white">
+        {agency ? 'Modifier mon agence' : 'Créer mon agence'}
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">
+            Nom de l'agence *
+          </label>
+          <input value={form.name} onChange={e => setForm({...form, name: e.target.value})}
+            placeholder="Ex: Immo Excellence Bénin"
+            className="input-field" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Ville</label>
+          <input value={form.city} onChange={e => setForm({...form, city: e.target.value})}
+            placeholder="Ex: Cotonou"
+            className="input-field" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Téléphone</label>
+          <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
+            placeholder="+229 01 XX XX XX XX"
+            className="input-field" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Email</label>
+          <input value={form.email} onChange={e => setForm({...form, email: e.target.value})}
+            placeholder="contact@agence.com"
+            className="input-field" type="email" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Site web</label>
+          <input value={form.website_url} onChange={e => setForm({...form, website_url: e.target.value})}
+            placeholder="https://monagence.com"
+            className="input-field" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Adresse</label>
+          <input value={form.address} onChange={e => setForm({...form, address: e.target.value})}
+            placeholder="Rue, quartier..."
+            className="input-field" />
+        </div>
+        <div className="md:col-span-2">
+          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Description</label>
+          <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})}
+            placeholder="Décrivez votre agence, vos services, votre expérience..."
+            className="input-field min-h-[80px] resize-none" rows={3} />
+        </div>
+      </div>
+      <div className="flex gap-3">
+        <button onClick={onSubmit}
+          className="btn-primary px-6 py-2.5">
+          {agency ? 'Enregistrer' : 'Créer l\'agence'}
+        </button>
+        {agency && (
+          <button onClick={onCancel}
+            className="btn-secondary px-6 py-2.5">
+            Annuler
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 function AgencyManager() {
   const [agency, setAgency] = useState(null);
@@ -801,22 +869,24 @@ function AgencyManager() {
     }
   };
 
-  const handleLogoUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setLogoUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('logo', file);
-      const res = await api.post(`/agencies/${agency.id}/logo`, formData);
-      toast.success('Logo mis à jour !');
-      fetchAgency();
-    } catch (e) {
-      toast.error('Erreur upload logo');
-    } finally {
-      setLogoUploading(false);
-    }
-  };
+const handleLogoUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  setLogoUploading(true);
+  try {
+    const formData = new FormData();
+    formData.append('logo', file);
+    const res = await api.post(`/agencies/${agency.id}/logo`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    toast.success('Logo mis à jour !');
+    fetchAgency();
+  } catch (e) {
+    toast.error('Erreur upload logo');
+  } finally {
+    setLogoUploading(false);
+  }
+};
 
   const handleSearchAgent = async () => {
     if (!inviteSearch.trim()) return;
@@ -867,71 +937,7 @@ function AgencyManager() {
   );
 
   // Formulaire création / édition
-  const AgencyForm = () => (
-    <div className="card p-5 space-y-4 animate-fade-in">
-      <h3 className="font-bold text-[#0F172A] dark:text-white">
-        {agency ? 'Modifier mon agence' : 'Créer mon agence'}
-      </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">
-            Nom de l'agence *
-          </label>
-          <input value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-            placeholder="Ex: Immo Excellence Bénin"
-            className="input-field" />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Ville</label>
-          <input value={form.city} onChange={e => setForm({...form, city: e.target.value})}
-            placeholder="Ex: Cotonou"
-            className="input-field" />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Téléphone</label>
-          <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
-            placeholder="+229 01 XX XX XX XX"
-            className="input-field" />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Email</label>
-          <input value={form.email} onChange={e => setForm({...form, email: e.target.value})}
-            placeholder="contact@agence.com"
-            className="input-field" type="email" />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Site web</label>
-          <input value={form.website_url} onChange={e => setForm({...form, website_url: e.target.value})}
-            placeholder="https://monagence.com"
-            className="input-field" />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Adresse</label>
-          <input value={form.address} onChange={e => setForm({...form, address: e.target.value})}
-            placeholder="Rue, quartier..."
-            className="input-field" />
-        </div>
-        <div className="md:col-span-2">
-          <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Description</label>
-          <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})}
-            placeholder="Décrivez votre agence, vos services, votre expérience..."
-            className="input-field min-h-[80px] resize-none" rows={3} />
-        </div>
-      </div>
-      <div className="flex gap-3">
-        <button onClick={agency ? handleUpdate : handleCreate}
-          className="btn-primary px-6 py-2.5">
-          {agency ? 'Enregistrer' : 'Créer l\'agence'}
-        </button>
-        {agency && (
-          <button onClick={() => setEditing(false)}
-            className="btn-secondary px-6 py-2.5">
-            Annuler
-          </button>
-        )}
-      </div>
-    </div>
-  );
+
 
   // Pas d'agence encore
   if (!agency) {
@@ -950,7 +956,13 @@ function AgencyManager() {
             Créer mon agence
           </button>
         </div>
-        {editing && <AgencyForm />}
+        {editing && <AgencyForm
+  form={form}
+  setForm={setForm}
+  agency={agency}
+  onSubmit={agency ? handleUpdate : handleCreate}
+  onCancel={() => setEditing(false)}
+/>}
       </div>
     );
   }
@@ -1034,7 +1046,13 @@ function AgencyManager() {
       </div>
 
       {/* Formulaire édition */}
-      {editing && <AgencyForm />}
+      {editing && <AgencyForm
+  form={form}
+  setForm={setForm}
+  agency={agency}
+  onSubmit={agency ? handleUpdate : handleCreate}
+  onCancel={() => setEditing(false)}
+/>}
 
       {/* Membres de l'agence */}
       <div className="card p-5">
