@@ -72,26 +72,14 @@ export default function Listings() {
                 <h1 className="font-display text-lg font-black text-[#0F172A] dark:text-white">
                   Annonces immobilières
                 </h1>
-               <div className="text-xs text-[#94A3B8] mt-0.5 flex items-center gap-1">
-                {loading ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[...Array(6)].map((_, i) => (
-                      <SkeletonCard key={i} />
-                    ))}
-                  </div>
-                ) : listings.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {listings.map(listing => (
-                      <ListingCard key={listing.id} listing={listing} />
-                    ))}
-                  </div>
-                ) : (
+                <div className="text-xs text-[#94A3B8] mt-0.5 flex items-center gap-1">
+                  {!loading && (
                     <span>
                       <strong className="text-[#3A7D44]">{listings.length}</strong> annonce(s) trouvée(s)
                       {filters.city && ` à ${filters.city}`}
                     </span>
                   )}
-                </div>  
+                </div>
               </div>
 
               {/* Filtres actifs */}
