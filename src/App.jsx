@@ -4,6 +4,7 @@ import useAuthStore from './store/authStore';
 import BottomNav from './components/common/BottomNav';
 import CompareBar from './components/common/CompareBar';
 import ChatBot from './components/common/ChatBot';
+import NotFound from './pages/NotFound';
 
 // Lazy loading — chaque page est chargée seulement quand nécessaire
 const Home = lazy(() => import('./pages/Home'));
@@ -82,7 +83,7 @@ export default function App() {
         <Route path="/dashboard/admin/*" element={
           <ProtectedRoute roles={['admin']}><DashboardAdmin /></ProtectedRoute>
         } />
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<NotFound />} />
 
         
       </Routes>
