@@ -120,13 +120,25 @@ const compareList = compareStore?.compareList || [];
     finally { setFavoriteLoading(false); }
   };
 
-  const handleContact = () => {
-    if (!isAuthenticated) { toast.error('Connectez-vous pour contacter'); navigate('/login'); return; }
+const handleContact = async () => {
+  if (!isAuthenticated) { toast.error('Connectez-vous pour contacter'); navigate('/login'); return; }
+  if (user?.id === listing?.owner_id) { toast.error('Vous ne pouvez pas vous contacter vous-même'); return; }
+
+  try {
+    const res = await api.post('/chat/conversations', {
+      listing_id: listing.id,
+      owner_id: listing.owner_id,
+    });
+    const conversationId = res.data.conversation.id;
+
     const path = user?.role === 'proprietaire' ? `/dashboard/proprietaire/messages`
       : user?.role === 'agent' ? `/dashboard/agent/messages`
       : `/dashboard/locataire/messages`;
-    navigate(path);
-  };
+    navigate(path, { state: { openConversationId: conversationId } });
+  } catch (e) {
+    toast.error('Erreur lors de la création de la conversation');
+  }
+};
 
   const handleShare = () => {
     if (navigator.share) {

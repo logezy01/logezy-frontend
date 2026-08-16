@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate , useLocation  } from 'react-router-dom';
 import { Plus, Eye, Trash2, CheckCircle, MessageSquare, Bell, Edit, TrendingUp, Star, Phone, Mail, Camera } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
@@ -353,20 +353,28 @@ function Messages() {
   const [messages, setMessages] = useState([]);
   const [newMsg, setNewMsg] = useState('');
   const { user } = useAuthStore();
+  const location = useLocation();
 
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        const res = await api.get('/chat/conversations');
-        setConversations(res.data.conversations || []);
-      } catch (e) {
-        toast.error('Erreur chargement conversations');
-      } finally {
-        setLoading(false);
+useEffect(() => {
+  const fetch = async () => {
+    try {
+      const res = await api.get('/chat/conversations');
+      const convs = res.data.conversations || [];
+      setConversations(convs);
+
+      const targetId = location.state?.openConversationId;
+      if (targetId) {
+        const target = convs.find(c => c.id === targetId);
+        if (target) openConversation(target);
       }
-    };
-    fetch();
-  }, []);
+    } catch (e) {
+      toast.error('Erreur chargement conversations');
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetch();
+}, []);
 
   const openConversation = async (conv) => {
     setSelected(conv);
