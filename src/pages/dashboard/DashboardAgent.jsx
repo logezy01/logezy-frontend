@@ -352,7 +352,8 @@ useEffect(() => {
       const convs = res.data.conversations || [];
       setConversations(convs);
 
-      const targetId = location.state?.openConversationId;
+      const params = new URLSearchParams(location.search);
+      const targetId = location.state?.openConversationId || params.get('conversation');
       if (targetId) {
         const target = convs.find(c => c.id === targetId);
         if (target) openConversation(target);
