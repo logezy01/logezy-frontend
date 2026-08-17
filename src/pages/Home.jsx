@@ -27,13 +27,22 @@ function useInView(threshold = 0.1) {
 function AnimatedSection({ children, className = '', delay = 0 }) {
   const [ref, inView] = useInView();
   return (
-    <div ref={ref} style={{ transitionDelay: `${delay}ms` }}
-      className={`transition-all duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${className}`}>
+    <div
+      ref={ref}
+      style={{
+        transitionDelay: `${delay}ms`,
+        transitionTimingFunction: 'cubic-bezier(0.23, 1, 0.32, 1)',
+        opacity: inView ? 1 : 0,
+        transform: inView ? 'translateY(0) scale(1)' : 'translateY(28px) scale(0.98)',
+        transitionProperty: 'opacity, transform',
+        transitionDuration: '800ms',
+      }}
+      className={className}
+    >
       {children}
     </div>
   );
 }
-
 // ── Compteur animé ────────────────────────────────────────────
 function Counter({ target, suffix = '' }) {
   const [count, setCount] = useState(0);
@@ -328,7 +337,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] pb-20 md:pb-0" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="min-h-screen bg-paper pb-20 md:pb-0 font-sans">
 
       <style>{`
         @keyframes float3d {
@@ -368,6 +377,10 @@ export default function Home() {
           from { width: 0; }
           to { width: 100%; }
         }
+          @keyframes kenburns {
+          0% { transform: scale(1); }
+          100% { transform: scale(1.08); }
+        }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         .shimmer-green {
           background: linear-gradient(90deg, #3A7D44, #4ade80, #86efac, #4ade80, #3A7D44);
@@ -384,16 +397,23 @@ export default function Home() {
           transform: translateY(-8px) rotateX(5deg) rotateY(2deg);
           box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(58,125,68,0.3);
         }
+
+
         .btn-3d {
           position: relative;
-          transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+          transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.35s cubic-bezier(0.23, 1, 0.32, 1);
           transform-style: preserve-3d;
         }
         .btn-3d:hover {
           transform: translateY(-3px) scale(1.02);
           box-shadow: 0 10px 40px rgba(58,125,68,0.4), 0 0 0 1px rgba(58,125,68,0.5);
         }
-        .btn-3d:active { transform: translateY(0px) scale(0.98); }
+        .btn-3d:active {
+          transform: translateY(0px) scale(0.96);
+          transition: transform 0.1s ease;
+        }
+
+
         .city-card {
           transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
           transform-style: preserve-3d;
@@ -417,17 +437,37 @@ export default function Home() {
         {/* Images de fond avec parallaxe */}
         <div className="absolute inset-0 z-0">
           {HERO_IMAGES.map((img, i) => (
-            <div key={i} className="absolute inset-0 transition-all duration-1500"
+            <div key={i} className="absolute inset-0"
               style={{
                 opacity: heroIndex === i ? 1 : 0,
-                transform: heroIndex === i ? `scale(1.05) translate(${mousePos.x * 0.02}px, ${mousePos.y * 0.02}px)` : 'scale(1)',
-                transition: 'opacity 1.5s ease, transform 0.1s ease',
+                transition: 'opacity 1.5s ease',
               }}>
-              <img src={img} alt="" className="w-full h-full object-cover" />
+              <img
+                src={img}
+                alt=""
+                className="w-full h-full object-cover"
+                style={{
+                  transform: `translate(${mousePos.x * 0.02}px, ${mousePos.y * 0.02}px)`,
+                  animation: heroIndex === i ? 'kenburns 6s ease-out forwards' : 'none',
+                  transition: 'transform 0.1s ease',
+                }}
+              />
             </div>
           ))}
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(5,10,16,0.92) 0%, rgba(5,10,16,0.75) 50%, rgba(5,10,16,0.60) 100%)' }} />
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(5,10,16,0.8) 0%, transparent 50%)' }} />
+          {/* Couche 1 — assombrissement directionnel gauche→droite (lisibilité du texte) */}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(115deg, rgba(3,7,12,0.95) 0%, rgba(5,10,16,0.82) 35%, rgba(5,10,16,0.55) 65%, rgba(5,10,16,0.35) 100%)' }} />
+
+          {/* Couche 2 — vignette radiale (concentre le regard au centre-gauche) */}
+          <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 60% at 20% 40%, rgba(5,10,16,0.3) 0%, transparent 60%)' }} />
+
+          {/* Couche 3 — fondu bas (ancre le texte et la barre de recherche) */}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(3,7,12,0.85) 0%, rgba(3,7,12,0.3) 35%, transparent 60%)' }} />
+
+          {/* Couche 4 — fondu haut subtil (intègre la navbar) */}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(3,7,12,0.5) 0%, transparent 20%)' }} />
+
+          {/* Couche 5 — teinte verte de marque très légère, cohérence avec le shimmer du titre */}
+          <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 15% 85%, rgba(58,125,68,0.12) 0%, transparent 45%)' }} />
         </div>
 
         {/* Particules 3D */}
@@ -457,16 +497,16 @@ export default function Home() {
             </div>
 
             {/* Titre avec effet 3D */}
-            <div className="mb-6" style={{ perspective: '1000px' }}>
-              <h1 className="font-black leading-[1.05]" style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)', color: 'white' }}>
+            <div className="mb-5" style={{ perspective: '1000px' }}>
+              <h1 className="font-display font-black" style={{ fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', color: 'white', lineHeight: 1.02, letterSpacing: '-0.03em' }}>
                 Trouvez votre
                 <span className="block shimmer-green">maison idéale</span>
                 <span style={{ color: 'white' }}>au Bénin</span>
               </h1>
             </div>
 
-            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '1.1rem', lineHeight: 1.7, marginBottom: '2rem', maxWidth: 480 }}>
-              Des milliers d'annonces vérifiées à louer ou à acheter dans toutes les villes du Bénin. Votre maison idéale n'a jamais été aussi proche.
+            <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '1.05rem', fontWeight: 400, lineHeight: 1.6, marginBottom: '2.25rem', maxWidth: 420, letterSpacing: '-0.01em' }}>
+              Des milliers d'annonces vérifiées, partout au Bénin.
             </p>
 
             {/* Tabs */}
@@ -489,16 +529,28 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Barre de recherche 3D */}
+            {/* Barre de recherche 3D — glassmorphism */}
             <form onSubmit={handleSearch} className="mb-6 max-w-xl">
-              <div className="flex flex-col md:flex-row gap-2 p-2 rounded-2xl"
-                style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)', boxShadow: '0 25px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)', transition: 'all 0.3s ease' }}>
+              <div
+                className="flex flex-col md:flex-row gap-2 p-2 rounded-2xl"
+                style={{
+                  background: 'rgba(255,255,255,0.12)',
+                  backdropFilter: 'blur(24px)',
+                  WebkitBackdropFilter: 'blur(24px)',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  boxShadow: '0 25px 70px rgba(0,0,0,0.45)',
+                  transition: 'all 0.35s cubic-bezier(0.23,1,0.32,1)',
+                }}
+                onFocus={(e) => { e.currentTarget.style.border = '1px solid rgba(74,222,128,0.6)'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 30px 80px rgba(0,0,0,0.5), 0 0 0 4px rgba(74,222,128,0.12)'; }}
+                onBlur={(e) => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.25)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 25px 70px rgba(0,0,0,0.45)'; }}
+              >
                 <div className="flex items-center gap-3 flex-1 px-4 py-1">
-                  <MapPin size={18} className="text-[#3A7D44] shrink-0" />
+                  <MapPin size={18} className="text-emerald-400 shrink-0" />
                   <select value={searchCity} onChange={e => setSearchCity(e.target.value)}
-                    className="flex-1 text-[#0F172A] text-sm outline-none bg-transparent font-medium py-2">
-                    <option value="">Toutes les villes</option>
-                    {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    className="flex-1 text-white text-sm outline-none bg-transparent font-medium py-2"
+                    style={{ colorScheme: 'dark' }}>
+                    <option value="" style={{ color: '#0F172A' }}>Toutes les villes</option>
+                    {CITIES.map(c => <option key={c} value={c} style={{ color: '#0F172A' }}>{c}</option>)}
                   </select>
                 </div>
                 <button type="submit" className="btn-3d bg-[#3A7D44] hover:bg-[#2D6235] text-white font-bold px-8 py-3.5 rounded-xl flex items-center gap-2 justify-center">
@@ -518,7 +570,7 @@ export default function Home() {
                     background: 'rgba(255,255,255,0.08)',
                     border: '1px solid rgba(255,255,255,0.12)',
                     borderRadius: 100, padding: '6px 14px',
-                    transition: 'all 0.3s ease',
+                     transition: 'all 0.35s cubic-bezier(0.23,1,0.32,1)',
                     animation: `fadeInUp 0.5s ease ${0.8 + i * 0.1}s both`,
                   }}
                   onMouseEnter={e => { e.target.style.background = 'rgba(58,125,68,0.3)'; e.target.style.borderColor = 'rgba(58,125,68,0.5)'; e.target.style.color = 'white'; }}
