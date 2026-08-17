@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { SlidersHorizontal, X, Map, Bell, Search, ChevronDown } from 'lucide-react';
+import { SlidersHorizontal, X, Map, Bell, Search, ChevronDown, Loader2 } from 'lucide-react';
 import Navbar from '../components/common/Navbar';
 import ListingCard from '../components/common/ListingCard';
 import MapView from '../components/common/MapView';
@@ -16,11 +16,15 @@ const CITY_COORDS = {
   'Bohicon': [7.1670, 1.9900], 'Natitingou': [10.3167, 1.3833],
   'Ouidah': [6.3667, 2.0833], 'Lokossa': [6.6236, 1.7728],
 };
+const PAGE_SIZE = 12;
 
 export default function Listings() {
   const [searchParams] = useSearchParams();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const [showAlertHelper, setShowAlertHelper] = useState(false);
@@ -32,13 +36,22 @@ export default function Listings() {
     max_price: '',
   });
 
-  const fetchListings = async () => {
+  const sentinelRef = useRef(null);
+
+  // Chargement initial ou nouvelle recherche (reset)
+  const fetchListings = async (currentFilters = filters) => {
     setLoading(true);
+    setHasMore(true);
     try {
       const params = new URLSearchParams();
-      Object.entries(filters).forEach(([k, v]) => { if (v) params.append(k, v); });
-      const res = await api.get(`/listings?${params.toString()}&limit=50`);
-      setListings(res.data.listings || []);
+      Object.entries(currentFilters).forEach(([k, v]) => { if (v) params.append(k, v); });
+      params.append('page', 1);
+      params.append('limit', PAGE_SIZE);
+      const res = await api.get(`/listings?${params.toString()}`);
+      const data = res.data.listings || [];
+      setListings(data);
+      setPage(1);
+      setHasMore(data.length === PAGE_SIZE);
     } catch (e) {
       console.error(e);
     } finally {
@@ -46,12 +59,48 @@ export default function Listings() {
     }
   };
 
+  // Chargement de la page suivante (append)
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasMore || loading) return;
+    setLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const params = new URLSearchParams();
+      Object.entries(filters).forEach(([k, v]) => { if (v) params.append(k, v); });
+      params.append('page', nextPage);
+      params.append('limit', PAGE_SIZE);
+      const res = await api.get(`/listings?${params.toString()}`);
+      const data = res.data.listings || [];
+      setListings(prev => [...prev, ...data]);
+      setPage(nextPage);
+      setHasMore(data.length === PAGE_SIZE);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [page, filters, hasMore, loadingMore, loading]);
+
   useEffect(() => { fetchListings(); }, []);
+
+  // Observer la sentinelle en bas de la grille
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore();
+      },
+      { rootMargin: '400px' }
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [loadMore]);
 
   const handleSearch = (e) => { e?.preventDefault(); fetchListings(); };
   const handleReset = () => {
-    setFilters({ city: '', type: '', bedrooms: '', min_price: '', max_price: '' });
-    setTimeout(() => fetchListings(), 100);
+    const cleared = { city: '', type: '', bedrooms: '', min_price: '', max_price: '' };
+    setFilters(cleared);
+    setTimeout(() => fetchListings(cleared), 100);
   };
   const update = (f, v) => setFilters(p => ({ ...p, [f]: v }));
   const activeFiltersCount = Object.values(filters).filter(v => v !== '').length;
@@ -75,7 +124,7 @@ export default function Listings() {
                 <div className="text-xs text-[#94A3B8] mt-0.5 flex items-center gap-1">
                   {!loading && (
                     <span>
-                      <strong className="text-[#3A7D44]">{listings.length}</strong> annonce(s) trouvée(s)
+                      <strong className="text-[#3A7D44]">{listings.length}</strong> annonce(s) affichée(s)
                       {filters.city && ` à ${filters.city}`}
                     </span>
                   )}
@@ -277,9 +326,29 @@ export default function Listings() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 animate-fade-in">
-            {listings.map(l => <ListingCard key={l.id} listing={l} />)}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 animate-fade-in">
+              {listings.map(l => <ListingCard key={l.id} listing={l} />)}
+            </div>
+
+            {/* Sentinelle pour déclencher le chargement suivant */}
+            {hasMore && (
+              <div ref={sentinelRef} className="flex items-center justify-center py-10">
+                {loadingMore && (
+                  <div className="flex items-center gap-2 text-[#3A7D44] text-sm font-medium">
+                    <Loader2 size={18} className="animate-spin" />
+                    Chargement d'autres annonces...
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!hasMore && listings.length > PAGE_SIZE && (
+              <p className="text-center text-xs text-[#94A3B8] py-10">
+                Vous avez vu toutes les annonces disponibles 🎉
+              </p>
+            )}
+          </>
         )}
       </div>
     </div>

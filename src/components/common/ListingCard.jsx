@@ -1,11 +1,16 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { MapPin, Bed, Bath, Maximize, Eye, ArrowUpRight } from 'lucide-react';
+import { MapPin, Bed, Bath, Maximize, Eye, ArrowUpRight , Film} from 'lucide-react';
 import { getImageUrl } from '../../lib/imageUrl';
 import FavoriteButton from './FavoriteButton';
 import CompareButton from './CompareButton';
+import { useState } from 'react';
+import useAuthStore from '../../store/authStore';
+import AuthGateModal from './AuthGateModal';
 
 export default function ListingCard({ listing }) {
     const navigate = useNavigate();
+    const { isAuthenticated } = useAuthStore();
+const [showAuthModal, setShowAuthModal] = useState(false);
 
   const coverImagePath = listing.listing_images?.find(img => img.is_cover)?.image_url;
   const coverImage = getImageUrl(coverImagePath);
@@ -18,13 +23,21 @@ export default function ListingCard({ listing }) {
   const photoCount = listing.listing_images?.length || 0;
 
   return (
-<div
-  onClick={() => navigate(`/annonces/${listing.id}`)}
-  role="link"
-  tabIndex={0}
-  onKeyDown={(e) => e.key === 'Enter' && navigate(`/annonces/${listing.id}`)}
-  className="group block bg-white dark:bg-[#1A1A1A] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.12)] hover:-translate-y-1 border border-[#F0F0F0] dark:border-[#2A2A2A] cursor-pointer"
->
+     <>
+    <div
+      onClick={() => {
+        if (!isAuthenticated) { setShowAuthModal(true); return; }
+        navigate(`/annonces/${listing.id}`);
+      }}
+      role="link"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key !== 'Enter') return;
+        if (!isAuthenticated) { setShowAuthModal(true); return; }
+        navigate(`/annonces/${listing.id}`);
+      }}
+      className="group block bg-white dark:bg-[#1A1A1A] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.12)] hover:-translate-y-1 border border-[#F0F0F0] dark:border-[#2A2A2A] cursor-pointer"
+    >
       {/* Image */}
       <div className="relative h-52 overflow-hidden bg-[#F5F5F7] dark:bg-[#2A2A2A]">
         {coverImage ? (
@@ -56,6 +69,12 @@ export default function ListingCard({ listing }) {
             {listing.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
           </span>
         </div>
+
+        {listing.listing_videos?.length > 0 && (
+          <span className="absolute top-3 left-24 text-xs font-bold px-2.5 py-1.5 rounded-full bg-black/70 text-white backdrop-blur-sm flex items-center gap-1">
+            <Film size={11} /> Vidéo
+          </span>
+        )}
 
         {/* Actions top right */}
         <div className="absolute top-3 right-3 flex flex-col gap-2">
@@ -170,5 +189,9 @@ export default function ListingCard({ listing }) {
         </div>
       </div>
     </div>
+    
+
+<AuthGateModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
+  </>
   );
 }

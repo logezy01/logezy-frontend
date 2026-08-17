@@ -644,20 +644,28 @@ export default function Home() {
     </div>
   </AnimatedSection>
 
-  {loading ? (
+{loading ? (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
     </div>
   ) : listings.length > 0 ? (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {listings.map((listing, i) => (
-        <AnimatedSection key={listing.id} delay={i * 80}>
-          <div className="card-3d">
-            <ListingCard listing={listing} />
-          </div>
-        </AnimatedSection>
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {listings.map((listing, i) => (
+          <AnimatedSection key={listing.id} delay={i * 80}>
+            <div className="card-3d">
+              <ListingCard listing={listing} />
+            </div>
+          </AnimatedSection>
+        ))}
+      </div>
+
+      {/* Bouton "Voir tout" — mobile uniquement */}
+      <Link to="/annonces" className="md:hidden flex items-center justify-center gap-2 font-bold text-sm px-5 py-3.5 rounded-xl mt-6"
+        style={{ color: '#3A7D44', background: 'rgba(58,125,68,0.08)', border: '1px solid rgba(58,125,68,0.2)' }}>
+        Voir toutes les annonces <ArrowRight size={16} />
+      </Link>
+    </>
   ) : (
     <div className="text-center py-20" style={{ color: '#94A3B8' }}>
       <div style={{ fontSize: 64, marginBottom: 16 }}>🏠</div>

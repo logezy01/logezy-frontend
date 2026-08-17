@@ -7,6 +7,7 @@ import ListingCard from '../../components/common/ListingCard';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
 import AdminMessages from '../../components/common/AdminMessages';
+import VideoUploader from '../../components/common/VideoUploader';
 
 const MENU = [
   { path: '/dashboard/locataire', icon: '📊', label: 'Vue générale' },

@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Link, useNavigate , useLocation } from 'react-router-dom';
-import { Plus, Eye, Trash2, CheckCircle, Camera, Search } from 'lucide-react';
+import { Plus, Eye, Trash2, CheckCircle, Camera, Search , Video} from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ImageUploader from '../../components/common/ImageUploader';
+import VideoUploader from '../../components/common/VideoUploader';
+
 
 import useAuthStore from '../../store/authStore';
 import AdminMessages from '../../components/common/AdminMessages';
@@ -177,6 +179,7 @@ function MyListings() {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [uploadingId, setUploadingId] = useState(null);
+  const [uploadingVideoId, setUploadingVideoId] = useState(null);
 
   const fetchListings = async () => {
     try {
@@ -299,17 +302,26 @@ function MyListings() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+<div className="flex items-center gap-2">
                   {uploadingId === l.id ? (
                     <div className="w-full">
                       <ImageUploader listingId={l.id} onUploadComplete={() => { setUploadingId(null); fetchListings(); }} />
                       <button onClick={() => setUploadingId(null)} className="text-xs text-red-400 mt-1">Annuler</button>
+                    </div>
+                  ) : uploadingVideoId === l.id ? (
+                    <div className="w-full">
+                      <VideoUploader listingId={l.id} onUploadComplete={() => { setUploadingVideoId(null); fetchListings(); }} />
+                      <button onClick={() => setUploadingVideoId(null)} className="text-xs text-red-400 mt-1">Annuler</button>
                     </div>
                   ) : (
                     <>
                       <button onClick={() => setUploadingId(l.id)}
                         className="p-2 rounded-xl bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors" title="Photos">
                         <Camera size={16} />
+                      </button>
+                      <button onClick={() => setUploadingVideoId(l.id)}
+                        className="p-2 rounded-xl bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors" title="Vidéos">
+                        <Video size={16} />
                       </button>
                       <a href={`/annonces/${l.id}`} target="_blank"
                         className="p-2 rounded-xl bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors" title="Voir">
@@ -530,6 +542,10 @@ function PublishListing() {
           <ImageUploader listingId={createdListingId} onUploadComplete={() => {
             setTimeout(() => navigate('/dashboard/agent/annonces'), 1500);
           }} />
+          <div className="mt-4 pt-4 border-t border-[#E2E8F0] dark:border-[#2A2A2A]">
+            <VideoUploader listingId={createdListingId} onUploadComplete={() => {}} />
+          </div>
+          
           <button onClick={() => navigate('/dashboard/agent/annonces')}
             className="btn-ghost w-full py-2.5 mt-3 text-sm">
             Passer cette étape →

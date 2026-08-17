@@ -4,7 +4,7 @@ import {
   MapPin, Bed, Bath, Home, Maximize, ChevronLeft, ChevronRight,
   Heart, Share2, Eye, Calendar, Shield, MessageSquare,
   Phone, CheckCircle, ArrowLeft, ZoomIn, X, Layers,
-  Sofa, Car, Trees, Waves, Lock, Star
+  Sofa, Car, Trees, Waves, Lock, Star, Play
 } from 'lucide-react';
 import Navbar from '../components/common/Navbar';
 import api from '../lib/axios';
@@ -47,8 +47,8 @@ export default function ListingDetail() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
   const compareStore = useCompareStore();
-const addToCompare = compareStore?.addToCompare || (() => {});
-const compareList = compareStore?.compareList || [];
+  const addToCompare = compareStore?.addToCompare || (() => {});
+  const compareList = compareStore?.compareList || [];
 
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -60,8 +60,6 @@ const compareList = compareStore?.compareList || [];
   const [activeTab, setActiveTab] = useState('details');
   const heroRef = useRef(null);
 
-
-  
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 80);
     window.addEventListener('scroll', handleScroll);
@@ -88,9 +86,16 @@ const compareList = compareStore?.compareList || [];
   }, [id]);
 
   const photos = listing?.listing_images || [];
+  const videos = listing?.listing_videos || [];
 
-  const nextPhoto = () => setCurrentPhoto(p => (p + 1) % photos.length);
-  const prevPhoto = () => setCurrentPhoto(p => (p - 1 + photos.length) % photos.length);
+  // Galerie unifiée : photos d'abord, vidéos ensuite
+  const media = [
+    ...photos.map(p => ({ type: 'image', url: p.image_url })),
+    ...videos.map(v => ({ type: 'video', url: v.video_url })),
+  ];
+
+  const nextPhoto = () => setCurrentPhoto(p => (p + 1) % media.length);
+  const prevPhoto = () => setCurrentPhoto(p => (p - 1 + media.length) % media.length);
 
   useEffect(() => {
     if (!lightbox) return;
@@ -101,7 +106,7 @@ const compareList = compareStore?.compareList || [];
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [lightbox, photos.length]);
+  }, [lightbox, media.length]);
 
   const handleFavorite = async () => {
     if (!isAuthenticated) { toast.error('Connectez-vous pour ajouter aux favoris'); return; }
@@ -120,25 +125,25 @@ const compareList = compareStore?.compareList || [];
     finally { setFavoriteLoading(false); }
   };
 
-const handleContact = async () => {
-  if (!isAuthenticated) { toast.error('Connectez-vous pour contacter'); navigate('/login'); return; }
-  if (user?.id === listing?.owner_id) { toast.error('Vous ne pouvez pas vous contacter vous-même'); return; }
+  const handleContact = async () => {
+    if (!isAuthenticated) { toast.error('Connectez-vous pour contacter'); navigate('/login'); return; }
+    if (user?.id === listing?.owner_id) { toast.error('Vous ne pouvez pas vous contacter vous-même'); return; }
 
-  try {
-    const res = await api.post('/chat/conversations', {
-      listing_id: listing.id,
-      owner_id: listing.owner_id,
-    });
-    const conversationId = res.data.conversation.id;
+    try {
+      const res = await api.post('/chat/conversations', {
+        listing_id: listing.id,
+        owner_id: listing.owner_id,
+      });
+      const conversationId = res.data.conversation.id;
 
-    const path = user?.role === 'proprietaire' ? `/dashboard/proprietaire/messages`
-      : user?.role === 'agent' ? `/dashboard/agent/messages`
-      : `/dashboard/locataire/messages`;
-    navigate(path, { state: { openConversationId: conversationId } });
-  } catch (e) {
-    toast.error('Erreur lors de la création de la conversation');
-  }
-};
+      const path = user?.role === 'proprietaire' ? `/dashboard/proprietaire/messages`
+        : user?.role === 'agent' ? `/dashboard/agent/messages`
+        : `/dashboard/locataire/messages`;
+      navigate(path, { state: { openConversationId: conversationId } });
+    } catch (e) {
+      toast.error('Erreur lors de la création de la conversation');
+    }
+  };
 
   const handleShare = () => {
     if (navigator.share) {
@@ -155,8 +160,6 @@ const handleContact = async () => {
   };
 
   const formatPrice = (price) => new Intl.NumberFormat('fr-FR').format(price);
-
-  
 
   if (loading) return (
     <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#080B14]">
@@ -225,13 +228,24 @@ const handleContact = async () => {
         <FadeIn>
           <div className="grid grid-cols-4 grid-rows-2 gap-2 h-[380px] md:h-[460px] rounded-2xl overflow-hidden mb-6">
 
-            {/* Photo principale */}
+            {/* Photo/Vidéo principale */}
             <div className="col-span-4 md:col-span-3 row-span-2 relative group cursor-pointer"
               onClick={() => setLightbox(true)}>
-              {photos.length > 0 ? (
-                <img src={photos[currentPhoto]?.image_url} alt={listing.title}
-                  className="w-full h-full object-cover"
-                  loading="lazy" />
+              {media.length > 0 ? (
+                media[currentPhoto]?.type === 'video' ? (
+                  <>
+                    <video src={media[currentPhoto].url} className="w-full h-full object-cover" muted />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center">
+                        <Play size={28} className="text-[#3A7D44] ml-1" fill="currentColor" />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <img src={media[currentPhoto].url} alt={listing.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy" />
+                )
               ) : (
                 <div className="w-full h-full bg-[#E8E8E8] dark:bg-[#1A1A1A] flex items-center justify-center">
                   <Home size={64} className="text-[#CBD5E1]" />
@@ -262,15 +276,15 @@ const handleContact = async () => {
                 )}
               </div>
 
-              {/* Compteur photos */}
-              {photos.length > 1 && (
+              {/* Compteur */}
+              {media.length > 1 && (
                 <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full">
-                  {currentPhoto + 1} / {photos.length}
+                  {currentPhoto + 1} / {media.length}
                 </div>
               )}
 
-              {/* Navigation photos */}
-              {photos.length > 1 && (
+              {/* Navigation */}
+              {media.length > 1 && (
                 <>
                   <button onClick={(e) => { e.stopPropagation(); prevPhoto(); }}
                     className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110">
@@ -290,17 +304,26 @@ const handleContact = async () => {
             </div>
 
             {/* Miniatures côté droit — desktop seulement */}
-            {photos.slice(1, 3).map((photo, i) => (
+            {media.slice(1, 3).map((item, i) => (
               <div key={i}
                 className="hidden md:block relative cursor-pointer overflow-hidden group"
                 onClick={() => { setCurrentPhoto(i + 1); }}>
-                <img src={photo.image_url} alt={`Photo ${i + 2}`}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  loading="lazy" />
-                {i === 1 && photos.length > 3 && (
+                {item.type === 'video' ? (
+                  <>
+                    <video src={item.url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" muted />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <Play size={20} className="text-white" fill="currentColor" />
+                    </div>
+                  </>
+                ) : (
+                  <img src={item.url} alt={`Média ${i + 2}`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy" />
+                )}
+                {i === 1 && media.length > 3 && (
                   <div onClick={(e) => { e.stopPropagation(); setLightbox(true); }}
                     className="absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer">
-                    <span className="text-white font-bold text-lg">+{photos.length - 3}</span>
+                    <span className="text-white font-bold text-lg">+{media.length - 3}</span>
                   </div>
                 )}
               </div>
@@ -309,15 +332,24 @@ const handleContact = async () => {
         </FadeIn>
 
         {/* ══ MINIATURES HORIZONTALES (mobile) ══ */}
-        {photos.length > 1 && (
+        {media.length > 1 && (
           <div className="flex gap-2 overflow-x-auto pb-3 mb-6 md:hidden scrollbar-hide">
-            {photos.map((photo, i) => (
+            {media.map((item, i) => (
               <button key={i} onClick={() => setCurrentPhoto(i)}
-                className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+                className={`relative shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
                   currentPhoto === i ? 'border-[#3A7D44] scale-105' : 'border-transparent opacity-60'
                 }`}>
-                <img src={photo.image_url} alt={`Miniature ${i + 1}`}
-                  className="w-full h-full object-cover" loading="lazy" />
+                {item.type === 'video' ? (
+                  <>
+                    <video src={item.url} className="w-full h-full object-cover" muted />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <Play size={14} className="text-white" fill="currentColor" />
+                    </div>
+                  </>
+                ) : (
+                  <img src={item.url} alt={`Miniature ${i + 1}`}
+                    className="w-full h-full object-cover" loading="lazy" />
+                )}
               </button>
             ))}
           </div>
@@ -504,21 +536,30 @@ const handleContact = async () => {
               </div>
             </FadeIn>
 
-            {/* Vignettes photos desktop */}
-            {photos.length > 1 && (
+            {/* Vignettes médias desktop */}
+            {media.length > 1 && (
               <FadeIn delay={200}>
                 <div className="hidden md:block bg-white dark:bg-[#111827] rounded-2xl p-4 shadow-sm border border-[#E8E8E8] dark:border-[#1F2937]">
                   <p className="text-sm font-bold text-[#0F172A] dark:text-white mb-3">
-                    Toutes les photos ({photos.length})
+                    Toutes les photos et vidéos ({media.length})
                   </p>
                   <div className="flex gap-2 overflow-x-auto pb-1">
-                    {photos.map((photo, i) => (
+                    {media.map((item, i) => (
                       <button key={i} onClick={() => { setCurrentPhoto(i); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+                        className={`relative shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
                           currentPhoto === i ? 'border-[#3A7D44] scale-105' : 'border-transparent opacity-70 hover:opacity-100'
                         }`}>
-                        <img src={photo.image_url} alt={`Photo ${i + 1}`}
-                          className="w-full h-full object-cover" loading="lazy" />
+                        {item.type === 'video' ? (
+                          <>
+                            <video src={item.url} className="w-full h-full object-cover" muted />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                              <Play size={16} className="text-white" fill="currentColor" />
+                            </div>
+                          </>
+                        ) : (
+                          <img src={item.url} alt={`Média ${i + 1}`}
+                            className="w-full h-full object-cover" loading="lazy" />
+                        )}
                       </button>
                     ))}
                   </div>
@@ -588,6 +629,33 @@ const handleContact = async () => {
                         </p>
                       </div>
                     </div>
+
+                    {/* Agence */}
+                    {listing.users.agencies && (
+                      <button
+                        onClick={() => navigate(`/agences/${listing.users.agencies.id}`)}
+                        className="w-full flex items-center gap-3 mt-3 p-3 bg-[#EBF5ED] dark:bg-[#1F2937] rounded-xl hover:bg-[#DCEEE0] dark:hover:bg-[#2A3B2E] transition-colors border border-[#3A7D44]/20"
+                      >
+                        {listing.users.agencies.logo_url ? (
+                          <img
+                            src={listing.users.agencies.logo_url}
+                            alt={listing.users.agencies.name}
+                            className="w-10 h-10 rounded-xl object-cover shrink-0"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-xl bg-[#3A7D44] text-white flex items-center justify-center font-black text-sm shrink-0">
+                            {listing.users.agencies.name?.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="text-left flex-1 min-w-0">
+                          <p className="text-xs text-[#94A3B8]">Publié via l'agence</p>
+                          <p className="font-bold text-sm text-[#3A7D44] truncate">
+                            🏢 {listing.users.agencies.name}
+                          </p>
+                        </div>
+                        <ChevronRight size={16} className="text-[#3A7D44] shrink-0" />
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -632,9 +700,16 @@ const handleContact = async () => {
             <ChevronLeft size={22} />
           </button>
 
-          <img src={photos[currentPhoto]?.image_url} alt={listing.title}
-            className="max-w-[90vw] max-h-[85vh] object-contain rounded-xl"
-            onClick={e => e.stopPropagation()} />
+          {media[currentPhoto]?.type === 'video' ? (
+            <video src={media[currentPhoto].url}
+              className="max-w-[90vw] max-h-[85vh] rounded-xl"
+              controls autoPlay
+              onClick={e => e.stopPropagation()} />
+          ) : (
+            <img src={media[currentPhoto]?.url} alt={listing.title}
+              className="max-w-[90vw] max-h-[85vh] object-contain rounded-xl"
+              onClick={e => e.stopPropagation()} />
+          )}
 
           <button onClick={(e) => { e.stopPropagation(); nextPhoto(); }}
             className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-all">
@@ -642,7 +717,7 @@ const handleContact = async () => {
           </button>
 
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {photos.map((_, i) => (
+            {media.map((_, i) => (
               <button key={i} onClick={(e) => { e.stopPropagation(); setCurrentPhoto(i); }}
                 className={`rounded-full transition-all ${
                   currentPhoto === i ? 'w-5 h-2 bg-white' : 'w-2 h-2 bg-white/40 hover:bg-white/60'
@@ -651,7 +726,7 @@ const handleContact = async () => {
           </div>
 
           <div className="absolute bottom-4 right-4 text-white/60 text-sm">
-            {currentPhoto + 1} / {photos.length}
+            {currentPhoto + 1} / {media.length}
           </div>
         </div>
       )}
