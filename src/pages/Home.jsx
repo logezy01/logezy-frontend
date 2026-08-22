@@ -492,11 +492,11 @@ export default function Home() {
           <div className="hero-text">
 
             {/* Badge animé */}
-            <div className="inline-flex items-center gap-2 mb-8"
+          {/*   <div className="inline-flex items-center gap-2 mb-8"
               style={{ background: 'rgba(58,125,68,0.15)', border: '1px solid rgba(58,125,68,0.3)', backdropFilter: 'blur(10px)', borderRadius: 100, padding: '8px 16px', animation: 'pulse3d 3s ease-in-out infinite' }}>
               <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-emerald-400 text-sm font-bold">🇧🇯 N°1 de l'immobilier au Bénin</span>
-            </div>
+            <span className="text-emerald-400 text-sm font-bold">🇧🇯 N°1 de l'immobilier au Bénin</span>
+            </div>*/} 
 
             {/* Titre avec effet 3D */}
             <div className="mb-5" style={{ perspective: '1000px' }}>
@@ -601,7 +601,7 @@ export default function Home() {
 <div className="hero-img hidden lg:flex flex-col gap-4 items-end justify-center relative">
 
   {/* Carte principale */}
-  <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(58,125,68,0.3)', borderRadius: 20, padding: '24px', minWidth: 280 }}>
+  {/* <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(58,125,68,0.3)', borderRadius: 20, padding: '24px', minWidth: 280 }}>
     <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, marginBottom: 8 }}>🏠 Annonces disponibles</div>
     <div style={{ color: '#4ade80', fontSize: 42, fontWeight: 900, lineHeight: 1 }}>500+</div>
     <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 4 }}>dans 12 villes du Bénin</div>
@@ -612,7 +612,7 @@ export default function Home() {
         </span>
       ))}
     </div>
-  </div>
+  </div>*/}
 
   {/* Carte satisfaction */}
   <FloatingCard delay={0.5} style={{ alignSelf: 'flex-start' }}>
