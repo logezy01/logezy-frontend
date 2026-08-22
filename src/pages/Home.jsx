@@ -496,7 +496,7 @@ export default function Home() {
               style={{ background: 'rgba(58,125,68,0.15)', border: '1px solid rgba(58,125,68,0.3)', backdropFilter: 'blur(10px)', borderRadius: 100, padding: '8px 16px', animation: 'pulse3d 3s ease-in-out infinite' }}>
               <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
             <span className="text-emerald-400 text-sm font-bold">🇧🇯 N°1 de l'immobilier au Bénin</span>
-            </div>*/} 
+            </div>*/}  
 
             {/* Titre avec effet 3D */}
             <div className="mb-5" style={{ perspective: '1000px' }}>

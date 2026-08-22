@@ -14,6 +14,8 @@ export default function Navbar() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [annoncesMenuOpen, setAnnoncesMenuOpen] = useState(false);
+  const [decouvrirMenuOpen, setDecouvrirMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { theme, toggleTheme } = useThemeStore();
 
@@ -50,16 +52,20 @@ export default function Navbar() {
 
   const isActive = (path) => location.pathname === path;
 
-  const navLinks = [
-    { path: '/annonces', label: 'Annonces' },
-    { path: '/annonces?type=location', label: 'Location' },
-    { path: '/annonces?type=vente', label: 'Vente' },
+  const annoncesLinks = [
+    { path: '/annonces', label: 'Toutes les annonces' },
+    { path: '/annonces?type=location', label: '🔑 Location' },
+    { path: '/annonces?type=vente', label: '🏷️ Vente' },
+  ];
+
+  const decouvrirLinks = [
     { path: '/comment-ca-marche', label: 'Comment ça marche' },
     { path: '/a-propos', label: 'À propos' },
     { path: '/contact', label: 'Contact' },
-    { path: '/agences', label: 'Agences' },
   ];
 
+  const isAnnoncesActive = location.pathname === '/annonces';
+  const isDecouvrirActive = ['/comment-ca-marche', '/a-propos', '/contact'].includes(location.pathname);
   const navBg = isHome && !scrolled
     ? 'bg-transparent border-transparent'
     : 'bg-white/70 dark:bg-[#0F172A]/70 backdrop-blur-2xl border-white/40 dark:border-white/10 shadow-soft-sm';
@@ -88,20 +94,66 @@ export default function Navbar() {
 
             {/* Liens centre — Desktop */}
             <div className="hidden lg:flex items-center gap-1.5 flex-1">
-              {navLinks.map(link => (
-                <Link key={link.path} to={link.path}
-                  className={`relative px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group/navlink ${
-                    isActive(link.path) ? activeColor : linkColor
+
+              {/* Menu Annonces */}
+              <div className="relative" onMouseEnter={() => setAnnoncesMenuOpen(true)} onMouseLeave={() => setAnnoncesMenuOpen(false)}>
+                <Link to="/annonces"
+                  className={`relative flex items-center gap-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    isAnnoncesActive ? activeColor : linkColor
                   }`}>
-                  {link.label}
-                  <span
-                    className={`absolute left-4 right-4 -bottom-0.5 h-[2px] rounded-full transition-transform duration-300 origin-left ${
-                      isActive(link.path) ? 'scale-x-100' : 'scale-x-0 group-hover/navlink:scale-x-100'
-                    }`}
-                    style={{ background: isHome && !scrolled ? 'white' : '#3A7D44' }}
-                  />
+                  Annonces
+                  <ChevronDown size={13} className={`transition-transform duration-300 ${annoncesMenuOpen ? 'rotate-180' : ''}`} />
                 </Link>
-              ))}
+                {annoncesMenuOpen && (
+                  <div className="absolute left-0 top-full pt-2 w-52 animate-scale-in">
+                    <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-[#E8E8E8] dark:border-[#2A2A2A] p-2 overflow-hidden">
+                      {annoncesLinks.map(link => (
+                        <Link key={link.label} to={link.path}
+                          className="block px-3 py-2.5 rounded-xl text-sm font-medium text-[#334155] dark:text-[#94A3B8] hover:bg-[#EBF5ED] dark:hover:bg-[#2A2A2A] hover:text-[#3A7D44] transition-colors">
+                          {link.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Agences */}
+              <Link to="/agences"
+                className={`relative px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group/navlink ${
+                  isActive('/agences') ? activeColor : linkColor
+                }`}>
+                Agences
+                <span
+                  className={`absolute left-4 right-4 -bottom-0.5 h-[2px] rounded-full transition-transform duration-300 origin-left ${
+                    isActive('/agences') ? 'scale-x-100' : 'scale-x-0 group-hover/navlink:scale-x-100'
+                  }`}
+                  style={{ background: isHome && !scrolled ? 'white' : '#3A7D44' }}
+                />
+              </Link>
+
+              {/* Menu Découvrir */}
+              <div className="relative" onMouseEnter={() => setDecouvrirMenuOpen(true)} onMouseLeave={() => setDecouvrirMenuOpen(false)}>
+                <button
+                  className={`relative flex items-center gap-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    isDecouvrirActive ? activeColor : linkColor
+                  }`}>
+                  Découvrir
+                  <ChevronDown size={13} className={`transition-transform duration-300 ${decouvrirMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {decouvrirMenuOpen && (
+                  <div className="absolute left-0 top-full pt-2 w-52 animate-scale-in">
+                    <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-[#E8E8E8] dark:border-[#2A2A2A] p-2 overflow-hidden">
+                      {decouvrirLinks.map(link => (
+                        <Link key={link.path} to={link.path}
+                          className="block px-3 py-2.5 rounded-xl text-sm font-medium text-[#334155] dark:text-[#94A3B8] hover:bg-[#EBF5ED] dark:hover:bg-[#2A2A2A] hover:text-[#3A7D44] transition-colors">
+                          {link.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Droite — Desktop */}
@@ -251,7 +303,7 @@ export default function Navbar() {
           <div className="md:hidden bg-white dark:bg-[#0F172A] border-t border-[#E8E8E8] dark:border-[#2A2A2A] animate-slide-down">
             <div className="px-4 py-4 space-y-1">
 
-              {navLinks.map(link => (
+              {[...annoncesLinks, { path: '/agences', label: 'Agences' }, ...decouvrirLinks].map(link => (
                 <Link key={link.path} to={link.path} onClick={() => setMobileOpen(false)}
                   className={`flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                     isActive(link.path)
