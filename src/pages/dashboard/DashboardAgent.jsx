@@ -5,6 +5,8 @@ import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ImageUploader from '../../components/common/ImageUploader';
 import VideoUploader from '../../components/common/VideoUploader';
+import { DEPARTMENTS, getQuartiersForCity } from '../../data/beninLocations';
+import { LISTING_CATEGORIES } from '../../data/listingCategories';
 
 
 import useAuthStore from '../../store/authStore';
@@ -505,7 +507,7 @@ useEffect(() => {
 // ─── PUBLIER ──────────────────────────────────────────────────
 function PublishListing() {
     const [form, setForm] = useState({
-      title: '', description: '', type: 'location', price: '',
+      title: '', description: '', type: 'location', category: '', price: '',
       price_period: 'mois', city: '', neighborhood: '',
       bedrooms: 0, bathrooms: 0, living_rooms: 0, area: '',
       floors: 0, is_furnished: false, has_parking: false,
@@ -515,8 +517,9 @@ function PublishListing() {
   const [loading, setLoading] = useState(false);
   const [createdListingId, setCreatedListingId] = useState(null);
   const navigate = useNavigate();
-  const CITIES = ['Cotonou', 'Porto-Novo', 'Parakou', 'Abomey-Calavi', 'Bohicon', 'Natitingou', 'Ouidah', 'Lokossa'];
+
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }));
+  const quartierSuggestions = getQuartiersForCity(form.city);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -575,6 +578,21 @@ function PublishListing() {
             </div>
           </div>
 
+                    <div>
+            <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Catégorie du bien</label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {LISTING_CATEGORIES.map(cat => (
+                <button key={cat.value} type="button" onClick={() => update('category', cat.value)}
+                  className={`p-2.5 rounded-xl border-2 text-center font-bold text-xs transition-all ${
+                    form.category === cat.value ? 'border-[#3A7D44] bg-[#EBF5ED] text-[#3A7D44]' : 'border-[#E2E8F0] text-[#64748B] hover:border-[#3A7D44]/30'
+                  }`}>
+                  <div className="text-lg mb-1">{cat.icon}</div>
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Titre *</label>
             <input type="text" placeholder="Ex: Villa 3 chambres - Cotonou" value={form.title}
@@ -608,16 +626,31 @@ function PublishListing() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Ville *</label>
-              <select value={form.city} onChange={(e) => update('city', e.target.value)} className="input-field" required>
+              <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Ville / Commune *</label>
+              <select value={form.city} onChange={(e) => { update('city', e.target.value); update('neighborhood', ''); }} className="input-field" required>
                 <option value="">Choisir une ville</option>
-                {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                {Object.entries(DEPARTMENTS).map(([dept, cities]) => (
+                  <optgroup key={dept} label={dept}>
+                    {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                  </optgroup>
+                ))}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Quartier</label>
-              <input type="text" placeholder="Ex: Cadjehoun" value={form.neighborhood}
-                onChange={(e) => update('neighborhood', e.target.value)} className="input-field" />
+              {quartierSuggestions.length > 0 ? (
+                <>
+                  <input type="text" list="quartier-suggestions" placeholder="Choisir ou saisir un quartier"
+                    value={form.neighborhood}
+                    onChange={(e) => update('neighborhood', e.target.value)} className="input-field" />
+                  <datalist id="quartier-suggestions">
+                    {quartierSuggestions.map(q => <option key={q} value={q} />)}
+                  </datalist>
+                </>
+              ) : (
+                <input type="text" placeholder="Ex: Cadjehoun" value={form.neighborhood}
+                  onChange={(e) => update('neighborhood', e.target.value)} className="input-field" />
+              )}
             </div>
           </div>
 

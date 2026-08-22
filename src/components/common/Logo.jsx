@@ -5,10 +5,10 @@ export default function Logo({ size = 'md', white = false }) {
   const { theme } = useThemeStore();
 
   const sizes = {
-    sm: 32,
-    md: 40,
-    lg: 56,
-    xl: 72,
+    sm: 40,
+    md: 64,
+    lg: 80,
+    xl: 96,
   };
 
   const imgSize = sizes[size] || sizes.md;
@@ -17,7 +17,10 @@ export default function Logo({ size = 'md', white = false }) {
   const logoSrc = white || theme === 'dark' ? '/logo-dark.png' : '/logo-light.png';
 
   return (
-    <Link to="/" className="flex items-center shrink-0">
+    <Link
+      to="/"
+      className="flex items-center shrink-0 transition-transform duration-300 hover:scale-[1.3]"
+    >
       <img
         src={logoSrc}
         alt="Logezy"

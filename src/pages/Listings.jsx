@@ -7,6 +7,7 @@ import MapView from '../components/common/MapView';
 import SaveSearch from '../components/common/SaveSearch';
 import api from '../lib/axios';
 import SkeletonCard from '../components/common/SkeletonCard';
+import { LISTING_CATEGORIES } from '../data/listingCategories';
 
 
 const CITIES = ['Cotonou', 'Porto-Novo', 'Parakou', 'Abomey-Calavi', 'Bohicon', 'Natitingou', 'Ouidah', 'Lokossa'];
@@ -31,11 +32,11 @@ export default function Listings() {
   const [filters, setFilters] = useState({
     city: searchParams.get('city') || '',
     type: searchParams.get('type') || '',
+    category: searchParams.get('category') || '',
     bedrooms: '',
     min_price: '',
     max_price: '',
   });
-
   const sentinelRef = useRef(null);
 
   // Chargement initial ou nouvelle recherche (reset)
@@ -98,7 +99,7 @@ export default function Listings() {
 
   const handleSearch = (e) => { e?.preventDefault(); fetchListings(); };
   const handleReset = () => {
-    const cleared = { city: '', type: '', bedrooms: '', min_price: '', max_price: '' };
+    const cleared = { city: '', type: '', category: '', bedrooms: '', min_price: '', max_price: '' };
     setFilters(cleared);
     setTimeout(() => fetchListings(cleared), 100);
   };
@@ -142,6 +143,12 @@ export default function Listings() {
                   {filters.city && (
                     <span className="text-xs bg-[#EFF6FF] text-[#3B82F6] font-bold px-2 py-1 rounded-full">
                       📍 {filters.city}
+                    </span>
+                  )}
+
+                    {filters.category && (
+                    <span className="text-xs bg-[#FEF3C7] text-[#92400E] font-bold px-2 py-1 rounded-full">
+                      {LISTING_CATEGORIES.find(c => c.value === filters.category)?.icon} {LISTING_CATEGORIES.find(c => c.value === filters.category)?.label}
                     </span>
                   )}
                   <button onClick={handleReset}
@@ -235,7 +242,7 @@ export default function Listings() {
             <div className="mt-4 animate-slide-down">
               <form onSubmit={handleSearch}
                 className="bg-[#F8F9FA] dark:bg-[#1A1A1A] rounded-2xl p-4 border border-[#E8E8E8] dark:border-[#2A2A2A]">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                              <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
                   {[
                     {
                       label: 'Ville', field: 'city', type: 'select',
@@ -244,6 +251,10 @@ export default function Listings() {
                     {
                       label: 'Type', field: 'type', type: 'select',
                       options: [{ value: '', label: 'Tout type' }, { value: 'location', label: '🔑 Location' }, { value: 'vente', label: '🏷️ Vente' }]
+                    },
+                    {
+                      label: 'Catégorie', field: 'category', type: 'select',
+                      options: [{ value: '', label: 'Toute catégorie' }, ...LISTING_CATEGORIES.map(c => ({ value: c.value, label: `${c.icon} ${c.label}` }))]
                     },
                     {
                       label: 'Chambres min.', field: 'bedrooms', type: 'select',

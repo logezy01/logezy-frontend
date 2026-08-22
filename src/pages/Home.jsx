@@ -415,12 +415,14 @@ export default function Home() {
 
 
         .city-card {
-          transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-          transform-style: preserve-3d;
+          transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.45s cubic-bezier(0.23, 1, 0.32, 1);
         }
         .city-card:hover {
-          transform: translateY(-6px) rotateX(8deg) scale(1.03);
-          box-shadow: 0 20px 40px rgba(58,125,68,0.15);
+          transform: translateY(-6px);
+          box-shadow: 0 24px 48px -12px rgba(15,23,42,0.25);
+        }
+        .city-card:hover .h-\\[2px\\] {
+          width: 48px !important;
         }
         .hero-text { animation: slideInLeft 1s cubic-bezier(0.23, 1, 0.32, 1) both; }
         .hero-img { animation: slideInRight 1.2s cubic-bezier(0.23, 1, 0.32, 1) 0.3s both; }
@@ -684,7 +686,7 @@ export default function Home() {
           <Zap size={12} />
           Nouvelles annonces
         </div>
-        <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, color: '#0F172A', lineHeight: 1.1 }}>
+        <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, color: '#0F172A', lineHeight: 1.1 }}>
           Annonces récentes
         </h2>
         <p style={{ color: '#64748B', marginTop: 8 }}>Les dernières propriétés disponibles au Bénin</p>
@@ -742,7 +744,7 @@ export default function Home() {
               <CheckCircle size={12} />
               Pourquoi nous choisir
             </div>
-            <h2 className="shimmer-green" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, marginBottom: 12 }}>
+            <h2 className="shimmer-green font-display" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, marginBottom: 12 }}>
               La référence immobilière au Bénin
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', fontSize: '1.05rem' }}>
@@ -781,7 +783,7 @@ export default function Home() {
               <MapPin size={12} />
               Partout au Bénin
             </div>
-            <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, color: '#0F172A', marginBottom: 8 }}>
+            <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, color: '#0F172A', marginBottom: 8 }}>
               Explorez par ville
             </h2>
             <p style={{ color: '#64748B' }}>Des annonces disponibles dans toutes les grandes villes du Bénin</p>
@@ -789,25 +791,41 @@ export default function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { city: 'Cotonou', emoji: '🏙️', desc: 'Capitale économique', color: '#3A7D44' },
-              { city: 'Porto-Novo', emoji: '🏛️', desc: 'Capitale officielle', color: '#3B82F6' },
-              { city: 'Abomey-Calavi', emoji: '🌿', desc: 'Ville universitaire', color: '#10B981' },
-              { city: 'Parakou', emoji: '🌍', desc: 'Capitale du Nord', color: '#F59E0B' },
-              { city: 'Bohicon', emoji: '🏘️', desc: 'Carrefour commercial', color: '#8B5CF6' },
-              { city: 'Ouidah', emoji: '⛱️', desc: 'Ville historique', color: '#EF4444' },
-              { city: 'Natitingou', emoji: '🏔️', desc: "Perle de l'Atacora", color: '#06B6D4' },
-              { city: 'Lokossa', emoji: '🌾', desc: 'Ville du Mono', color: '#F97316' },
+              { city: 'Cotonou', desc: 'Capitale économique', image: 'https://images.unsplash.com/photo-1600241005059-71de13374958?w=600&q=80&auto=format&fit=crop' },
+              { city: 'Porto-Novo', desc: 'Capitale officielle', image: 'https://www.shutterstock.com/shutterstock/photos/2613612905/display_1500/stock-photo-the-porto-novo-cathedral-in-the-capital-of-benin-with-the-beautiful-post-colonial-architecture-2613612905.jpg' },
+              { city: 'Abomey-Calavi', desc: 'Ville universitaire', image: 'https://www.gouv.bj/upload/images/banners/790640216943001733641533.jpg' },
+              { city: 'Parakou', desc: 'Capitale du Nord', image: 'https://images.unsplash.com/photo-1646459273661-66884c54f2f1?w=600&q=80&auto=format&fit=crop' },
+              { city: 'Bohicon', desc: 'Carrefour commercial', image: 'https://images.unsplash.com/photo-1772965243005-b64da960038c?w=600&q=80&auto=format&fit=crop' },
+              { city: 'Ouidah', desc: 'Ville historique', image: 'https://media.istockphoto.com/id/2222142715/photo/door-of-no-return-in-ouidah-benin-on-the-atlantic-coast-on-a-sunny-afternoon-2.jpg?s=1024x1024&w=is&k=20&c=OR6DHwyJwtaRNgFhIIp5xgPQouLOUAfg_bIGIpIgfH8=' },
+              { city: 'Natitingou', desc: "Perle de l'Atacora", image: 'https://th.bing.com/th/id/R.94b44f6b6ca5fc78624e1aa22dcbe7dc?rik=UBs0uidvk7%2bXfw&pid=ImgRaw&r=0' },
+              { city: 'Lokossa', desc: 'Ville du Mono', image: 'https://images.unsplash.com/photo-1684860085919-968e99ba0337?w=600&q=80&auto=format&fit=crop' },
             ].map((item, i) => (
               <AnimatedSection key={item.city} delay={i * 60}>
-                <button onClick={() => navigate(`/annonces?city=${item.city}`)}
-                  className="city-card w-full text-left p-4 rounded-2xl"
-                  style={{ background: 'white', border: '1px solid #E8E8E8' }}>
-                  <div style={{ fontSize: 28, marginBottom: 8, animation: `float3d ${3 + i * 0.3}s ease-in-out infinite` }}>{item.emoji}</div>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: '#0F172A', marginBottom: 2 }}>{item.city}</div>
-                  <div style={{ fontSize: 11, color: '#94A3B8' }}>{item.desc}</div>
-                  <div style={{ marginTop: 8, width: 20, height: 2, borderRadius: 1, background: item.color, transition: 'width 0.3s ease' }}
-                    onMouseEnter={e => e.target.style.width = '100%'}
-                    onMouseLeave={e => e.target.style.width = '20px'} />
+                <button
+                  onClick={() => navigate(`/annonces?city=${item.city}`)}
+                  className="city-card group relative w-full text-left rounded-2xl overflow-hidden h-44"
+                  style={{ boxShadow: '0 1px 3px rgba(15,23,42,0.08)' }}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.city}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: 'linear-gradient(to top, rgba(5,10,16,0.92) 0%, rgba(5,10,16,0.45) 55%, rgba(5,10,16,0.05) 100%)' }}
+                  />
+                  <div className="absolute inset-0 flex flex-col justify-end p-4">
+                    <div className="text-white font-bold text-base mb-0.5" style={{ letterSpacing: '-0.01em' }}>
+                      {item.city}
+                    </div>
+                    <div className="text-white/70 text-xs font-medium">{item.desc}</div>
+                    <div
+                      className="mt-2 h-[2px] rounded-full bg-[#4ade80] transition-all duration-500"
+                      style={{ width: 24 }}
+                    />
+                  </div>
                 </button>
               </AnimatedSection>
             ))}
@@ -826,7 +844,7 @@ export default function Home() {
             🇧🇯 Logezy — Votre logement facile
           </div>
 
-          <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 20 }}>
+          <h2 className="font-display" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 20 }}>
             Votre prochaine maison
             <span className="block shimmer-green">vous attend ici</span>
           </h2>

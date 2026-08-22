@@ -6,6 +6,7 @@ import CompareButton from './CompareButton';
 import { useState } from 'react';
 import useAuthStore from '../../store/authStore';
 import AuthGateModal from './AuthGateModal';
+import { getCategoryIcon, getCategoryLabel } from '../../data/listingCategories';
 
 export default function ListingCard({ listing }) {
   const navigate = useNavigate();
@@ -108,6 +109,16 @@ export default function ListingCard({ listing }) {
             >
               {listing.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
             </span>
+                        {listing.category && (
+              <span
+                className="text-xs font-bold px-2.5 py-1.5 rounded-full bg-white/85 text-[#334155] backdrop-blur-md"
+                style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
+              >
+                {getCategoryIcon(listing.category)} {getCategoryLabel(listing.category)}
+              </span>
+            )}
+
+            
 
             {listing.is_featured && (
               <span

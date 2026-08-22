@@ -17,7 +17,6 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { theme, toggleTheme } = useThemeStore();
 
-  // Effet scroll pour navbar transparente sur home
   const isHome = location.pathname === '/';
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -59,14 +58,11 @@ export default function Navbar() {
     { path: '/a-propos', label: 'À propos' },
     { path: '/contact', label: 'Contact' },
     { path: '/agences', label: 'Agences' },
-
-
   ];
-
 
   const navBg = isHome && !scrolled
     ? 'bg-transparent border-transparent'
-    : 'bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md border-[#E8E8E8] dark:border-[#2A2A2A] shadow-sm';
+    : 'bg-white/70 dark:bg-[#0F172A]/70 backdrop-blur-2xl border-white/40 dark:border-white/10 shadow-soft-sm';
 
   const linkColor = isHome && !scrolled
     ? 'text-white/80 hover:text-white hover:bg-white/10'
@@ -76,45 +72,57 @@ export default function Navbar() {
     ? 'bg-white/20 text-white font-bold'
     : 'bg-[#EBF5ED] text-[#3A7D44] font-bold';
 
+  const dividerColor = isHome && !scrolled ? 'bg-white/15' : 'bg-[#E8E8E8] dark:bg-[#2A2A2A]';
+
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300 ${navBg}`}>
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="flex items-center justify-between h-16">
+      <nav className={`fixed top-0 left-0 right-0 z-50 border-b ${navBg}`}
+        style={{ transition: 'background-color 0.45s cubic-bezier(0.23,1,0.32,1), backdrop-filter 0.45s cubic-bezier(0.23,1,0.32,1), border-color 0.45s cubic-bezier(0.23,1,0.32,1), box-shadow 0.45s cubic-bezier(0.23,1,0.32,1)'}}>
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
 
             {/* Logo */}
-            <Logo size="md" white={isHome && !scrolled} />
+            <div className="flex items-center pr-6 lg:pr-10">
+              <Logo size="md" white={isHome && !scrolled} />
+            </div>
 
             {/* Liens centre — Desktop */}
-            <div className="hidden lg:flex items-center gap-0.5">
+            <div className="hidden lg:flex items-center gap-1.5 flex-1">
               {navLinks.map(link => (
                 <Link key={link.path} to={link.path}
-                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  className={`relative px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group/navlink ${
                     isActive(link.path) ? activeColor : linkColor
                   }`}>
                   {link.label}
+                  <span
+                    className={`absolute left-4 right-4 -bottom-0.5 h-[2px] rounded-full transition-transform duration-300 origin-left ${
+                      isActive(link.path) ? 'scale-x-100' : 'scale-x-0 group-hover/navlink:scale-x-100'
+                    }`}
+                    style={{ background: isHome && !scrolled ? 'white' : '#3A7D44' }}
+                  />
                 </Link>
-                
               ))}
-              
             </div>
 
             {/* Droite — Desktop */}
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-3 pl-6 lg:pl-10">
               {isAuthenticated ? (
                 <>
                   {/* Bouton publier */}
                   {user?.role !== 'locataire' && (
                     <Link to={getPublishLink()}
-                      className="hidden lg:flex items-center gap-2 bg-[#3A7D44] hover:bg-[#2D6235] text-white text-sm font-bold px-4 py-2 rounded-xl transition-all shadow-sm">
-                      <Plus size={14} />
+                      className="hidden lg:flex items-center gap-2 bg-[#3A7D44] hover:bg-[#2D6235] text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all shadow-sm hover:-translate-y-0.5 duration-300">
+                      <Plus size={15} />
                       Publier
                     </Link>
                   )}
 
+                  {/* Séparateur */}
+                  <div className={`hidden lg:block w-px h-6 ${dividerColor}`} />
+
                   {/* Toggle thème */}
                   <button onClick={toggleTheme}
-                    className={`p-2 rounded-xl transition-all ${
+                    className={`p-2.5 rounded-xl transition-all ${
                       isHome && !scrolled
                         ? 'text-white/70 hover:text-white hover:bg-white/10'
                         : 'text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F5F5F7] dark:hover:bg-[#2A2A2A]'
@@ -127,32 +135,34 @@ export default function Navbar() {
 
                   <NotificationBell />
 
+                  {/* Séparateur */}
+                  <div className={`hidden lg:block w-px h-6 ${dividerColor}`} />
+
                   {/* Menu utilisateur */}
                   <div className="relative">
                     <button onClick={() => setUserMenuOpen(!userMenuOpen)}
-                      className={`flex items-center gap-2 px-2 py-1.5 rounded-xl transition-all ${
+                      className={`flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-xl transition-all ${
                         isHome && !scrolled
                           ? 'hover:bg-white/10'
                           : 'hover:bg-[#F5F5F7] dark:hover:bg-[#2A2A2A]'
                       }`}>
-                      <div className="w-8 h-8 rounded-full bg-[#3A7D44] text-white flex items-center justify-center font-bold text-sm">
+                      <div className="w-9 h-9 rounded-full bg-[#3A7D44] text-white flex items-center justify-center font-bold text-sm shrink-0">
                         {user?.full_name?.charAt(0).toUpperCase()}
                       </div>
-                      <div className="text-left hidden lg:block">
+                      <div className="text-left hidden lg:block leading-tight">
                         <div className={`text-sm font-bold ${isHome && !scrolled ? 'text-white' : 'text-[#0F172A] dark:text-white'}`}>
                           {user?.full_name?.split(' ')[0]}
                         </div>
-                        <div className={`text-xs capitalize ${isHome && !scrolled ? 'text-white/60' : 'text-[#64748B] dark:text-[#94A3B8]'}`}>
+                        <div className={`text-[11px] capitalize ${isHome && !scrolled ? 'text-white/60' : 'text-[#94A3B8]'}`}>
                           {user?.role}
                         </div>
                       </div>
-                      <ChevronDown size={14} className={`transition-transform ${userMenuOpen ? 'rotate-180' : ''} ${isHome && !scrolled ? 'text-white/60' : 'text-[#64748B]'}`} />
+                      <ChevronDown size={14} className={`transition-transform ${userMenuOpen ? 'rotate-180' : ''} ${isHome && !scrolled ? 'text-white/60' : 'text-[#94A3B8]'}`} />
                     </button>
 
                     {/* Dropdown */}
                     {userMenuOpen && (
-                      <div className="absolute right-0 top-12 w-56 bg-white dark:bg-[#1A1A1A] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-[#E8E8E8] dark:border-[#2A2A2A] z-50 overflow-hidden animate-scale-in">
-                        {/* Header user */}
+                      <div className="absolute right-0 top-14 w-60 bg-white dark:bg-[#1A1A1A] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-[#E8E8E8] dark:border-[#2A2A2A] z-50 overflow-hidden animate-scale-in">
                         <div className="p-4 bg-gradient-to-r from-[#EBF5ED] to-white dark:from-[#2A2A2A] dark:to-[#1A1A1A] border-b border-[#E8E8E8] dark:border-[#2A2A2A]">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-[#3A7D44] text-white flex items-center justify-center font-bold">
@@ -200,9 +210,9 @@ export default function Navbar() {
                   </div>
                 </>
               ) : (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <Link to="/login"
-                    className={`text-sm font-bold px-4 py-2 rounded-xl transition-all ${
+                    className={`text-sm font-bold px-4 py-2.5 rounded-xl transition-all ${
                       isHome && !scrolled
                         ? 'text-white/80 hover:text-white hover:bg-white/10'
                         : 'text-[#334155] dark:text-[#94A3B8] hover:bg-[#F5F5F7] dark:hover:bg-[#2A2A2A]'
@@ -210,7 +220,14 @@ export default function Navbar() {
                     Connexion
                   </Link>
                   <Link to="/register"
-                    className="bg-[#3A7D44] hover:bg-[#2D6235] text-white text-sm font-bold px-5 py-2 rounded-xl transition-all shadow-sm">
+                    className="text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all duration-300 hover:-translate-y-0.5"
+                    style={{
+                      background: 'linear-gradient(135deg, #3A7D44, #2D6235)',
+                      boxShadow: '0 4px 16px rgba(58,125,68,0.35)',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 8px 28px rgba(58,125,68,0.5)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(58,125,68,0.35)'; }}
+                  >
                     S'inscrire
                   </Link>
                 </div>
@@ -219,7 +236,7 @@ export default function Navbar() {
 
             {/* Bouton menu mobile */}
             <button onClick={() => setMobileOpen(!mobileOpen)}
-              className={`md:hidden p-2 rounded-xl transition-all ${
+              className={`md:hidden p-2.5 rounded-xl transition-all ${
                 isHome && !scrolled
                   ? 'text-white hover:bg-white/10'
                   : 'text-[#334155] dark:text-[#94A3B8] hover:bg-[#F5F5F7] dark:hover:bg-[#2A2A2A]'
@@ -249,7 +266,6 @@ export default function Navbar() {
 
               {isAuthenticated ? (
                 <>
-                  {/* User info mobile */}
                   <div className="flex items-center gap-3 px-4 py-3 bg-[#EBF5ED] dark:bg-[#2A2A2A] rounded-xl mb-2">
                     <div className="w-10 h-10 rounded-full bg-[#3A7D44] text-white flex items-center justify-center font-bold text-sm">
                       {user?.full_name?.charAt(0).toUpperCase()}
@@ -272,7 +288,6 @@ export default function Navbar() {
                     </Link>
                   )}
 
-                  {/* Toggle thème mobile */}
                   <button onClick={toggleTheme}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-[#334155] dark:text-[#94A3B8] hover:bg-[#F5F5F7] dark:hover:bg-[#2A2A2A] transition-colors">
                     {theme === 'dark' ? <Sun size={16} className="text-yellow-400" /> : <Moon size={16} />}
@@ -307,7 +322,7 @@ export default function Navbar() {
       </nav>
 
       {/* Spacer pour compenser la navbar fixed */}
-      {!isHome && <div className="h-16" />}
+      {!isHome && <div className="h-20" />}
     </>
   );
 }

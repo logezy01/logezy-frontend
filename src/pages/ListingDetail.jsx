@@ -372,7 +372,7 @@ export default function ListingDetail() {
                 </div>
 
                 {/* Titre */}
-                <h1 className="text-xl md:text-2xl font-black text-[#0F172A] dark:text-white leading-tight mb-3">
+                <h1 className="font-display text-xl md:text-2xl font-black text-[#0F172A] dark:text-white leading-tight mb-3">
                   {listing.title}
                 </h1>
 
