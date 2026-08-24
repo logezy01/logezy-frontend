@@ -377,4 +377,4 @@ export default function Navbar() {
       {!isHome && <div className="h-20" />}
     </>
   );
-}
+} 

@@ -582,11 +582,11 @@ function PublishListing() {
             <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Catégorie du bien</label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {LISTING_CATEGORIES.map(cat => (
-                <button key={cat.value} type="button" onClick={() => update('category', cat.value)}
-                  className={`p-2.5 rounded-xl border-2 text-center font-bold text-xs transition-all ${
+                                <button key={cat.value} type="button" onClick={() => update('category', cat.value)}
+                  className={`p-2.5 rounded-xl border-2 text-center font-bold text-xs transition-all flex flex-col items-center gap-1.5 ${
                     form.category === cat.value ? 'border-[#3A7D44] bg-[#EBF5ED] text-[#3A7D44]' : 'border-[#E2E8F0] text-[#64748B] hover:border-[#3A7D44]/30'
                   }`}>
-                  <div className="text-lg mb-1">{cat.icon}</div>
+                  <cat.icon size={18} strokeWidth={2} />
                   {cat.label}
                 </button>
               ))}

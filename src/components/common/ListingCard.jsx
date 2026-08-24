@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { MapPin, Bed, Bath, Maximize, Eye, ArrowUpRight, Film } from 'lucide-react';
+import { MapPin, Bed, Bath, Maximize, Eye, ArrowUpRight, Film, Key, Tag, CheckCircle2, Heart, Building2, Zap, Home } from 'lucide-react';
 import { getImageUrl } from '../../lib/imageUrl';
 import FavoriteButton from './FavoriteButton';
 import CompareButton from './CompareButton';
@@ -22,11 +22,22 @@ export default function ListingCard({ listing }) {
     return period ? `${formatted} FCFA/${period}` : `${formatted} FCFA`;
   };
 
-    const photoCount = listing.listing_images?.length || 0;
+  const formatTitle = (title) => {
+    if (!title) return '';
+    const cleaned = title.replace(/[*_#]+/g, '').trim();
+    const isShouting = cleaned === cleaned.toUpperCase() && /[A-Z]/.test(cleaned);
+    if (!isShouting) return cleaned;
+    return cleaned
+      .toLowerCase()
+      .replace(/(^|\s)\S/g, (c) => c.toUpperCase());
+  };
+
+  const photoCount = listing.listing_images?.length || 0;
 
   const isNew = listing.created_at
     ? (Date.now() - new Date(listing.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000
     : false;
+  const CategoryIcon = listing.category ? getCategoryIcon(listing.category) : null;
 
   return (
     <>
@@ -60,7 +71,6 @@ export default function ListingCard({ listing }) {
         <div className="relative h-52 overflow-hidden bg-[#F5F5F7] dark:bg-[#222222]">
           {coverImage ? (
             <>
-              {/* Shimmer pendant chargement */}
               {!imgLoaded && (
                 <div
                   className="absolute inset-0"
@@ -88,7 +98,7 @@ export default function ListingCard({ listing }) {
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center gap-2">
               <div className="w-16 h-16 rounded-2xl bg-[#EBF5ED] dark:bg-[#1A2E20] flex items-center justify-center">
-                <span className="text-3xl">🏠</span>
+                <Home size={28} className="text-[#3A7D44]" strokeWidth={1.75} />
               </div>
               <span className="text-xs text-[#94A3B8]">Pas de photo</span>
             </div>
@@ -97,28 +107,29 @@ export default function ListingCard({ listing }) {
           {/* Overlay gradient bas — plus doux */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
 
-          {/* Badges haut gauche — type, coup de cœur, nouveau, vidéo */}
+          {/* Badges haut gauche — type, catégorie, coup de cœur, nouveau, vidéo */}
           <div className="absolute top-3 left-3 right-3 flex flex-wrap items-center gap-1.5">
             <span
-              className={`text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-md ${
+              className={`flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-md ${
                 listing.type === 'location'
                   ? 'bg-[#3A7D44]/85 text-white'
                   : 'bg-[#F59E0B]/85 text-white'
               }`}
               style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
             >
-              {listing.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
+              {listing.type === 'location' ? <Key size={11} strokeWidth={2.5} /> : <Tag size={11} strokeWidth={2.5} />}
+              {listing.type === 'location' ? 'Location' : 'Vente'}
             </span>
-                        {listing.category && (
+
+            {listing.category && CategoryIcon && (
               <span
-                className="text-xs font-bold px-2.5 py-1.5 rounded-full bg-white/85 text-[#334155] backdrop-blur-md"
+                className="flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-full bg-white/85 text-[#334155] backdrop-blur-md"
                 style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
               >
-                {getCategoryIcon(listing.category)} {getCategoryLabel(listing.category)}
+                <CategoryIcon size={11} strokeWidth={2.5} />
+                {getCategoryLabel(listing.category)}
               </span>
             )}
-
-            
 
             {listing.is_featured && (
               <span
@@ -128,7 +139,7 @@ export default function ListingCard({ listing }) {
                   boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                 }}
               >
-                💜 Coup de cœur
+                <Heart size={11} strokeWidth={2.5} fill="currentColor" /> Coup de cœur
               </span>
             )}
 
@@ -137,7 +148,7 @@ export default function ListingCard({ listing }) {
                 className="text-xs font-bold px-2.5 py-1.5 rounded-full bg-[#3B82F6]/85 text-white backdrop-blur-md flex items-center gap-1"
                 style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
               >
-                ✨ Nouveau
+                <Zap size={11} strokeWidth={2.5} /> Nouveau
               </span>
             )}
 
@@ -158,7 +169,7 @@ export default function ListingCard({ listing }) {
                 className="bg-white/85 backdrop-blur-md text-[#3A7D44] text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1"
                 style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
               >
-                ✓ Vérifié
+                <CheckCircle2 size={12} strokeWidth={2.5} /> Vérifié
               </span>
             )}
             <FavoriteButton listingId={listing.id} />
@@ -216,15 +227,16 @@ export default function ListingCard({ listing }) {
                   {listing.users.agencies.name?.charAt(0).toUpperCase()}
                 </div>
               )}
-              <span className="text-xs font-bold text-[#3A7D44] truncate max-w-[120px]">
-                🏢 {listing.users.agencies.name}
+              <span className="flex items-center gap-1 text-xs font-bold text-[#3A7D44] truncate max-w-[120px]">
+                <Building2 size={11} strokeWidth={2.5} />
+                {listing.users.agencies.name}
               </span>
             </Link>
           )}
 
           {/* Titre */}
           <h3 className="font-bold text-[15px] text-[#0F172A] dark:text-white mb-3 line-clamp-2 leading-snug group-hover:text-[#3A7D44] transition-colors" style={{ letterSpacing: '-0.01em' }}>
-            {listing.title}
+            {formatTitle(listing.title)}
           </h3>
 
           {/* Specs */}

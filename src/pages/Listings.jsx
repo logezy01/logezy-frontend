@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { SlidersHorizontal, X, Map, Bell, Search, ChevronDown, Loader2 } from 'lucide-react';
+import { SlidersHorizontal, X, Map, Bell, Search, ChevronDown, Loader2, Key, Tag, MapPin, Home, PartyPopper } from 'lucide-react';
 import Navbar from '../components/common/Navbar';
 import ListingCard from '../components/common/ListingCard';
 import MapView from '../components/common/MapView';
 import SaveSearch from '../components/common/SaveSearch';
 import api from '../lib/axios';
 import SkeletonCard from '../components/common/SkeletonCard';
-import { LISTING_CATEGORIES } from '../data/listingCategories';
+import { LISTING_CATEGORIES, getCategoryIcon, getCategoryLabel } from '../data/listingCategories';
 
 
 const CITIES = ['Cotonou', 'Porto-Novo', 'Parakou', 'Abomey-Calavi', 'Bohicon', 'Natitingou', 'Ouidah', 'Lokossa'];
@@ -38,6 +38,8 @@ export default function Listings() {
     max_price: '',
   });
   const sentinelRef = useRef(null);
+
+  const ActiveCategoryIcon = filters.category ? getCategoryIcon(filters.category) : null;
 
   // Chargement initial ou nouvelle recherche (reset)
   const fetchListings = async (currentFilters = filters) => {
@@ -136,19 +138,21 @@ export default function Listings() {
               {activeFiltersCount > 0 && (
                 <div className="hidden md:flex items-center gap-2">
                   {filters.type && (
-                    <span className="text-xs bg-[#EBF5ED] text-[#3A7D44] font-bold px-2 py-1 rounded-full">
-                      {filters.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
+                    <span className="flex items-center gap-1 text-xs bg-[#EBF5ED] text-[#3A7D44] font-bold px-2 py-1 rounded-full">
+                      {filters.type === 'location' ? <Key size={10} strokeWidth={2.5} /> : <Tag size={10} strokeWidth={2.5} />}
+                      {filters.type === 'location' ? 'Location' : 'Vente'}
                     </span>
                   )}
                   {filters.city && (
-                    <span className="text-xs bg-[#EFF6FF] text-[#3B82F6] font-bold px-2 py-1 rounded-full">
-                      📍 {filters.city}
+                    <span className="flex items-center gap-1 text-xs bg-[#EFF6FF] text-[#3B82F6] font-bold px-2 py-1 rounded-full">
+                      <MapPin size={10} strokeWidth={2.5} />
+                      {filters.city}
                     </span>
                   )}
-
-                    {filters.category && (
-                    <span className="text-xs bg-[#FEF3C7] text-[#92400E] font-bold px-2 py-1 rounded-full">
-                      {LISTING_CATEGORIES.find(c => c.value === filters.category)?.icon} {LISTING_CATEGORIES.find(c => c.value === filters.category)?.label}
+                  {filters.category && ActiveCategoryIcon && (
+                    <span className="flex items-center gap-1 text-xs bg-[#FEF3C7] text-[#92400E] font-bold px-2 py-1 rounded-full">
+                      <ActiveCategoryIcon size={10} strokeWidth={2.5} />
+                      {getCategoryLabel(filters.category)}
                     </span>
                   )}
                   <button onClick={handleReset}
@@ -189,7 +193,7 @@ export default function Listings() {
                   <div className="absolute right-0 top-12 w-80 bg-white dark:bg-[#1A1A1A] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-[#E8E8E8] dark:border-[#2A2A2A] z-50 p-5 animate-scale-in">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-bold text-sm text-[#0F172A] dark:text-white flex items-center gap-2">
-                        🔔 Créer une alerte
+                        <Bell size={15} className="text-[#3A7D44]" /> Créer une alerte
                       </h3>
                       <button onClick={() => setShowAlertHelper(false)}
                         className="p-1.5 rounded-lg hover:bg-[#F5F5F7] dark:hover:bg-[#2A2A2A] text-[#94A3B8]">
@@ -242,7 +246,7 @@ export default function Listings() {
             <div className="mt-4 animate-slide-down">
               <form onSubmit={handleSearch}
                 className="bg-[#F8F9FA] dark:bg-[#1A1A1A] rounded-2xl p-4 border border-[#E8E8E8] dark:border-[#2A2A2A]">
-                              <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
                   {[
                     {
                       label: 'Ville', field: 'city', type: 'select',
@@ -250,11 +254,11 @@ export default function Listings() {
                     },
                     {
                       label: 'Type', field: 'type', type: 'select',
-                      options: [{ value: '', label: 'Tout type' }, { value: 'location', label: '🔑 Location' }, { value: 'vente', label: '🏷️ Vente' }]
+                      options: [{ value: '', label: 'Tout type' }, { value: 'location', label: 'Location' }, { value: 'vente', label: 'Vente' }]
                     },
                     {
                       label: 'Catégorie', field: 'category', type: 'select',
-                      options: [{ value: '', label: 'Toute catégorie' }, ...LISTING_CATEGORIES.map(c => ({ value: c.value, label: `${c.icon} ${c.label}` }))]
+                      options: [{ value: '', label: 'Toute catégorie' }, ...LISTING_CATEGORIES.map(c => ({ value: c.value, label: c.label }))]
                     },
                     {
                       label: 'Chambres min.', field: 'bedrooms', type: 'select',
@@ -306,8 +310,9 @@ export default function Listings() {
             className="absolute top-4 right-4 z-[1000] w-10 h-10 bg-white dark:bg-[#1A1A1A] rounded-full shadow-lg flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all border border-[#E8E8E8]">
             <X size={18} />
           </button>
-          <div className="absolute top-4 left-4 z-[1000] bg-white dark:bg-[#1A1A1A] rounded-xl shadow-lg px-3 py-2 text-xs font-bold text-[#3A7D44] border border-[#E8E8E8]">
-            🗺️ {listings.filter(l => l.latitude && l.longitude).length} biens géolocalisés
+          <div className="absolute top-4 left-4 z-[1000] bg-white dark:bg-[#1A1A1A] rounded-xl shadow-lg px-3 py-2 text-xs font-bold text-[#3A7D44] border border-[#E8E8E8] flex items-center gap-1.5">
+            <MapPin size={13} />
+            {listings.filter(l => l.latitude && l.longitude).length} biens géolocalisés
           </div>
         </div>
       )}
@@ -323,7 +328,7 @@ export default function Listings() {
         ) : listings.length === 0 ? (
           <div className="text-center py-24">
             <div className="w-24 h-24 bg-[#EBF5ED] rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-4xl">🏠</span>
+              <Home size={36} className="text-[#3A7D44]" strokeWidth={1.75} />
             </div>
             <h3 className="font-display text-xl font-bold text-[#0F172A] dark:text-white mb-2">
               Aucune annonce trouvée
@@ -355,8 +360,9 @@ export default function Listings() {
             )}
 
             {!hasMore && listings.length > PAGE_SIZE && (
-              <p className="text-center text-xs text-[#94A3B8] py-10">
-                Vous avez vu toutes les annonces disponibles 🎉
+              <p className="text-center text-xs text-[#94A3B8] py-10 flex items-center justify-center gap-1.5">
+                <PartyPopper size={14} />
+                Vous avez vu toutes les annonces disponibles
               </p>
             )}
           </>

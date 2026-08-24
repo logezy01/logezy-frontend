@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, MapPin, Shield, TrendingUp, ArrowRight, CheckCircle, ChevronRight, Zap, Star, Play } from 'lucide-react';
+import { Search, MapPin, Shield, TrendingUp, ArrowRight, CheckCircle, ChevronRight, Zap, Star, Play, Phone, Mail, Home as HomeIcon, Key, Tag, Flame, Users } from 'lucide-react';
 import Navbar from '../components/common/Navbar';
 import ListingCard from '../components/common/ListingCard';
 import Logo from '../components/common/Logo';
 import api from '../lib/axios';
 import useAuthStore from '../store/authStore';
 import SkeletonCard from '../components/common/SkeletonCard';
+import { LISTING_CATEGORIES } from '../data/listingCategories';
 
 // ── Hook InView ───────────────────────────────────────────────
 function useInView(threshold = 0.1) {
@@ -59,210 +60,6 @@ function Counter({ target, suffix = '' }) {
     return () => clearInterval(timer);
   }, [inView, target]);
   return <span ref={ref}>{count}{suffix}</span>;
-}
-
-// ── Particules 3D canvas ──────────────────────────────────────
-function ParticlesCanvas() {
-  const canvasRef = useRef(null);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-    resize();
-    window.addEventListener('resize', resize);
-
-    const particles = Array.from({ length: 80 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      z: Math.random() * 400,
-      size: Math.random() * 3 + 0.5,
-      speedX: (Math.random() - 0.5) * 0.3,
-      speedY: (Math.random() - 0.5) * 0.3,
-      speedZ: Math.random() * 0.5,
-      opacity: Math.random() * 0.6 + 0.1,
-      color: Math.random() > 0.5 ? '74, 222, 128' : '255, 255, 255',
-    }));
-
-    let mouseX = canvas.width / 2, mouseY = canvas.height / 2;
-    canvas.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
-
-    let animId;
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.x += p.speedX + (mouseX - canvas.width / 2) * 0.00005;
-        p.y += p.speedY + (mouseY - canvas.height / 2) * 0.00005;
-        p.z -= p.speedZ;
-        if (p.z <= 0) p.z = 400;
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
-
-        const perspective = 400 / (400 - p.z);
-        const projX = (p.x - canvas.width / 2) * perspective + canvas.width / 2;
-        const projY = (p.y - canvas.height / 2) * perspective + canvas.height / 2;
-        const projSize = p.size * perspective;
-
-        ctx.beginPath();
-        ctx.arc(projX, projY, projSize, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${p.color}, ${p.opacity * perspective * 0.5})`;
-        ctx.fill();
-      });
-
-      // Connexions
-      particles.forEach((p1, i) => {
-        particles.slice(i + 1, i + 5).forEach(p2 => {
-          const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-          if (dist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(74, 222, 128, ${0.05 * (1 - dist / 120)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        });
-      });
-
-      animId = requestAnimationFrame(animate);
-    };
-    animate();
-    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize); };
-  }, []);
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 2 }} />;
-}
-
-// ── Maison 3D SVG animée ──────────────────────────────────────
-function House3D({ style = {} }) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        transform: hovered ? 'rotateY(15deg) rotateX(-5deg) scale(1.05)' : 'rotateY(0deg) rotateX(0deg) scale(1)',
-        transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
-        transformStyle: 'preserve-3d',
-        ...style,
-      }}>
-      <svg viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-        {/* Ombre portée */}
-        <ellipse cx="100" cy="172" rx="70" ry="8" fill="rgba(0,0,0,0.3)" />
-
-        {/* Corps maison - face */}
-        <rect x="35" y="90" width="130" height="80" rx="4" fill="url(#bodyGrad)" />
-
-        {/* Corps maison - côté droit (effet 3D) */}
-        <path d="M165 90 L185 78 L185 158 L165 170 Z" fill="url(#sideGrad)" />
-
-        {/* Toit - face */}
-        <path d="M25 95 L100 35 L175 95 Z" fill="url(#roofGrad)" />
-
-        {/* Toit - côté droit (effet 3D) */}
-        <path d="M175 95 L195 83 L120 23 L100 35 Z" fill="url(#roofSideGrad)" />
-
-        {/* Porte */}
-        <rect x="83" y="130" width="34" height="40" rx="17" fill="url(#doorGrad)" />
-        <circle cx="112" cy="152" r="2.5" fill="rgba(255,220,100,0.8)" />
-
-        {/* Fenêtre gauche */}
-        <rect x="45" y="105" width="30" height="25" rx="4" fill="url(#winGrad)" />
-        <line x1="60" y1="105" x2="60" y2="130" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
-        <line x1="45" y1="117" x2="75" y2="117" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
-
-        {/* Fenêtre droite */}
-        <rect x="125" y="105" width="30" height="25" rx="4" fill="url(#winGrad)" />
-        <line x1="140" y1="105" x2="140" y2="130" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
-        <line x1="125" y1="117" x2="155" y2="117" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
-
-        {/* Cheminée */}
-        <rect x="140" y="55" width="16" height="28" rx="2" fill="#1A3A2A" />
-        <rect x="137" y="50" width="22" height="8" rx="3" fill="#2D6235" />
-
-        {/* Fumée */}
-        <circle cx="148" cy="42" r="5" fill="rgba(255,255,255,0.2)">
-          <animate attributeName="cy" values="42;30;20" dur="3s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.2;0.1;0" dur="3s" repeatCount="indefinite" />
-          <animate attributeName="r" values="5;8;12" dur="3s" repeatCount="indefinite" />
-        </circle>
-        <circle cx="152" cy="38" r="4" fill="rgba(255,255,255,0.15)">
-          <animate attributeName="cy" values="38;26;16" dur="3s" begin="0.5s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.15;0.08;0" dur="3s" begin="0.5s" repeatCount="indefinite" />
-          <animate attributeName="r" values="4;7;10" dur="3s" begin="0.5s" repeatCount="indefinite" />
-        </circle>
-
-        {/* Lumière fenêtre animée */}
-        <rect x="45" y="105" width="30" height="25" rx="4" fill="rgba(255,220,80,0.15)">
-          <animate attributeName="opacity" values="0.15;0.35;0.15" dur="4s" repeatCount="indefinite" />
-        </rect>
-        <rect x="125" y="105" width="30" height="25" rx="4" fill="rgba(255,220,80,0.1)">
-          <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" begin="1s" repeatCount="indefinite" />
-        </rect>
-
-        {/* Jardin */}
-        <rect x="35" y="168" width="130" height="6" rx="3" fill="url(#grassGrad)" />
-
-        {/* Arbres */}
-        <ellipse cx="22" cy="150" rx="14" ry="18" fill="url(#treeGrad)" />
-        <rect x="19" y="162" width="6" height="10" rx="2" fill="#5D4037" />
-        <ellipse cx="180" cy="148" rx="12" ry="15" fill="url(#treeGrad)" />
-        <rect x="177" y="158" width="6" height="10" rx="2" fill="#5D4037" />
-
-        {/* Étoiles / lucioles autour */}
-        {[...Array(6)].map((_, i) => (
-          <circle key={i}
-            cx={20 + i * 28}
-            cy={20 + (i % 2) * 15}
-            r="1.5"
-            fill="rgba(255,220,100,0.8)">
-            <animate
-              attributeName="opacity"
-              values={i % 2 === 0 ? "0.8;0.2;0.8" : "0.2;0.8;0.2"}
-              dur={`${2 + i * 0.3}s`}
-              repeatCount="indefinite" />
-          </circle>
-        ))}
-
-        <defs>
-          <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2D5A3D" />
-            <stop offset="100%" stopColor="#1A3A2A" />
-          </linearGradient>
-          <linearGradient id="sideGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#1A3A2A" />
-            <stop offset="100%" stopColor="#0F2318" />
-          </linearGradient>
-          <linearGradient id="roofGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#3A7D44" />
-            <stop offset="100%" stopColor="#2D6235" />
-          </linearGradient>
-          <linearGradient id="roofSideGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#2D6235" />
-            <stop offset="100%" stopColor="#1A4A25" />
-          </linearGradient>
-          <linearGradient id="doorGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#0D2018" />
-            <stop offset="100%" stopColor="#050F0C" />
-          </linearGradient>
-          <linearGradient id="winGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="rgba(135,206,250,0.6)" />
-            <stop offset="100%" stopColor="rgba(100,180,240,0.3)" />
-          </linearGradient>
-          <linearGradient id="grassGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#2D6235" />
-            <stop offset="50%" stopColor="#3A7D44" />
-            <stop offset="100%" stopColor="#2D6235" />
-          </linearGradient>
-          <linearGradient id="treeGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#4CAF50" />
-            <stop offset="100%" stopColor="#2D6235" />
-          </linearGradient>
-        </defs>
-      </svg>
-    </div>
-  );
 }
 
 // ── Carte flottante 3D ────────────────────────────────────────
@@ -377,7 +174,7 @@ export default function Home() {
           from { width: 0; }
           to { width: 100%; }
         }
-          @keyframes kenburns {
+        @keyframes kenburns {
           0% { transform: scale(1); }
           100% { transform: scale(1.08); }
         }
@@ -398,7 +195,6 @@ export default function Home() {
           box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(58,125,68,0.3);
         }
 
-
         .btn-3d {
           position: relative;
           transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.35s cubic-bezier(0.23, 1, 0.32, 1);
@@ -413,6 +209,17 @@ export default function Home() {
           transition: transform 0.1s ease;
         }
 
+        .category-card {
+          transition: transform 0.4s cubic-bezier(0.23,1,0.32,1), box-shadow 0.4s cubic-bezier(0.23,1,0.32,1), border-color 0.4s ease;
+        }
+        .category-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 16px 32px -8px rgba(15,23,42,0.12);
+          border-color: rgba(58,125,68,0.3) !important;
+        }
+        .category-card:hover .category-arrow {
+          transform: translateX(3px);
+        }
 
         .city-card {
           transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.45s cubic-bezier(0.23, 1, 0.32, 1);
@@ -456,49 +263,25 @@ export default function Home() {
               />
             </div>
           ))}
-          {/* Couche 1 — assombrissement directionnel gauche→droite (lisibilité du texte) */}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(115deg, rgba(3,7,12,0.95) 0%, rgba(5,10,16,0.82) 35%, rgba(5,10,16,0.55) 65%, rgba(5,10,16,0.35) 100%)' }} />
-
-          {/* Couche 2 — vignette radiale (concentre le regard au centre-gauche) */}
           <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 60% at 20% 40%, rgba(5,10,16,0.3) 0%, transparent 60%)' }} />
-
-          {/* Couche 3 — fondu bas (ancre le texte et la barre de recherche) */}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(3,7,12,0.85) 0%, rgba(3,7,12,0.3) 35%, transparent 60%)' }} />
-
-          {/* Couche 4 — fondu haut subtil (intègre la navbar) */}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(3,7,12,0.5) 0%, transparent 20%)' }} />
-
-          {/* Couche 5 — teinte verte de marque très légère, cohérence avec le shimmer du titre */}
           <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 15% 85%, rgba(58,125,68,0.12) 0%, transparent 45%)' }} />
         </div>
 
-        {/* Particules 3D */}
-        
-
-        {/* Grille futuriste */}
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1,
           backgroundImage: 'linear-gradient(rgba(58,125,68,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(58,125,68,0.03) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
         }} />
 
-        {/* Orbes lumineux */}
         <div className="absolute pointer-events-none" style={{ top: '10%', left: '5%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(58,125,68,0.15) 0%, transparent 70%)', zIndex: 1 }} />
         <div className="absolute pointer-events-none" style={{ bottom: '10%', right: '5%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)', zIndex: 1 }} />
 
-        {/* Contenu */}
         <div className="relative w-full max-w-7xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-12 items-center" style={{ zIndex: 3 }}>
 
-          {/* Texte gauche */}
           <div className="hero-text">
 
-            {/* Badge animé */}
-          {/*   <div className="inline-flex items-center gap-2 mb-8"
-              style={{ background: 'rgba(58,125,68,0.15)', border: '1px solid rgba(58,125,68,0.3)', backdropFilter: 'blur(10px)', borderRadius: 100, padding: '8px 16px', animation: 'pulse3d 3s ease-in-out infinite' }}>
-              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-            <span className="text-emerald-400 text-sm font-bold">🇧🇯 N°1 de l'immobilier au Bénin</span>
-            </div>*/}  
-
-            {/* Titre avec effet 3D */}
             <div className="mb-5" style={{ perspective: '1000px' }}>
               <h1 className="font-display font-black" style={{ fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', color: 'white', lineHeight: 1.02, letterSpacing: '-0.03em' }}>
                 Trouvez votre
@@ -514,18 +297,19 @@ export default function Home() {
             {/* Tabs */}
             <div className="inline-flex mb-5 p-1 rounded-2xl gap-1" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)' }}>
               {[
-                { value: '', label: 'Tout voir' },
-                { value: 'location', label: '🔑 Location' },
-                { value: 'vente', label: '🏷️ Vente' },
+                { value: '', label: 'Tout voir', icon: null },
+                { value: 'location', label: 'Location', icon: Key },
+                { value: 'vente', label: 'Vente', icon: Tag },
               ].map(t => (
                 <button key={t.value} onClick={() => setSearchType(t.value)}
-                  className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300"
+                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300"
                   style={{
                     background: searchType === t.value ? 'white' : 'transparent',
                     color: searchType === t.value ? '#3A7D44' : 'rgba(255,255,255,0.7)',
                     boxShadow: searchType === t.value ? '0 4px 20px rgba(0,0,0,0.2)' : 'none',
                     transform: searchType === t.value ? 'scale(1.02)' : 'scale(1)',
                   }}>
+                  {t.icon && <t.icon size={14} strokeWidth={2.5} />}
                   {t.label}
                 </button>
               ))}
@@ -572,7 +356,7 @@ export default function Home() {
                     background: 'rgba(255,255,255,0.08)',
                     border: '1px solid rgba(255,255,255,0.12)',
                     borderRadius: 100, padding: '6px 14px',
-                     transition: 'all 0.35s cubic-bezier(0.23,1,0.32,1)',
+                    transition: 'all 0.35s cubic-bezier(0.23,1,0.32,1)',
                     animation: `fadeInUp 0.5s ease ${0.8 + i * 0.1}s both`,
                   }}
                   onMouseEnter={e => { e.target.style.background = 'rgba(58,125,68,0.3)'; e.target.style.borderColor = 'rgba(58,125,68,0.5)'; e.target.style.color = 'white'; }}
@@ -597,53 +381,43 @@ export default function Home() {
             </div>
           </div>
 
-{/* Visuel droit — Stats premium */}
-<div className="hero-img hidden lg:flex flex-col gap-4 items-end justify-center relative">
+          {/* Visuel droit — Stats premium */}
+          <div className="hero-img hidden lg:flex flex-col gap-4 items-end justify-center relative">
 
-  {/* Carte principale */}
-  {/* <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(58,125,68,0.3)', borderRadius: 20, padding: '24px', minWidth: 280 }}>
-    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, marginBottom: 8 }}>🏠 Annonces disponibles</div>
-    <div style={{ color: '#4ade80', fontSize: 42, fontWeight: 900, lineHeight: 1 }}>500+</div>
-    <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 4 }}>dans 12 villes du Bénin</div>
-    <div style={{ marginTop: 16, display: 'flex', gap: 6 }}>
-      {['Cotonou', 'Porto-Novo', 'Parakou'].map(c => (
-        <span key={c} style={{ fontSize: 10, background: 'rgba(58,125,68,0.2)', color: '#4ade80', border: '1px solid rgba(58,125,68,0.3)', borderRadius: 100, padding: '4px 10px', fontWeight: 600 }}>
-          {c}
-        </span>
-      ))}
-    </div>
-  </div>*/}
+            <FloatingCard delay={0.5} style={{ alignSelf: 'flex-start' }}>
+              <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 16, padding: '16px 20px', minWidth: 200 }}>
+                <div className="flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, marginBottom: 6 }}>
+                  <Star size={12} /> Satisfaction clients
+                </div>
+                <div style={{ display: 'flex', gap: 2, marginBottom: 4 }}>
+                  {[...Array(5)].map((_, i) => <Star key={i} size={16} fill="#FCD34D" color="#FCD34D" />)}
+                </div>
+                <div style={{ color: 'white', fontSize: 22, fontWeight: 900 }}>98%</div>
+              </div>
+            </FloatingCard>
 
-  {/* Carte satisfaction */}
-  <FloatingCard delay={0.5} style={{ alignSelf: 'flex-start' }}>
-    <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 16, padding: '16px 20px', minWidth: 200 }}>
-      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, marginBottom: 6 }}>⭐ Satisfaction clients</div>
-      <div style={{ display: 'flex', gap: 2, marginBottom: 4 }}>
-        {[...Array(5)].map((_, i) => <span key={i} style={{ color: '#FCD34D', fontSize: 16 }}>★</span>)}
-      </div>
-      <div style={{ color: 'white', fontSize: 22, fontWeight: 900 }}>98%</div>
-    </div>
-  </FloatingCard>
+            <FloatingCard delay={1}>
+              <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 16, padding: '14px 18px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} className="animate-pulse" />
+                  <span style={{ color: '#4ade80', fontSize: 11, fontWeight: 700 }}>EN DIRECT</span>
+                </div>
+                <div className="flex items-center gap-1.5" style={{ color: 'white', fontSize: 13, fontWeight: 700, marginTop: 4 }}>
+                  <Flame size={14} className="text-orange-400" />
+                  +12 annonces aujourd'hui
+                </div>
+              </div>
+            </FloatingCard>
 
-  {/* Carte nouvelle annonce */}
-  <FloatingCard delay={1}>
-    <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 16, padding: '14px 18px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} className="animate-pulse" />
-        <span style={{ color: '#4ade80', fontSize: 11, fontWeight: 700 }}>EN DIRECT</span>
-      </div>
-      <div style={{ color: 'white', fontSize: 13, fontWeight: 700, marginTop: 4 }}>🔥 +12 annonces aujourd'hui</div>
-    </div>
-  </FloatingCard>
-
-  {/* Carte utilisateurs */}
-  <FloatingCard delay={1.5} style={{ alignSelf: 'flex-start' }}>
-    <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 16, padding: '14px 18px' }}>
-      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, marginBottom: 4 }}>👥 Utilisateurs actifs</div>
-      <div style={{ color: '#a78bfa', fontSize: 24, fontWeight: 900 }}>1 000+</div>
-    </div>
-  </FloatingCard>
-</div>
+            <FloatingCard delay={1.5} style={{ alignSelf: 'flex-start' }}>
+              <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 16, padding: '14px 18px' }}>
+                <div className="flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, marginBottom: 4 }}>
+                  <Users size={12} /> Utilisateurs actifs
+                </div>
+                <div style={{ color: '#a78bfa', fontSize: 24, fontWeight: 900 }}>1 000+</div>
+              </div>
+            </FloatingCard>
+          </div>
         </div>
 
         {/* Indicateurs slider */}
@@ -660,7 +434,6 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-10 right-8 hidden lg:flex flex-col items-center gap-2" style={{ zIndex: 5 }}>
           <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 10, letterSpacing: 2, writingMode: 'vertical-rl' }}>SCROLL</div>
           <div style={{ width: 1, height: 40, background: 'linear-gradient(to bottom, rgba(74,222,128,0.5), transparent)', animation: 'float3d 2s ease-in-out infinite' }} />
@@ -669,72 +442,105 @@ export default function Home() {
 
       {/* ══ STATS BAND 3D ══════════════════════════════════════ */}
       <section style={{ background: 'white', borderBottom: '1px solid #E8E8E8', position: 'relative', overflow: 'hidden' }}>
-        {/* Fond animé */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(58,125,68,0.02) 0%, transparent 50%, rgba(59,130,246,0.02) 100%)', animation: 'moveGradient 8s ease infinite', backgroundSize: '200% 200%' }} />
         <div className="max-w-5xl mx-auto px-6 py-14 relative z-10">
-
         </div>
       </section>
 
       {/* ══ ANNONCES RÉCENTES ══════════════════════════════════ */}
-<section className="max-w-7xl mx-auto px-6 py-20">
-  <AnimatedSection>
-    <div className="flex items-end justify-between mb-10">
-      <div>
-        <div className="inline-flex items-center gap-2 mb-3 px-3 py-1.5 rounded-full text-xs font-bold"
-          style={{ background: 'rgba(58,125,68,0.1)', color: '#3A7D44', border: '1px solid rgba(58,125,68,0.2)' }}>
-          <Zap size={12} />
-          Nouvelles annonces
-        </div>
-        <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, color: '#0F172A', lineHeight: 1.1 }}>
-          Annonces récentes
-        </h2>
-        <p style={{ color: '#64748B', marginTop: 8 }}>Les dernières propriétés disponibles au Bénin</p>
-      </div>
-      <Link to="/annonces" className="hidden md:flex items-center gap-2 font-bold text-sm btn-3d px-5 py-2.5 rounded-xl"
-        style={{ color: '#3A7D44', background: 'rgba(58,125,68,0.08)', border: '1px solid rgba(58,125,68,0.2)' }}>
-        Voir tout <ArrowRight size={16} />
-      </Link>
-    </div>
-  </AnimatedSection>
-
-{loading ? (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
-    </div>
-  ) : listings.length > 0 ? (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {listings.map((listing, i) => (
-          <AnimatedSection key={listing.id} delay={i * 80}>
-            <div className="card-3d">
-              <ListingCard listing={listing} />
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <AnimatedSection>
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <div className="inline-flex items-center gap-2 mb-3 px-3 py-1.5 rounded-full text-xs font-bold"
+                style={{ background: 'rgba(58,125,68,0.1)', color: '#3A7D44', border: '1px solid rgba(58,125,68,0.2)' }}>
+                <Zap size={12} />
+                Nouvelles annonces
+              </div>
+              <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, color: '#0F172A', lineHeight: 1.1 }}>
+                Annonces récentes
+              </h2>
+              <p style={{ color: '#64748B', marginTop: 8 }}>Les dernières propriétés disponibles au Bénin</p>
             </div>
-          </AnimatedSection>
-        ))}
-      </div>
+            <Link to="/annonces" className="hidden md:flex items-center gap-2 font-bold text-sm btn-3d px-5 py-2.5 rounded-xl"
+              style={{ color: '#3A7D44', background: 'rgba(58,125,68,0.08)', border: '1px solid rgba(58,125,68,0.2)' }}>
+              Voir tout <ArrowRight size={16} />
+            </Link>
+          </div>
+        </AnimatedSection>
 
-      {/* Bouton "Voir tout" — mobile uniquement */}
-      <Link to="/annonces" className="md:hidden flex items-center justify-center gap-2 font-bold text-sm px-5 py-3.5 rounded-xl mt-6"
-        style={{ color: '#3A7D44', background: 'rgba(58,125,68,0.08)', border: '1px solid rgba(58,125,68,0.2)' }}>
-        Voir toutes les annonces <ArrowRight size={16} />
-      </Link>
-    </>
-  ) : (
-    <div className="text-center py-20" style={{ color: '#94A3B8' }}>
-      <div style={{ fontSize: 64, marginBottom: 16 }}>🏠</div>
-      <p style={{ fontSize: 18, fontWeight: 600 }}>Aucune annonce pour le moment</p>
-    </div>
-  )}
-</section>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        ) : listings.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {listings.map((listing, i) => (
+                <AnimatedSection key={listing.id} delay={i * 80}>
+                  <ListingCard listing={listing} />
+                </AnimatedSection>
+              ))}
+            </div>
+
+            <Link to="/annonces" className="md:hidden flex items-center justify-center gap-2 font-bold text-sm px-5 py-3.5 rounded-xl mt-6"
+              style={{ color: '#3A7D44', background: 'rgba(58,125,68,0.08)', border: '1px solid rgba(58,125,68,0.2)' }}>
+              Voir toutes les annonces <ArrowRight size={16} />
+            </Link>
+          </>
+        ) : (
+          <div className="text-center py-20" style={{ color: '#94A3B8' }}>
+            <HomeIcon size={56} className="mx-auto mb-4" strokeWidth={1.5} />
+            <p style={{ fontSize: 18, fontWeight: 600 }}>Aucune annonce pour le moment</p>
+          </div>
+        )}
+      </section>
+
+      {/* ══ CATÉGORIES ═════════════════════════════════════════ */}
+      <section style={{ padding: '80px 24px', background: '#F8F9FA' }}>
+        <div className="max-w-6xl mx-auto">
+          <AnimatedSection className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full text-xs font-bold"
+              style={{ background: 'rgba(58,125,68,0.1)', color: '#3A7D44', border: '1px solid rgba(58,125,68,0.2)' }}>
+              <HomeIcon size={12} />
+              Que cherchez-vous ?
+            </div>
+            <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, color: '#0F172A', marginBottom: 8 }}>
+              Trouvez par type de bien
+            </h2>
+            <p style={{ color: '#64748B' }}>Villa, appartement, terrain... affinez votre recherche en un clic</p>
+          </AnimatedSection>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {LISTING_CATEGORIES.map((cat, i) => (
+              <AnimatedSection key={cat.value} delay={i * 60}>
+                <button
+                  onClick={() => navigate(`/annonces?category=${cat.value}`)}
+                  className="category-card w-full text-left p-5 rounded-2xl bg-white"
+                  style={{ border: '1px solid #E8E8E8' }}
+                >
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center mb-3"
+                    style={{ background: '#EBF5ED' }}
+                  >
+                    <cat.icon size={22} className="text-[#3A7D44]" strokeWidth={2} />
+                  </div>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: '#0F172A' }}>{cat.label}</div>
+                  <div className="flex items-center gap-1 mt-2 text-xs font-semibold" style={{ color: '#3A7D44' }}>
+                    Voir les annonces
+                    <ArrowRight size={12} className="category-arrow transition-transform duration-300" />
+                  </div>
+                </button>
+              </AnimatedSection>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ══ POURQUOI LOGEZY 3D ═════════════════════════════════ */}
       <section style={{ padding: '80px 24px', background: 'linear-gradient(135deg, #0A1520 0%, #071210 50%, #0A1520 100%)', position: 'relative', overflow: 'hidden' }}>
-        {/* Effet de fond */}
         <div style={{ position: 'absolute', top: '20%', left: '10%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(58,125,68,0.15) 0%, transparent 70%)', filter: 'blur(60px)' }} />
         <div style={{ position: 'absolute', bottom: '20%', right: '10%', width: 250, height: 250, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)', filter: 'blur(60px)' }} />
-
-        {/* Grille */}
         <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(58,125,68,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(58,125,68,0.04) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
 
         <div className="max-w-6xl mx-auto relative z-10">
@@ -754,16 +560,23 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: '🛡️', title: 'Annonces vérifiées', desc: 'Chaque annonce est contrôlée par notre équipe avant publication pour garantir fiabilité et sécurité.', color: '#3A7D44', glow: 'rgba(58,125,68,0.15)', border: 'rgba(58,125,68,0.3)', tag: 'SÉCURITÉ' },
-              { icon: '🔍', title: 'Recherche avancée', desc: 'Filtrez par ville, type, prix, chambres, superficie. Trouvez exactement ce que vous cherchez.', color: '#3B82F6', glow: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.3)', tag: 'EFFICACITÉ' },
-              { icon: '📊', title: 'Marché transparent', desc: "Accédez aux prix réels du marché béninois pour prendre des décisions d'investissement éclairées.", color: '#F59E0B', glow: 'rgba(245,158,11,0.15)', border: 'rgba(245,158,11,0.3)', tag: 'TRANSPARENCE' },
+              { icon: Shield, title: 'Annonces vérifiées', desc: 'Chaque annonce est contrôlée par notre équipe avant publication pour garantir fiabilité et sécurité.', color: '#3A7D44', glow: 'rgba(58,125,68,0.08)', border: 'rgba(58,125,68,0.25)', tag: 'SÉCURITÉ' },
+              { icon: Search, title: 'Recherche avancée', desc: 'Filtrez par ville, type, prix, chambres, superficie. Trouvez exactement ce que vous cherchez.', color: '#3B82F6', glow: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.25)', tag: 'EFFICACITÉ' },
+              { icon: TrendingUp, title: 'Marché transparent', desc: "Accédez aux prix réels du marché béninois pour prendre des décisions d'investissement éclairées.", color: '#F59E0B', glow: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)', tag: 'TRANSPARENCE' },
             ].map((item, i) => (
               <AnimatedSection key={i} delay={i * 150}>
-                <div className="card-3d h-full p-6 rounded-2xl"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${item.border}`, backdropFilter: 'blur(10px)' }}
-                  onMouseEnter={e => e.currentTarget.style.background = `${item.glow}`}
-                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
-                  <div style={{ fontSize: 40, marginBottom: 16, animation: `float3d ${3 + i}s ease-in-out infinite` }}>{item.icon}</div>
+                <div className="h-full p-6 rounded-2xl"
+                  style={{
+                    background: 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${item.border}`,
+                    backdropFilter: 'blur(10px)',
+                    transition: 'background 0.4s cubic-bezier(0.23,1,0.32,1), transform 0.4s cubic-bezier(0.23,1,0.32,1)',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = item.glow; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: item.glow, animation: `float3d ${3 + i}s ease-in-out infinite` }}>
+                    <item.icon size={26} color={item.color} strokeWidth={2} />
+                  </div>
                   <div style={{ fontSize: 10, fontWeight: 700, color: item.color, letterSpacing: 2, marginBottom: 8 }}>{item.tag}</div>
                   <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'white', marginBottom: 10 }}>{item.title}</h3>
                   <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>{item.desc}</p>
@@ -791,13 +604,13 @@ export default function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { city: 'Cotonou', desc: 'Capitale économique', image: 'https://images.unsplash.com/photo-1600241005059-71de13374958?w=600&q=80&auto=format&fit=crop' },
-              { city: 'Porto-Novo', desc: 'Capitale officielle', image: 'https://www.shutterstock.com/shutterstock/photos/2613612905/display_1500/stock-photo-the-porto-novo-cathedral-in-the-capital-of-benin-with-the-beautiful-post-colonial-architecture-2613612905.jpg' },
+              { city: 'Cotonou', desc: 'Capitale économique', image: 'https://images.unsplash.com/photo-1753818268536-b3227488c3f8?w=600&q=80&auto=format&fit=crop' },
+              { city: 'Porto-Novo', desc: 'Capitale officielle', image: 'https://images.unsplash.com/photo-1600241005059-71de13374958?w=600&q=80&auto=format&fit=crop' },
               { city: 'Abomey-Calavi', desc: 'Ville universitaire', image: 'https://www.gouv.bj/upload/images/banners/790640216943001733641533.jpg' },
               { city: 'Parakou', desc: 'Capitale du Nord', image: 'https://images.unsplash.com/photo-1646459273661-66884c54f2f1?w=600&q=80&auto=format&fit=crop' },
               { city: 'Bohicon', desc: 'Carrefour commercial', image: 'https://images.unsplash.com/photo-1772965243005-b64da960038c?w=600&q=80&auto=format&fit=crop' },
-              { city: 'Ouidah', desc: 'Ville historique', image: 'https://media.istockphoto.com/id/2222142715/photo/door-of-no-return-in-ouidah-benin-on-the-atlantic-coast-on-a-sunny-afternoon-2.jpg?s=1024x1024&w=is&k=20&c=OR6DHwyJwtaRNgFhIIp5xgPQouLOUAfg_bIGIpIgfH8=' },
-              { city: 'Natitingou', desc: "Perle de l'Atacora", image: 'https://th.bing.com/th/id/R.94b44f6b6ca5fc78624e1aa22dcbe7dc?rik=UBs0uidvk7%2bXfw&pid=ImgRaw&r=0' },
+              { city: 'Ouidah', desc: 'Ville historique', image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Porte_du_non-retour_au_Benin.jpg?width=600' },
+              { city: 'Natitingou', desc: "Perle de l'Atacora", image: 'https://images.unsplash.com/photo-1684860078704-5b07ac577c2e?w=600&q=80&auto=format&fit=crop' },
               { city: 'Lokossa', desc: 'Ville du Mono', image: 'https://images.unsplash.com/photo-1684860085919-968e99ba0337?w=600&q=80&auto=format&fit=crop' },
             ].map((item, i) => (
               <AnimatedSection key={item.city} delay={i * 60}>
@@ -867,50 +680,79 @@ export default function Home() {
       </section>
 
       {/* ══ FOOTER ═════════════════════════════════════════════ */}
-      <footer style={{ background: '#030810', color: 'white', padding: '56px 24px' }}>
+      <footer style={{ background: '#030810', color: 'white', padding: '56px 24px 32px' }}>
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
             <div className="md:col-span-2">
               <Logo size="md" white />
-              <p style={{ color: '#475569', fontSize: 14, marginTop: 16, maxWidth: 280, lineHeight: 1.7 }}>
+              <p style={{ color: '#64748B', fontSize: 14, marginTop: 16, maxWidth: 320, lineHeight: 1.7 }}>
                 La plateforme immobilière de référence au Bénin. Trouvez, louez ou vendez en toute confiance.
               </p>
-              <div className="flex items-center gap-3 mt-5">
-                <a href="https://www.facebook.com/LogezyImmobilierDigitale" target="_blank"
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-sm transition-all font-bold"
-                  style={{ background: 'rgba(255,255,255,0.05)', color: 'white' }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#3A7D44'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
-                  f
+
+              <div className="mt-5 space-y-2">
+                <a href="tel:+2290190821282" className="flex items-center gap-2 text-sm transition-colors"
+                  style={{ color: '#64748B' }}
+                  onMouseEnter={e => e.currentTarget.style.color = 'white'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#64748B'}>
+                  <Phone size={14} /> +229 01 90 82 12 82
                 </a>
-                <a href="https://wa.me/22901908212" target="_blank"
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-sm transition-all font-bold"
-                  style={{ background: 'rgba(255,255,255,0.05)', color: 'white' }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#25D366'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
-                  w
+                <a href="mailto:logezyafrique@gmail.com" className="flex items-center gap-2 text-sm transition-colors"
+                  style={{ color: '#64748B' }}
+                  onMouseEnter={e => e.currentTarget.style.color = 'white'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#64748B'}>
+                  <Mail size={14} /> logezyafrique@gmail.com
+                </a>
+              </div>
+
+              <div className="flex items-center gap-3 mt-5">
+                <a href="https://www.facebook.com/LogezyImmobilierDigitale" target="_blank" rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
+                  style={{ background: 'rgba(255,255,255,0.06)', color: 'white' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#3A7D44'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>
+                </a>
+                <a href="https://wa.me/22901908212" target="_blank" rel="noopener noreferrer"
+                  aria-label="WhatsApp"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
+                  style={{ background: 'rgba(255,255,255,0.06)', color: 'white' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#25D366'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.44.79 3.06 1.2 4.72 1.2h.02c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2m0 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 012.41 5.82c0 4.54-3.7 8.23-8.24 8.23-1.48 0-2.93-.4-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.188 8.188 0 01-1.26-4.38c.01-4.54 3.7-8.23 8.25-8.23m-4.83 4.72c-.15 0-.4.06-.61.29-.21.24-.8.79-.8 1.92 0 1.13.82 2.22.94 2.38.11.15 1.6 2.52 3.97 3.44 1.97.76 2.37.61 2.79.57.43-.04 1.38-.56 1.58-1.11.19-.54.19-1.01.14-1.11-.06-.1-.21-.16-.44-.27-.24-.12-1.38-.68-1.6-.76-.21-.08-.37-.12-.53.12-.16.24-.6.76-.74.91-.13.16-.27.18-.5.06-.24-.12-1-.37-1.9-1.18-.7-.62-1.18-1.39-1.31-1.63-.14-.24-.01-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.31-.02-.43-.06-.12-.53-1.32-.74-1.8-.19-.47-.39-.4-.53-.41-.14-.01-.29-.01-.44-.01"/></svg>
+                </a>
+                <a href="https://www.linkedin.com/in/miracle-lohounme-293366379" target="_blank" rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
+                  style={{ background: 'rgba(255,255,255,0.06)', color: 'white' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#0A66C2'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.44-2.14 2.94v5.66H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.59 0 4.26 2.37 4.26 5.45v6.29zM5.34 7.43a2.06 2.06 0 110-4.12 2.06 2.06 0 010 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
                 </a>
               </div>
             </div>
+
             <div>
-              <h4 style={{ fontWeight: 700, fontSize: 14, color: 'white', marginBottom: 16 }}>Navigation</h4>
+              <h4 style={{ fontWeight: 700, fontSize: 14, color: 'white', marginBottom: 16 }}>Annonces</h4>
               <div className="space-y-2.5">
                 {[
                   { to: '/annonces', label: 'Toutes les annonces' },
                   { to: '/annonces?type=location', label: 'Location' },
                   { to: '/annonces?type=vente', label: 'Vente' },
+                  { to: '/agences', label: 'Agences' },
                 ].map(link => (
                   <Link key={link.to} to={link.to}
-                    className="flex items-center gap-1.5 text-sm transition-colors group"
-                    style={{ color: '#475569' }}
+                    className="flex items-center gap-1.5 text-sm transition-colors"
+                    style={{ color: '#64748B' }}
                     onMouseEnter={e => e.currentTarget.style.color = 'white'}
-                    onMouseLeave={e => e.currentTarget.style.color = '#475569'}>
+                    onMouseLeave={e => e.currentTarget.style.color = '#64748B'}>
                     <ChevronRight size={12} />
                     {link.label}
                   </Link>
                 ))}
               </div>
             </div>
+
             <div>
               <h4 style={{ fontWeight: 700, fontSize: 14, color: 'white', marginBottom: 16 }}>À propos</h4>
               <div className="space-y-2.5">
@@ -923,9 +765,9 @@ export default function Home() {
                 ].map(link => (
                   <Link key={link.to} to={link.to}
                     className="flex items-center gap-1.5 text-sm transition-colors"
-                    style={{ color: '#475569' }}
+                    style={{ color: '#64748B' }}
                     onMouseEnter={e => e.currentTarget.style.color = 'white'}
-                    onMouseLeave={e => e.currentTarget.style.color = '#475569'}>
+                    onMouseLeave={e => e.currentTarget.style.color = '#64748B'}>
                     <ChevronRight size={12} />
                     {link.label}
                   </Link>
@@ -933,9 +775,9 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-            <p style={{ color: '#334155', fontSize: 14 }}>© 2026 Logezy — Tous droits réservés.</p>
-            <p style={{ color: '#334155', fontSize: 14 }}>Made in Bénin 🇧🇯</p>
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+            <p style={{ color: '#475569', fontSize: 13 }}>© 2026 Logezy — Tous droits réservés.</p>
+            <p style={{ color: '#475569', fontSize: 13 }}>Made in Bénin 🇧🇯</p>
           </div>
         </div>
       </footer>

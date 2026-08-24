@@ -108,6 +108,18 @@ export default function ListingDetail() {
     return () => window.removeEventListener('keydown', handler);
   }, [lightbox, media.length]);
 
+    const formatTitle = (title) => {
+    if (!title) return '';
+    // Retire les astérisques et espaces en trop, normalise la casse
+    const cleaned = title.replace(/[*_#]+/g, '').trim();
+    // Si tout en majuscules (ou presque), remet en casse normale
+    const isShouting = cleaned === cleaned.toUpperCase() && /[A-Z]/.test(cleaned);
+    if (!isShouting) return cleaned;
+    return cleaned
+      .toLowerCase()
+      .replace(/(^|\s)\S/g, (c) => c.toUpperCase());
+  };
+
   const handleFavorite = async () => {
     if (!isAuthenticated) { toast.error('Connectez-vous pour ajouter aux favoris'); return; }
     setFavoriteLoading(true);
@@ -372,9 +384,9 @@ export default function ListingDetail() {
                 </div>
 
                 {/* Titre */}
-                <h1 className="font-display text-xl md:text-2xl font-black text-[#0F172A] dark:text-white leading-tight mb-3">
-                  {listing.title}
-                </h1>
+          <h1 className="font-bold text-[15px] text-[#0F172A] dark:text-white mb-3 line-clamp-2 leading-snug group-hover:text-[#3A7D44] transition-colors" style={{ letterSpacing: '-0.01em' }}>
+            {formatTitle(listing.title)}
+          </h1>
 
                 {/* Prix */}
                 <div className="flex items-baseline gap-2 mb-4">
