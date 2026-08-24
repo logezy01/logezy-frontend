@@ -98,12 +98,12 @@ export default function ChatBot() {
     'Comment louer ?',
   ];
 
-  return (
+   return (
     <>
       {/* Bouton flottant */}
       {!open && (
         <button onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#3A7D44] hover:bg-[#2D6235] text-white rounded-full shadow-[0_8px_30px_rgba(58,125,68,0.4)] flex items-center justify-center transition-all hover:scale-110 active:scale-95 md:bottom-8 md:right-8">
+          className="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-50 w-14 h-14 bg-[#3A7D44] hover:bg-[#2D6235] text-white rounded-full shadow-[0_8px_30px_rgba(58,125,68,0.4)] flex items-center justify-center transition-all hover:scale-110 active:scale-95">
           <MessageCircle size={24} />
           <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-pulse" />
         </button>
@@ -111,15 +111,15 @@ export default function ChatBot() {
 
       {/* Fenêtre chat */}
       {open && (
-        <div className={`fixed z-50 transition-all duration-300 ${
+        <div className={`fixed z-50 transition-all duration-300 flex flex-col ${
           minimized
-            ? 'bottom-6 right-6 w-72'
-            : 'bottom-6 right-6 w-80 md:w-96'
+            ? 'bottom-20 right-4 w-72 md:bottom-8 md:right-8'
+            : 'bottom-20 left-4 right-4 md:left-auto md:bottom-8 md:right-8 md:w-96 max-h-[70vh] md:max-h-[600px]'
         }`}>
-          <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.2)] border border-[#E8E8E8] dark:border-[#2A2A2A] overflow-hidden">
+          <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.2)] border border-[#E8E8E8] dark:border-[#2A2A2A] overflow-hidden flex flex-col max-h-full">
 
             {/* Header */}
-            <div className="bg-gradient-to-r from-[#3A7D44] to-[#2D6235] p-4 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-[#3A7D44] to-[#2D6235] p-4 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
                   <Bot size={18} className="text-white" />
@@ -134,7 +134,7 @@ export default function ChatBot() {
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={() => setMinimized(!minimized)}
-                  className="p-1.5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors">
+                  className="p-1.5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors hidden md:block">
                   <Minimize2 size={14} />
                 </button>
                 <button onClick={() => setOpen(false)}
@@ -147,7 +147,7 @@ export default function ChatBot() {
             {!minimized && (
               <>
                 {/* Messages */}
-                <div className="h-72 overflow-y-auto p-4 space-y-3 bg-[#F8F9FA] dark:bg-[#0F172A]">
+                <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 bg-[#F8F9FA] dark:bg-[#0F172A]">
                   {messages.map((msg, i) => (
                     <div key={i} className={`flex items-start gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                       {msg.role === 'assistant' && (
@@ -191,7 +191,7 @@ export default function ChatBot() {
 
                 {/* Suggestions */}
                 {messages.length === 1 && (
-                  <div className="px-4 pb-2 flex flex-wrap gap-2">
+                  <div className="px-4 pb-2 flex flex-wrap gap-2 shrink-0">
                     {SUGGESTIONS.map((s, i) => (
                       <button key={i} onClick={() => { setInput(s); inputRef.current?.focus(); }}
                         className="text-xs bg-[#EBF5ED] text-[#3A7D44] font-medium px-3 py-1.5 rounded-full hover:bg-[#3A7D44] hover:text-white transition-all">
@@ -202,7 +202,7 @@ export default function ChatBot() {
                 )}
 
                 {/* Input */}
-                <div className="p-3 border-t border-[#E8E8E8] dark:border-[#2A2A2A] bg-white dark:bg-[#1A1A1A] flex items-end gap-2">
+                <div className="p-3 border-t border-[#E8E8E8] dark:border-[#2A2A2A] bg-white dark:bg-[#1A1A1A] flex items-end gap-2 shrink-0">
                   <textarea
                     ref={inputRef}
                     value={input}
