@@ -239,6 +239,8 @@ export default function Home() {
 
       <Navbar />
 
+
+
       {/* ══ HERO 3D ════════════════════════════════════════════ */}
       <section ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden"
         style={{ background: 'linear-gradient(135deg, #050A10 0%, #0A1520 40%, #071210 100%)' }}>
@@ -447,6 +449,47 @@ export default function Home() {
         </div>
       </section>
 
+            {/* ══ CATÉGORIES ═════════════════════════════════════════ */}
+      <section style={{ padding: '80px 24px', background: '#F8F9FA' }}>
+        <div className="max-w-6xl mx-auto">
+          <AnimatedSection className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full text-xs font-bold"
+              style={{ background: 'rgba(58,125,68,0.1)', color: '#3A7D44', border: '1px solid rgba(58,125,68,0.2)' }}>
+              <HomeIcon size={12} />
+              Que cherchez-vous ?
+            </div>
+            <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, color: '#0F172A', marginBottom: 8 }}>
+              Trouvez par type de bien
+            </h2>
+            <p style={{ color: '#64748B' }}>Villa, appartement, terrain... affinez votre recherche en un clic</p>
+          </AnimatedSection>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {LISTING_CATEGORIES.map((cat, i) => (
+              <AnimatedSection key={cat.value} delay={i * 60}>
+                <button
+                  onClick={() => navigate(`/annonces?category=${cat.value}`)}
+                  className="category-card w-full text-left p-5 rounded-2xl bg-white"
+                  style={{ border: '1px solid #E8E8E8' }}
+                >
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center mb-3"
+                    style={{ background: '#EBF5ED' }}
+                  >
+                    <cat.icon size={22} className="text-[#3A7D44]" strokeWidth={2} />
+                  </div>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: '#0F172A' }}>{cat.label}</div>
+                  <div className="flex items-center gap-1 mt-2 text-xs font-semibold" style={{ color: '#3A7D44' }}>
+                    Voir les annonces
+                    <ArrowRight size={12} className="category-arrow transition-transform duration-300" />
+                  </div>
+                </button>
+              </AnimatedSection>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ══ ANNONCES RÉCENTES ══════════════════════════════════ */}
       <section className="max-w-7xl mx-auto px-6 py-20">
         <AnimatedSection>
@@ -494,47 +537,6 @@ export default function Home() {
             <p style={{ fontSize: 18, fontWeight: 600 }}>Aucune annonce pour le moment</p>
           </div>
         )}
-      </section>
-
-      {/* ══ CATÉGORIES ═════════════════════════════════════════ */}
-      <section style={{ padding: '80px 24px', background: '#F8F9FA' }}>
-        <div className="max-w-6xl mx-auto">
-          <AnimatedSection className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full text-xs font-bold"
-              style={{ background: 'rgba(58,125,68,0.1)', color: '#3A7D44', border: '1px solid rgba(58,125,68,0.2)' }}>
-              <HomeIcon size={12} />
-              Que cherchez-vous ?
-            </div>
-            <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, color: '#0F172A', marginBottom: 8 }}>
-              Trouvez par type de bien
-            </h2>
-            <p style={{ color: '#64748B' }}>Villa, appartement, terrain... affinez votre recherche en un clic</p>
-          </AnimatedSection>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {LISTING_CATEGORIES.map((cat, i) => (
-              <AnimatedSection key={cat.value} delay={i * 60}>
-                <button
-                  onClick={() => navigate(`/annonces?category=${cat.value}`)}
-                  className="category-card w-full text-left p-5 rounded-2xl bg-white"
-                  style={{ border: '1px solid #E8E8E8' }}
-                >
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center mb-3"
-                    style={{ background: '#EBF5ED' }}
-                  >
-                    <cat.icon size={22} className="text-[#3A7D44]" strokeWidth={2} />
-                  </div>
-                  <div style={{ fontWeight: 700, fontSize: 15, color: '#0F172A' }}>{cat.label}</div>
-                  <div className="flex items-center gap-1 mt-2 text-xs font-semibold" style={{ color: '#3A7D44' }}>
-                    Voir les annonces
-                    <ArrowRight size={12} className="category-arrow transition-transform duration-300" />
-                  </div>
-                </button>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
       </section>
 
       {/* ══ POURQUOI LOGEZY 3D ═════════════════════════════════ */}

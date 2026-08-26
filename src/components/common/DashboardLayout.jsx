@@ -280,8 +280,8 @@ export default function DashboardLayout({ children, menuItems, title }) {
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{ background: `radial-gradient(circle at left, ${dark ? 'rgba(58,125,68,0.1)' : 'rgba(58,125,68,0.06)'}, transparent 70%)` }} />
 
-                <span className={`text-xl relative z-10 transition-transform duration-200 group-hover:scale-110 ${collapsed ? 'mx-auto' : ''}`}>
-                  {item.icon}
+                <span className={`relative z-10 transition-transform duration-200 group-hover:scale-110 flex items-center justify-center ${collapsed ? 'mx-auto' : ''}`}>
+                  <item.icon size={18} className={isActive ? 'text-emerald-500' : dark ? 'text-white/50' : 'text-[#94A3B8]'} />
                 </span>
 
                 {!collapsed && (

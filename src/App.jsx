@@ -26,6 +26,7 @@ const DashboardOwner = lazy(() => import('./pages/dashboard/DashboardOwner'));
 const DashboardAgent = lazy(() => import('./pages/dashboard/DashboardAgent'));
 const DashboardTenant = lazy(() => import('./pages/dashboard/DashboardTenant'));
 const DashboardAdmin = lazy(() => import('./pages/dashboard/DashboardAdmin'));
+const DashboardCommercial = lazy(() => import('./pages/dashboard/DashboardCommercial'));
 const Agencies = lazy(() => import('./pages/Agencies'));
 const AgencyDetail = lazy(() => import('./pages/AgencyDetail'));
 
@@ -83,8 +84,10 @@ export default function App() {
         <Route path="/dashboard/admin/*" element={
           <ProtectedRoute roles={['admin']}><DashboardAdmin /></ProtectedRoute>
         } />
+        <Route path="/dashboard/commercial/*" element={
+          <ProtectedRoute roles={['commercial']}><DashboardCommercial /></ProtectedRoute>
+        } />
         <Route path="*" element={<NotFound />} />
-
         
       </Routes>
       <BottomNav />

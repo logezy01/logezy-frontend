@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { Routes, Route, Link, useNavigate , useLocation } from 'react-router-dom';
-import { Plus, Eye, Trash2, CheckCircle, Camera, Search , Video} from 'lucide-react';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+import {
+  Plus, Eye, Trash2, CheckCircle, Camera, Search, Video,
+  LayoutDashboard, Home, MessageSquare, User, Shield, MapPin, Lock,
+  Banknote, Bed, Bath, Sofa, Maximize, Car, Trees, Waves,
+  ClipboardList, Rocket, PartyPopper, Clock, XCircle, PauseCircle,
+  Key, Tag, Lightbulb, Handshake, Pin, Check
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ImageUploader from '../../components/common/ImageUploader';
@@ -8,25 +14,24 @@ import VideoUploader from '../../components/common/VideoUploader';
 import { DEPARTMENTS, getQuartiersForCity } from '../../data/beninLocations';
 import { LISTING_CATEGORIES } from '../../data/listingCategories';
 
-
 import useAuthStore from '../../store/authStore';
 import AdminMessages from '../../components/common/AdminMessages';
 
-import { Building2, Globe, Phone, Mail, Upload, Users, X} from 'lucide-react';
+import { Building2, Globe, Phone, Mail, Upload, Users, X } from 'lucide-react';
 import api from '../../lib/axios';
 
 
 const MENU = [
-  { path: '/dashboard/agent', icon: '📊', label: 'Vue générale' },
-  { path: '/dashboard/agent/annonces', icon: '🏘️', label: 'Mes annonces' },
-  { path: '/dashboard/agent/messages', icon: '💬', label: 'Messages' },
-  { path: '/dashboard/agent/publier', icon: '➕', label: 'Publier une annonce' },
-  { path: '/dashboard/agent/profil', icon: '👤', label: 'Mon profil' },
-  { path: '/dashboard/agent/admin-messages', icon: '🛡️', label: 'Messages admin' },
-  { path: '/dashboard/agent/agence', icon: '🏢', label: 'Mon agence' },
+  { path: '/dashboard/agent', icon: LayoutDashboard, label: 'Vue générale' },
+  { path: '/dashboard/agent/annonces', icon: Home, label: 'Mes annonces' },
+  { path: '/dashboard/agent/messages', icon: MessageSquare, label: 'Messages' },
+  { path: '/dashboard/agent/publier', icon: Plus, label: 'Publier une annonce' },
+  { path: '/dashboard/agent/profil', icon: User, label: 'Mon profil' },
+  { path: '/dashboard/agent/admin-messages', icon: Shield, label: 'Messages admin' },
+  { path: '/dashboard/agent/agence', icon: Building2, label: 'Mon agence' },
 ];
 
-function StatCard({ emoji, label, value, color = 'green' }) {
+function StatCard({ icon: Icon, label, value, color = 'green' }) {
   const colors = {
     green: 'border-[#3A7D44] bg-[#EBF5ED] text-[#3A7D44]',
     blue: 'border-[#3B82F6] bg-[#EFF6FF] text-[#3B82F6]',
@@ -36,8 +41,8 @@ function StatCard({ emoji, label, value, color = 'green' }) {
   };
   return (
     <div className={`card p-5 border-t-4 ${colors[color].split(' ')[0]} hover:shadow-float transition-all`}>
-      <div className={`w-10 h-10 rounded-xl ${colors[color].split(' ').slice(1,3).join(' ')} flex items-center justify-center text-xl mb-3`}>
-        {emoji}
+      <div className={`w-10 h-10 rounded-xl ${colors[color].split(' ').slice(1,3).join(' ')} flex items-center justify-center mb-3`}>
+        <Icon size={20} strokeWidth={2} />
       </div>
       <div className={`font-display font-black text-3xl ${colors[color].split(' ')[3]}`}>{value}</div>
       <div className="text-sm text-[#64748B] dark:text-[#94A3B8] mt-1">{label}</div>
@@ -82,7 +87,9 @@ function Overview() {
         <div className="absolute top-0 right-0 w-48 h-48 bg-[#3A7D44] rounded-full opacity-10 blur-3xl" />
         <div className="relative z-10 flex items-center justify-between">
           <div>
-            <p className="text-white/60 text-sm mb-1">Agent immobilier 🤝</p>
+            <p className="text-white/60 text-sm mb-1 flex items-center gap-1.5">
+              Agent immobilier <Handshake size={14} />
+            </p>
             <h2 className="font-display text-2xl font-bold">{user?.full_name}</h2>
             <p className="text-white/60 text-sm mt-1">Portefeuille d'annonces Logezy</p>
           </div>
@@ -108,10 +115,10 @@ function Overview() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard emoji="🏘️" label="Total annonces" value={stats?.total || 0} color="green" />
-        <StatCard emoji="✅" label="Actives" value={stats?.active || 0} color="blue" />
-        <StatCard emoji="🔑" label="Locations" value={stats?.location || 0} color="orange" />
-        <StatCard emoji="👁️" label="Total vues" value={stats?.views || 0} color="purple" />
+        <StatCard icon={Home} label="Total annonces" value={stats?.total || 0} color="green" />
+        <StatCard icon={CheckCircle} label="Actives" value={stats?.active || 0} color="blue" />
+        <StatCard icon={Key} label="Locations" value={stats?.location || 0} color="orange" />
+        <StatCard icon={Eye} label="Total vues" value={stats?.views || 0} color="purple" />
       </div>
 
       {/* Annonces récentes */}
@@ -124,7 +131,7 @@ function Overview() {
         </div>
         {listings.length === 0 ? (
           <div className="text-center py-8 text-[#94A3B8]">
-            <span className="text-4xl block mb-2">🏠</span>
+            <Home size={40} className="mx-auto mb-2" strokeWidth={1.5} />
             <p className="text-sm mb-4">Aucune annonce publiée</p>
             <Link to="/dashboard/agent/publier" className="btn-primary text-sm px-4 py-2 inline-block">
               Publier ma première annonce
@@ -134,7 +141,9 @@ function Overview() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {listings.map(l => (
               <div key={l.id} className="flex items-center gap-3 p-3 bg-[#F5F5F7] dark:bg-[#2A2A2A] rounded-xl hover:bg-[#EBF5ED] dark:hover:bg-[#3A3A3A] transition-colors">
-                <div className="w-10 h-10 bg-[#EBF5ED] dark:bg-[#3A3A3A] rounded-xl flex items-center justify-center text-lg shrink-0">🏠</div>
+                <div className="w-10 h-10 bg-[#EBF5ED] dark:bg-[#3A3A3A] rounded-xl flex items-center justify-center shrink-0">
+                  <Home size={18} className="text-[#3A7D44]" />
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-sm text-[#0F172A] dark:text-white truncate">{l.title}</div>
                   <div className="flex items-center gap-2 mt-0.5">
@@ -158,14 +167,14 @@ function Overview() {
       {/* Actions rapides */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { to: '/dashboard/agent/publier', icon: '➕', label: 'Nouvelle annonce', color: 'bg-[#EBF5ED]' },
-          { to: '/dashboard/agent/annonces', icon: '🏘️', label: 'Mes annonces', color: 'bg-[#EFF6FF]' },
-          { to: '/dashboard/agent/messages', icon: '💬', label: 'Messages', color: 'bg-[#FEF3C7]' },
-          { to: '/dashboard/agent/profil', icon: '👤', label: 'Mon profil', color: 'bg-purple-50' },
+          { to: '/dashboard/agent/publier', icon: Plus, label: 'Nouvelle annonce', color: 'bg-[#EBF5ED]' },
+          { to: '/dashboard/agent/annonces', icon: Home, label: 'Mes annonces', color: 'bg-[#EFF6FF]' },
+          { to: '/dashboard/agent/messages', icon: MessageSquare, label: 'Messages', color: 'bg-[#FEF3C7]' },
+          { to: '/dashboard/agent/profil', icon: User, label: 'Mon profil', color: 'bg-purple-50' },
         ].map((a, i) => (
           <Link key={i} to={a.to}
             className={`${a.color} dark:bg-[#2A2A2A] card p-4 flex flex-col items-center text-center gap-2 hover:shadow-float transition-all`}>
-            <span className="text-2xl">{a.icon}</span>
+            <a.icon size={22} className="text-[#3A7D44]" strokeWidth={2} />
             <span className="text-xs font-bold text-[#334155] dark:text-[#94A3B8]">{a.label}</span>
           </Link>
         ))}
@@ -242,17 +251,17 @@ function MyListings() {
           </div>
           <div className="flex bg-[#F5F5F7] dark:bg-[#2A2A2A] border border-[#E2E8F0] dark:border-[#3A3A3A] rounded-xl p-1 gap-1">
             {[
-              { value: 'all', label: 'Tout' },
-              { value: 'active', label: '✅' },
-              { value: 'inactive', label: '⏸' },
-              { value: 'location', label: '🔑' },
-              { value: 'vente', label: '🏷️' },
+              { value: 'all', label: 'Tout', icon: null },
+              { value: 'active', label: null, icon: CheckCircle },
+              { value: 'inactive', label: null, icon: PauseCircle },
+              { value: 'location', label: null, icon: Key },
+              { value: 'vente', label: null, icon: Tag },
             ].map(f => (
               <button key={f.value} onClick={() => setFilter(f.value)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 ${
                   filter === f.value ? 'bg-[#3A7D44] text-white' : 'text-[#64748B] hover:text-[#0F172A] dark:hover:text-white'
                 }`}>
-                {f.label}
+                {f.icon ? <f.icon size={14} /> : f.label}
               </button>
             ))}
           </div>
@@ -264,7 +273,7 @@ function MyListings() {
 
       {filtered.length === 0 ? (
         <div className="card p-12 text-center text-[#94A3B8]">
-          <span className="text-5xl block mb-3">🏠</span>
+          <Home size={48} className="mx-auto mb-3" strokeWidth={1.5} />
           <p className="font-medium dark:text-white mb-4">Aucune annonce trouvée</p>
           <Link to="/dashboard/agent/publier" className="btn-primary inline-block text-sm px-6 py-2">
             Publier une annonce
@@ -276,35 +285,46 @@ function MyListings() {
             <div key={l.id} className="card p-4">
               <div className="flex flex-col md:flex-row md:items-center gap-4">
                 <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <div className="w-14 h-14 bg-[#EBF5ED] dark:bg-[#2A2A2A] rounded-xl flex items-center justify-center text-2xl shrink-0">🏠</div>
+                  <div className="w-14 h-14 bg-[#EBF5ED] dark:bg-[#2A2A2A] rounded-xl flex items-center justify-center shrink-0">
+                    <Home size={24} className="text-[#3A7D44]" strokeWidth={1.75} />
+                  </div>
                   <div className="min-w-0 flex-1">
                     <div className="font-bold text-sm text-[#0F172A] dark:text-white truncate">{l.title}</div>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">📍 {l.city}</span>
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      <span className="flex items-center gap-1 text-xs text-[#64748B] dark:text-[#94A3B8]">
+                        <MapPin size={11} /> {l.city}
+                      </span>
+                      <span className={`flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full ${
                         l.type === 'location' ? 'bg-blue-100 text-blue-600' : 'bg-[#FEF3C7] text-yellow-700'
                       }`}>
-                        {l.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
+                        {l.type === 'location' ? <Key size={11} /> : <Tag size={11} />}
+                        {l.type === 'location' ? 'Location' : 'Vente'}
                       </span>
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      <span className={`flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full ${
                         l.status === 'active' ? 'bg-[#EBF5ED] text-[#3A7D44]' :
                         l.status === 'pending' ? 'bg-[#FEF3C7] text-yellow-600' :
                         l.status === 'rejected' ? 'bg-red-100 text-red-500' :
                         'bg-[#F5F5F7] text-[#94A3B8]'
                       }`}>
-                        {l.status === 'active' ? '✅ Actif' :
-                        l.status === 'pending' ? '⏳ En attente de validation' :
-                        l.status === 'rejected' ? '❌ Rejeté' : '⏸ Inactif'}
+                        {l.status === 'active' ? <CheckCircle size={11} /> :
+                         l.status === 'pending' ? <Clock size={11} /> :
+                         l.status === 'rejected' ? <XCircle size={11} /> : <PauseCircle size={11} />}
+                        {l.status === 'active' ? 'Actif' :
+                        l.status === 'pending' ? 'En attente de validation' :
+                        l.status === 'rejected' ? 'Rejeté' : 'Inactif'}
                       </span>
                     </div>
-                    <div className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">
-                      💰 {new Intl.NumberFormat('fr-FR').format(l.price)} FCFA{l.price_period && `/${l.price_period}`}
-                      &nbsp;·&nbsp;👁️ {l.views_count || 0} vues
+                    <div className="flex items-center gap-1.5 text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">
+                      <Banknote size={12} />
+                      {new Intl.NumberFormat('fr-FR').format(l.price)} FCFA{l.price_period && `/${l.price_period}`}
+                      <span className="mx-0.5">·</span>
+                      <Eye size={12} />
+                      {l.views_count || 0} vues
                     </div>
                   </div>
                 </div>
 
-<div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   {uploadingId === l.id ? (
                     <div className="w-full">
                       <ImageUploader listingId={l.id} onUploadComplete={() => { setUploadingId(null); fetchListings(); }} />
@@ -359,27 +379,27 @@ function Messages() {
   const { user } = useAuthStore();
   const location = useLocation();
 
-useEffect(() => {
-  const fetch = async () => {
-    try {
-      const res = await api.get('/chat/conversations');
-      const convs = res.data.conversations || [];
-      setConversations(convs);
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const res = await api.get('/chat/conversations');
+        const convs = res.data.conversations || [];
+        setConversations(convs);
 
-      const params = new URLSearchParams(location.search);
-      const targetId = location.state?.openConversationId || params.get('conversation');
-      if (targetId) {
-        const target = convs.find(c => c.id === targetId);
-        if (target) openConversation(target);
+        const params = new URLSearchParams(location.search);
+        const targetId = location.state?.openConversationId || params.get('conversation');
+        if (targetId) {
+          const target = convs.find(c => c.id === targetId);
+          if (target) openConversation(target);
+        }
+      } catch (e) {
+        toast.error('Erreur chargement conversations');
+      } finally {
+        setLoading(false);
       }
-    } catch (e) {
-      toast.error('Erreur chargement conversations');
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetch();
-}, []);
+    };
+    fetch();
+  }, []);
 
   const openConversation = async (conv) => {
     setSelected(conv);
@@ -425,7 +445,7 @@ useEffect(() => {
           <div className="flex-1 overflow-y-auto">
             {conversations.length === 0 ? (
               <div className="p-8 text-center text-[#94A3B8]">
-                <span className="text-4xl block mb-2">💬</span>
+                <MessageSquare size={40} className="mx-auto mb-2" strokeWidth={1.5} />
                 <p className="text-sm">Aucune conversation</p>
               </div>
             ) : conversations.map(conv => {
@@ -454,7 +474,7 @@ useEffect(() => {
           {!selected ? (
             <div className="flex-1 flex items-center justify-center text-[#94A3B8]">
               <div className="text-center">
-                <span className="text-5xl block mb-3">💬</span>
+                <MessageSquare size={48} className="mx-auto mb-3" strokeWidth={1.5} />
                 <p className="text-sm">Sélectionnez une conversation</p>
               </div>
             </div>
@@ -469,7 +489,11 @@ useEffect(() => {
                   <div className="font-bold text-sm text-[#0F172A] dark:text-white">
                     {(selected.buyer_id === user?.id ? selected.owner : selected.buyer)?.full_name}
                   </div>
-                  {selected.listings && <div className="text-xs text-[#64748B]">📌 {selected.listings.title}</div>}
+                  {selected.listings && (
+                    <div className="flex items-center gap-1 text-xs text-[#64748B]">
+                      <Pin size={10} /> {selected.listings.title}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -506,14 +530,14 @@ useEffect(() => {
 
 // ─── PUBLIER ──────────────────────────────────────────────────
 function PublishListing() {
-    const [form, setForm] = useState({
-      title: '', description: '', type: 'location', category: '', price: '',
-      price_period: 'mois', city: '', neighborhood: '',
-      bedrooms: 0, bathrooms: 0, living_rooms: 0, area: '',
-      floors: 0, is_furnished: false, has_parking: false,
-      has_garden: false, has_pool: false, has_security: false,
-      info_supplementaires: '',
-    });
+  const [form, setForm] = useState({
+    title: '', description: '', type: 'location', category: '', price: '',
+    price_period: 'mois', city: '', neighborhood: '',
+    bedrooms: 0, bathrooms: 0, living_rooms: 0, area: '',
+    floors: 0, is_furnished: false, has_parking: false,
+    has_garden: false, has_pool: false, has_security: false,
+    info_supplementaires: '',
+  });
   const [loading, setLoading] = useState(false);
   const [createdListingId, setCreatedListingId] = useState(null);
   const navigate = useNavigate();
@@ -539,7 +563,7 @@ function PublishListing() {
     return (
       <div className="max-w-2xl mx-auto animate-scale-in">
         <div className="card p-6 text-center">
-          <span className="text-5xl block mb-3">🎉</span>
+          <PartyPopper size={48} className="mx-auto mb-3 text-[#3A7D44]" strokeWidth={1.5} />
           <h2 className="font-display text-2xl font-bold text-[#0F172A] dark:text-white">Annonce créée !</h2>
           <p className="text-sm text-[#64748B] mt-1 mb-6">Ajoutez des photos pour attirer plus de visiteurs</p>
           <ImageUploader listingId={createdListingId} onUploadComplete={() => {
@@ -548,7 +572,7 @@ function PublishListing() {
           <div className="mt-4 pt-4 border-t border-[#E2E8F0] dark:border-[#2A2A2A]">
             <VideoUploader listingId={createdListingId} onUploadComplete={() => {}} />
           </div>
-          
+
           <button onClick={() => navigate('/dashboard/agent/annonces')}
             className="btn-ghost w-full py-2.5 mt-3 text-sm">
             Passer cette étape →
@@ -567,22 +591,23 @@ function PublishListing() {
           <div>
             <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Type d'annonce</label>
             <div className="grid grid-cols-2 gap-3">
-              {[{ value: 'location', label: '🔑 Location' }, { value: 'vente', label: '🏷️ Vente' }].map(t => (
+              {[{ value: 'location', label: 'Location', icon: Key }, { value: 'vente', label: 'Vente', icon: Tag }].map(t => (
                 <button key={t.value} type="button" onClick={() => update('type', t.value)}
-                  className={`p-3 rounded-xl border-2 text-left font-bold text-sm transition-all ${
+                  className={`p-3 rounded-xl border-2 text-left font-bold text-sm transition-all flex items-center gap-2 ${
                     form.type === t.value ? 'border-[#3A7D44] bg-[#EBF5ED]' : 'border-[#E2E8F0] hover:border-[#3A7D44]/30'
                   }`}>
+                  <t.icon size={16} strokeWidth={2} />
                   {t.label}
                 </button>
               ))}
             </div>
           </div>
 
-                    <div>
+          <div>
             <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Catégorie du bien</label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {LISTING_CATEGORIES.map(cat => (
-                                <button key={cat.value} type="button" onClick={() => update('category', cat.value)}
+                <button key={cat.value} type="button" onClick={() => update('category', cat.value)}
                   className={`p-2.5 rounded-xl border-2 text-center font-bold text-xs transition-all flex flex-col items-center gap-1.5 ${
                     form.category === cat.value ? 'border-[#3A7D44] bg-[#EBF5ED] text-[#3A7D44]' : 'border-[#E2E8F0] text-[#64748B] hover:border-[#3A7D44]/30'
                   }`}>
@@ -612,16 +637,16 @@ function PublishListing() {
               <input type="number" placeholder="Ex: 150000" value={form.price}
                 onChange={(e) => update('price', e.target.value)} className="input-field" required />
             </div>
-                {form.type === 'location' && (
-                  <div>
-                    <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Période de location</label>
-                    <select value={form.price_period} onChange={(e) => update('price_period', e.target.value)} className="input-field">
-                      <option value="jour">Par jour</option>
-                      <option value="mois">Par mois</option>
-                      <option value="an">Par an</option>
-                    </select>
-                  </div>
-                )}
+            {form.type === 'location' && (
+              <div>
+                <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Période de location</label>
+                <select value={form.price_period} onChange={(e) => update('price_period', e.target.value)} className="input-field">
+                  <option value="jour">Par jour</option>
+                  <option value="mois">Par mois</option>
+                  <option value="an">Par an</option>
+                </select>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -656,12 +681,14 @@ function PublishListing() {
 
           <div className="grid grid-cols-3 gap-3">
             {[
-              { field: 'bedrooms', label: '🛏 Chambres' },
-              { field: 'bathrooms', label: '🚿 SDB' },
-              { field: 'living_rooms', label: '🛋 Salons' },
+              { field: 'bedrooms', label: 'Chambres', icon: Bed },
+              { field: 'bathrooms', label: 'SDB', icon: Bath },
+              { field: 'living_rooms', label: 'Salons', icon: Sofa },
             ].map(f => (
               <div key={f.field}>
-                <label className="block text-xs text-[#64748B] dark:text-[#94A3B8] mb-1">{f.label}</label>
+                <label className="flex items-center gap-1 text-xs text-[#64748B] dark:text-[#94A3B8] mb-1">
+                  <f.icon size={12} /> {f.label}
+                </label>
                 <input type="number" min="0" value={form[f.field]}
                   onChange={(e) => update(f.field, parseInt(e.target.value))}
                   className="input-field text-center" />
@@ -671,12 +698,16 @@ function PublishListing() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-[#64748B] dark:text-[#94A3B8] mb-1">📐 Superficie (m²)</label>
+              <label className="flex items-center gap-1 text-xs text-[#64748B] dark:text-[#94A3B8] mb-1">
+                <Maximize size={12} /> Superficie (m²)
+              </label>
               <input type="number" placeholder="Ex: 120" value={form.area}
                 onChange={(e) => update('area', e.target.value)} className="input-field" />
             </div>
             <div>
-              <label className="block text-xs text-[#64748B] dark:text-[#94A3B8] mb-1">🏢 Étages</label>
+              <label className="flex items-center gap-1 text-xs text-[#64748B] dark:text-[#94A3B8] mb-1">
+                <Building2 size={12} /> Étages
+              </label>
               <input type="number" min="0" value={form.floors}
                 onChange={(e) => update('floors', parseInt(e.target.value))} className="input-field" />
             </div>
@@ -686,49 +717,51 @@ function PublishListing() {
             <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-3">Équipements</label>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { field: 'is_furnished', label: '🛋 Meublé' },
-                { field: 'has_parking', label: '🚗 Parking' },
-                { field: 'has_garden', label: '🌿 Jardin' },
-                { field: 'has_pool', label: '🏊 Piscine' },
-                { field: 'has_security', label: '🔒 Sécurité' },
+                { field: 'is_furnished', label: 'Meublé', icon: Sofa },
+                { field: 'has_parking', label: 'Parking', icon: Car },
+                { field: 'has_garden', label: 'Jardin', icon: Trees },
+                { field: 'has_pool', label: 'Piscine', icon: Waves },
+                { field: 'has_security', label: 'Sécurité', icon: Lock },
               ].map(f => (
                 <label key={f.field} className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${
                   form[f.field] ? 'border-[#3A7D44] bg-[#EBF5ED]' : 'border-[#E2E8F0]'
                 }`}>
                   <input type="checkbox" checked={form[f.field]}
                     onChange={(e) => update(f.field, e.target.checked)} className="hidden" />
+                  <f.icon size={15} className="text-[#3A7D44]" />
                   <span className="text-sm font-medium">{f.label}</span>
-                  {form[f.field] && <span className="ml-auto text-[#3A7D44] text-xs font-bold">✓</span>}
+                  {form[f.field] && <Check size={14} className="ml-auto text-[#3A7D44]" strokeWidth={2.5} />}
                 </label>
               ))}
             </div>
           </div>
 
-
-            {/* Informations supplémentaires */}
-                <div>
-                  <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">
-                    📋 Informations supplémentaires
-                    <span className="text-[#94A3B8] font-normal text-xs ml-2">(optionnel)</span>
-                  </label>
-                  <div className="bg-[#EBF5ED] dark:bg-[#2A2A2A] rounded-xl p-3 mb-2">
-                    <p className="text-xs text-[#3A7D44] font-medium">
-                      💡 Exemples : Avance de 3 mois exigée, Caution eau 50 000 FCFA, Charges comprises, Pas d'animaux, etc.
-                    </p>
-                  </div>
-                  <textarea
-                    placeholder="Ex: Avance de 2 mois requise. Caution eau : 25 000 FCFA. Charges non comprises. Pas d'animaux acceptés."
-                    value={form.info_supplementaires}
-                    onChange={(e) => update('info_supplementaires', e.target.value)}
-                    className="input-field min-h-[100px] resize-none"
-                    rows={4}
-                  />
-                </div>
+          {/* Informations supplémentaires */}
+          <div>
+            <label className="flex items-center gap-1.5 text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">
+              <ClipboardList size={15} />
+              Informations supplémentaires
+              <span className="text-[#94A3B8] font-normal text-xs ml-1">(optionnel)</span>
+            </label>
+            <div className="flex items-start gap-2 bg-[#EBF5ED] dark:bg-[#2A2A2A] rounded-xl p-3 mb-2">
+              <Lightbulb size={14} className="text-[#3A7D44] shrink-0 mt-0.5" />
+              <p className="text-xs text-[#3A7D44] font-medium">
+                Exemples : Avance de 3 mois exigée, Caution eau 50 000 FCFA, Charges comprises, Pas d'animaux, etc.
+              </p>
+            </div>
+            <textarea
+              placeholder="Ex: Avance de 2 mois requise. Caution eau : 25 000 FCFA. Charges non comprises. Pas d'animaux acceptés."
+              value={form.info_supplementaires}
+              onChange={(e) => update('info_supplementaires', e.target.value)}
+              className="input-field min-h-[100px] resize-none"
+              rows={4}
+            />
+          </div>
           <button type="submit" disabled={loading}
             className="btn-primary w-full py-3 flex items-center justify-center gap-2">
             {loading
               ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              : '🚀 Créer l\'annonce'}
+              : <><Rocket size={16} /> Créer l'annonce</>}
           </button>
         </form>
       </div>
@@ -747,7 +780,7 @@ function Profile() {
     try {
       await api.put('/auth/profile', form);
       updateUser(form);
-      toast.success('Profil mis à jour ! ✅');
+      toast.success('Profil mis à jour !');
     } catch (e) {
       toast.error('Erreur mise à jour profil');
     } finally {
@@ -766,8 +799,8 @@ function Profile() {
           <div>
             <div className="font-bold text-white">{user?.full_name}</div>
             <div className="text-sm text-white/60">{user?.email}</div>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/10 text-white mt-1 inline-block">
-              🤝 Agent immobilier
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/10 text-white mt-1 inline-flex items-center gap-1">
+              <Handshake size={11} /> Agent immobilier
             </span>
           </div>
         </div>
@@ -791,7 +824,7 @@ function Profile() {
             className="btn-primary w-full py-3 flex items-center justify-center gap-2">
             {loading
               ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              : '✅ Sauvegarder le profil'}
+              : <><CheckCircle size={16} /> Sauvegarder le profil</>}
           </button>
         </div>
       </div>
@@ -867,7 +900,6 @@ function AgencyForm({ form, setForm, agency, onSubmit, onCancel }) {
   );
 }
 
-
 function AgencyManager() {
   const [agency, setAgency] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -908,7 +940,7 @@ function AgencyManager() {
     if (!form.name) { toast.error('Nom de l\'agence requis'); return; }
     try {
       await api.post('/agencies', form);
-      toast.success('Agence créée ! 🎉');
+      toast.success('Agence créée !');
       fetchAgency();
       setEditing(false);
     } catch (e) {
@@ -927,24 +959,24 @@ function AgencyManager() {
     }
   };
 
-const handleLogoUpload = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  setLogoUploading(true);
-  try {
-    const formData = new FormData();
-    formData.append('logo', file);
-    const res = await api.post(`/agencies/${agency.id}/logo`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    toast.success('Logo mis à jour !');
-    fetchAgency();
-  } catch (e) {
-    toast.error('Erreur upload logo');
-  } finally {
-    setLogoUploading(false);
-  }
-};
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setLogoUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('logo', file);
+      const res = await api.post(`/agencies/${agency.id}/logo`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      toast.success('Logo mis à jour !');
+      fetchAgency();
+    } catch (e) {
+      toast.error('Erreur upload logo');
+    } finally {
+      setLogoUploading(false);
+    }
+  };
 
   const handleSearchAgent = async () => {
     if (!inviteSearch.trim()) return;
@@ -994,9 +1026,6 @@ const handleLogoUpload = async (e) => {
     </div>
   );
 
-  // Formulaire création / édition
-
-
   // Pas d'agence encore
   if (!agency) {
     return (
@@ -1015,12 +1044,12 @@ const handleLogoUpload = async (e) => {
           </button>
         </div>
         {editing && <AgencyForm
-  form={form}
-  setForm={setForm}
-  agency={agency}
-  onSubmit={agency ? handleUpdate : handleCreate}
-  onCancel={() => setEditing(false)}
-/>}
+          form={form}
+          setForm={setForm}
+          agency={agency}
+          onSubmit={agency ? handleUpdate : handleCreate}
+          onCancel={() => setEditing(false)}
+        />}
       </div>
     );
   }
@@ -1065,7 +1094,9 @@ const handleLogoUpload = async (e) => {
               )}
             </div>
             {agency.city && (
-              <p className="text-xs text-[#94A3B8] mb-2">📍 {agency.city}</p>
+              <p className="flex items-center gap-1 text-xs text-[#94A3B8] mb-2">
+                <MapPin size={11} /> {agency.city}
+              </p>
             )}
             <div className="flex flex-wrap gap-2">
               {agency.phone && (
@@ -1105,12 +1136,12 @@ const handleLogoUpload = async (e) => {
 
       {/* Formulaire édition */}
       {editing && <AgencyForm
-  form={form}
-  setForm={setForm}
-  agency={agency}
-  onSubmit={agency ? handleUpdate : handleCreate}
-  onCancel={() => setEditing(false)}
-/>}
+        form={form}
+        setForm={setForm}
+        agency={agency}
+        onSubmit={agency ? handleUpdate : handleCreate}
+        onCancel={() => setEditing(false)}
+      />}
 
       {/* Membres de l'agence */}
       <div className="card p-5">

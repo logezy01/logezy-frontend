@@ -40,6 +40,7 @@ export default function Navbar() {
       case 'agent': return '/dashboard/agent';
       case 'locataire': return '/dashboard/locataire';
       case 'admin': return '/dashboard/admin';
+      case 'commercial': return '/dashboard/commercial';
       default: return '/';
     }
   };
@@ -235,8 +236,8 @@ export default function Navbar() {
                             <span className="font-medium">Mon Dashboard</span>
                           </Link>
 
-                          {user?.role !== 'locataire' && (
-                            <Link to={getPublishLink()} onClick={() => setUserMenuOpen(false)}
+                  {user?.role !== 'locataire' && user?.role !== 'commercial' && (
+                    <Link to={getPublishLink()} onClick={() => setUserMenuOpen(false)}
                               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#334155] dark:text-[#94A3B8] hover:bg-[#EBF5ED] dark:hover:bg-[#2A2A2A] hover:text-[#3A7D44] transition-colors">
                               <Plus size={16} />
                               <span className="font-medium">Publier une annonce</span>
@@ -333,8 +334,8 @@ export default function Navbar() {
                     <LayoutDashboard size={16} /> <span className="font-medium">Dashboard</span>
                   </Link>
 
-                  {user?.role !== 'locataire' && (
-                    <Link to={getPublishLink()} onClick={() => setMobileOpen(false)}
+                  {user?.role !== 'locataire' && user?.role !== 'commercial' && (
+                    <Link to={getPublishLink()}onClick={() => setMobileOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-[#3A7D44] bg-[#EBF5ED] hover:bg-[#3A7D44] hover:text-white transition-colors font-bold">
                       <Plus size={16} /> Publier une annonce
                     </Link>

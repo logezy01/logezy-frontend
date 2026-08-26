@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
-import { Eye, CheckCircle, XCircle, Users, Home, Search, Trash2, Ban, Mail, Send } from 'lucide-react';
+import { Eye, CheckCircle, XCircle, Users, Home, Search, Trash2, Ban, Mail, Send, LayoutDashboard, Clock, TrendingUp, Briefcase, UserPlus, Building2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import api from '../../lib/axios';
@@ -8,12 +8,13 @@ import useAuthStore from '../../store/authStore';
 import SwipeValidation from '../../components/admin/SwipeValidation';
 
 const MENU = [
-  { path: '/dashboard/admin', icon: '📊', label: 'Vue générale' },
-  { path: '/dashboard/admin/validation', icon: '⏳', label: 'Validation annonces' },
-  { path: '/dashboard/admin/utilisateurs', icon: '👥', label: 'Utilisateurs' },
-  { path: '/dashboard/admin/annonces', icon: '🏘️', label: 'Toutes les annonces' },
-  { path: '/dashboard/admin/messages', icon: '✉️', label: 'Écrire aux users' },
-  { path: '/dashboard/admin/stats', icon: '📈', label: 'Statistiques' },
+  { path: '/dashboard/admin', icon: LayoutDashboard, label: 'Vue générale' },
+  { path: '/dashboard/admin/validation', icon: Clock, label: 'Validation annonces' },
+  { path: '/dashboard/admin/utilisateurs', icon: Users, label: 'Utilisateurs' },
+  { path: '/dashboard/admin/annonces', icon: Home, label: 'Toutes les annonces' },
+  { path: '/dashboard/admin/commerciaux', icon: Briefcase, label: 'Commerciaux' },
+  { path: '/dashboard/admin/messages', icon: Mail, label: 'Écrire aux users' },
+  { path: '/dashboard/admin/stats', icon: TrendingUp, label: 'Statistiques' },
 ];
 
 function StatCard({ emoji, label, value, color = 'green', loading, urgent }) {
@@ -1038,15 +1039,223 @@ function StatsAdmin() {
   );
 }
 
+// ─── COMMERCIAUX ────────────────────────────────────────────
+function CommercialsAdmin() {
+  const [commercials, setCommercials] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ email: '', password: '', full_name: '', phone: '' });
+  const [creating, setCreating] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
+  const [agentsByCommercial, setAgentsByCommercial] = useState({});
+
+  const fetchCommercials = async () => {
+    try {
+      const res = await api.get('/admin/commercials');
+      setCommercials(res.data.commercials || []);
+    } catch (e) {
+      toast.error('Erreur chargement commerciaux');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchCommercials(); }, []);
+
+  const update = (f, v) => setForm(p => ({ ...p, [f]: v }));
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    setCreating(true);
+    try {
+      await api.post('/admin/commercials', form);
+      toast.success('Compte commercial créé !');
+      setForm({ email: '', password: '', full_name: '', phone: '' });
+      setShowForm(false);
+      fetchCommercials();
+    } catch (e) {
+      toast.error(e.response?.data?.error || 'Erreur création');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const toggleExpand = async (id) => {
+    if (expandedId === id) { setExpandedId(null); return; }
+    setExpandedId(id);
+    if (!agentsByCommercial[id]) {
+      try {
+        const res = await api.get(`/admin/commercials/${id}/agents`);
+        setAgentsByCommercial(prev => ({ ...prev, [id]: res.data.agents || [] }));
+      } catch (e) {
+        toast.error('Erreur chargement agents');
+      }
+    }
+  };
+
+  const totalAgents = commercials.reduce((sum, c) => sum + c.agents_count, 0);
+  const bestCommercial = commercials.length > 0
+    ? commercials.reduce((best, c) => c.agents_count > (best?.agents_count || 0) ? c : best, null)
+    : null;
+
+  if (loading) return <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="card h-20 animate-pulse" />)}</div>;
+
+  return (
+    <div className="space-y-5 animate-fade-in">
+
+      {/* Header */}
+      <div className="bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#3A7D44] rounded-2xl p-6 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-[#3A7D44] rounded-full opacity-10 blur-3xl" />
+        <div className="relative z-10 flex items-center justify-between">
+          <div>
+            <p className="text-white/60 text-sm mb-1 flex items-center gap-1.5">
+              <Briefcase size={14} /> Équipe commerciale
+            </p>
+            <h2 className="font-display text-2xl font-bold">Prospection & recrutement</h2>
+            <p className="text-white/60 text-sm mt-1">Suivi des agents immobiliers amenés par l'équipe</p>
+          </div>
+          <button onClick={() => setShowForm(!showForm)}
+            className="bg-white text-[#0F172A] font-bold text-sm px-4 py-2.5 rounded-xl flex items-center gap-2 hover:bg-white/90 transition-all shrink-0">
+            <UserPlus size={16} /> Nouveau commercial
+          </button>
+        </div>
+        <div className="grid grid-cols-3 gap-3 mt-5 relative z-10">
+          <div className="bg-white/10 backdrop-blur rounded-xl p-3 text-center">
+            <div className="font-display font-black text-xl text-white">{commercials.length}</div>
+            <div className="text-white/60 text-xs">Commerciaux</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur rounded-xl p-3 text-center">
+            <div className="font-display font-black text-xl text-white">{totalAgents}</div>
+            <div className="text-white/60 text-xs">Agents amenés</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur rounded-xl p-3 text-center">
+            <div className="font-display font-black text-xl text-white truncate">
+              {bestCommercial ? bestCommercial.full_name.split(' ')[0] : '—'}
+            </div>
+            <div className="text-white/60 text-xs">Meilleur recruteur</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Formulaire création */}
+      {showForm && (
+        <div className="card p-5 animate-scale-in">
+          <h3 className="font-bold text-[#0F172A] dark:text-white mb-4 flex items-center gap-2">
+            <UserPlus size={16} className="text-[#3A7D44]" />
+            Créer un compte commercial
+          </h3>
+          <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Nom complet *</label>
+              <input value={form.full_name} onChange={e => update('full_name', e.target.value)}
+                placeholder="Ex: Marc Adjovi" className="input-field" required />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Email *</label>
+              <input type="email" value={form.email} onChange={e => update('email', e.target.value)}
+                placeholder="commercial@logezy.com" className="input-field" required />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Mot de passe *</label>
+              <input type="password" value={form.password} onChange={e => update('password', e.target.value)}
+                placeholder="••••••••" className="input-field" required minLength={6} />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[#64748B] dark:text-[#94A3B8] mb-1">Téléphone</label>
+              <input value={form.phone} onChange={e => update('phone', e.target.value)}
+                placeholder="+229 01 XX XX XX XX" className="input-field" />
+            </div>
+            <div className="md:col-span-2 flex gap-3 mt-1">
+              <button type="submit" disabled={creating} className="btn-primary px-6 py-2.5 flex items-center gap-2">
+                {creating
+                  ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  : <><UserPlus size={15} /> Créer le compte</>}
+              </button>
+              <button type="button" onClick={() => setShowForm(false)} className="btn-secondary px-6 py-2.5">
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Liste des commerciaux */}
+      {commercials.length === 0 ? (
+        <div className="card p-12 text-center text-[#94A3B8]">
+          <Briefcase size={48} className="mx-auto mb-3" strokeWidth={1.5} />
+          <p className="font-medium dark:text-white mb-4">Aucun commercial pour le moment</p>
+          <button onClick={() => setShowForm(true)} className="btn-primary inline-flex items-center gap-2 text-sm px-6 py-2">
+            <UserPlus size={15} /> Créer le premier compte
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {commercials.map(c => (
+            <div key={c.id} className="card overflow-hidden">
+              <button onClick={() => toggleExpand(c.id)}
+                className="w-full flex items-center gap-4 p-4 hover:bg-[#F5F5F7] dark:hover:bg-[#2A2A2A] transition-colors text-left">
+                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#3A7D44] to-[#2D6235] text-white flex items-center justify-center font-bold shrink-0">
+                  {c.full_name?.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-sm text-[#0F172A] dark:text-white">{c.full_name}</div>
+                  <div className="text-xs text-[#64748B] dark:text-[#94A3B8]">{c.email}{c.phone && ` · ${c.phone}`}</div>
+                </div>
+                <div className="text-center shrink-0 px-4">
+                  <div className="font-display font-black text-2xl text-[#3A7D44]">{c.agents_count}</div>
+                  <div className="text-[10px] text-[#94A3B8] uppercase tracking-wide">agents</div>
+                </div>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                  c.is_active ? 'bg-[#EBF5ED] text-[#3A7D44]' : 'bg-[#F5F5F7] text-[#94A3B8]'
+                }`}>
+                  {c.is_active ? 'Actif' : 'Inactif'}
+                </span>
+              </button>
+
+              {expandedId === c.id && (
+                <div className="border-t border-[#E2E8F0] dark:border-[#2A2A2A] bg-[#F8F9FA] dark:bg-[#0F172A] p-4">
+                  {!agentsByCommercial[c.id] ? (
+                    <div className="h-16 animate-pulse bg-[#F5F5F7] dark:bg-[#2A2A2A] rounded-xl" />
+                  ) : agentsByCommercial[c.id].length === 0 ? (
+                    <p className="text-xs text-[#94A3B8] text-center py-3">Aucun agent enregistré par ce commercial</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {agentsByCommercial[c.id].map(a => (
+                        <div key={a.id} className="flex items-center gap-3 p-2.5 bg-white dark:bg-[#1A1A1A] rounded-xl">
+                          <div className="w-8 h-8 rounded-full bg-[#3A7D44] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                            {a.full_name?.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-xs text-[#0F172A] dark:text-white truncate">{a.full_name}</div>
+                            <div className="text-xs text-[#94A3B8] truncate">{a.email}</div>
+                          </div>
+                          <div className="text-xs text-[#94A3B8] shrink-0">
+                            {new Date(a.created_at).toLocaleDateString('fr-FR')}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── COMPOSANT PRINCIPAL ──────────────────────────────────────
 export default function DashboardAdmin() {
   return (
     <DashboardLayout menuItems={MENU} title="Administration Logezy">
-      <Routes>
+        <Routes>
         <Route index element={<Overview />} />
         <Route path="validation" element={<ValidationListings />} />
         <Route path="utilisateurs" element={<UsersList />} />
         <Route path="annonces" element={<ListingsAdmin />} />
+        <Route path="commerciaux" element={<CommercialsAdmin />} />
         <Route path="messages" element={<WriteToUsers />} />
         <Route path="stats" element={<StatsAdmin />} />
       </Routes>

@@ -26,6 +26,7 @@ export default function Login() {
         case 'agent': navigate('/dashboard/agent'); break;
         case 'locataire': navigate('/dashboard/locataire'); break;
         case 'admin': navigate('/dashboard/admin'); break;
+        
         default: navigate('/');
       }
     } catch (error) {

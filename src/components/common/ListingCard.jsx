@@ -108,7 +108,7 @@ export default function ListingCard({ listing }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
 
           {/* Badges haut gauche — type, catégorie, coup de cœur, nouveau, vidéo */}
-          <div className="absolute top-3 left-3 right-3 flex flex-wrap items-center gap-1.5">
+          <div className="absolute top-3 left-3 right-14 flex flex-wrap items-center gap-1.5">
             <span
               className={`flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-md ${
                 listing.type === 'location'
