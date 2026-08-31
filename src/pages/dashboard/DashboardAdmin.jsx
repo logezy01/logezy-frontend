@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
-import { Eye, CheckCircle, XCircle, Users, Home, Search, Trash2, Ban, Mail, Send, LayoutDashboard, Clock, TrendingUp, Briefcase, UserPlus, Building2 } from 'lucide-react';
+import {
+  Eye, CheckCircle, XCircle, Users, Home, Search, Trash2, Ban, Mail, Send,
+  LayoutDashboard, Clock, TrendingUp, Briefcase, UserPlus, Building2,
+  Crown, Key, Tag, MapPin, Banknote, Bed, Maximize, User, Hand, List,
+  AlertTriangle, PauseCircle, MessageCircle, Handshake, Settings, Lightbulb, Pin
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import api from '../../lib/axios';
@@ -17,7 +22,7 @@ const MENU = [
   { path: '/dashboard/admin/stats', icon: TrendingUp, label: 'Statistiques' },
 ];
 
-function StatCard({ emoji, label, value, color = 'green', loading, urgent }) {
+function StatCard({ icon: Icon, label, value, color = 'green', loading, urgent }) {
   const colors = {
     green: 'border-[#3A7D44] bg-[#EBF5ED]',
     blue: 'border-[#3B82F6] bg-[#EFF6FF]',
@@ -34,27 +39,29 @@ function StatCard({ emoji, label, value, color = 'green', loading, urgent }) {
   };
   return (
     <div className={`card p-5 border-t-4 ${colors[color]} hover:shadow-float transition-all ${urgent ? 'ring-2 ring-red-400 ring-offset-2' : ''}`}>
-      <div className={`w-10 h-10 rounded-xl ${colors[color]} flex items-center justify-center text-xl mb-3`}>
-        {emoji}
+      <div className={`w-10 h-10 rounded-xl ${colors[color]} flex items-center justify-center mb-3`}>
+        <Icon size={20} strokeWidth={2} className={textColors[color]} />
       </div>
       <div className={`font-display font-black text-3xl ${textColors[color]} ${loading ? 'animate-pulse' : ''}`}>
-        {loading ? '...👣' : value}
+        {loading ? '...' : value}
       </div>
       <div className="text-sm text-[#64748B] dark:text-[#94A3B8] mt-1">{label}</div>
       {urgent && value > 0 && (
-        <div className="text-xs text-red-500 font-bold mt-1">⚠️ Action requise</div>
+        <div className="flex items-center gap-1 text-xs text-red-500 font-bold mt-1">
+          <AlertTriangle size={11} /> Action requise
+        </div>
       )}
     </div>
   );
 }
 
-function ProgressBar({ label, value, total, color = '#3A7D44', emoji }) {
+function ProgressBar({ label, value, total, color = '#3A7D44', icon: Icon }) {
   const pct = total > 0 ? Math.round((value / total) * 100) : 0;
   return (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-2 text-sm font-medium text-[#334155] dark:text-[#94A3B8]">
-          <span>{emoji}</span><span>{label}</span>
+          <Icon size={14} /><span>{label}</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="font-bold text-sm text-[#0F172A] dark:text-white">{value}</span>
@@ -108,17 +115,17 @@ function Overview() {
             <h2 className="font-display text-2xl font-bold mb-1">Dashboard Admin</h2>
             <p className="text-white/60 text-sm">Vue globale de la plateforme Logezy</p>
           </div>
-          <div className="text-5xl">⚙️</div>
+          <Settings size={40} className="text-white/20" strokeWidth={1.5} />
         </div>
         <div className="grid grid-cols-4 gap-4 mt-6 relative z-10">
           {[
-            { label: 'Utilisateurs', value: stats?.total_users || 0, emoji: '👥' },
-            { label: 'Annonces', value: stats?.total_listings || 0, emoji: '🏠' },
-            { label: 'En attente', value: stats?.pending_listings || 0, emoji: '⏳' },
-            { label: 'Messages', value: stats?.total_messages || 0, emoji: '✉️' },
+            { label: 'Utilisateurs', value: stats?.total_users || 0, icon: Users },
+            { label: 'Annonces', value: stats?.total_listings || 0, icon: Home },
+            { label: 'En attente', value: stats?.pending_listings || 0, icon: Clock, urgent: true },
+            { label: 'Messages', value: stats?.total_messages || 0, icon: Mail },
           ].map((s, i) => (
-            <div key={i} className={`backdrop-blur rounded-xl p-3 text-center ${s.emoji === '⏳' && s.value > 0 ? 'bg-red-500/20 border border-red-400/30' : 'bg-white/10'}`}>
-              <div className="text-xl mb-1">{s.emoji}</div>
+            <div key={i} className={`backdrop-blur rounded-xl p-3 text-center ${s.urgent && s.value > 0 ? 'bg-red-500/20 border border-red-400/30' : 'bg-white/10'}`}>
+              <s.icon size={20} className="mx-auto mb-1 text-white/70" />
               <div className="font-display font-black text-xl text-white">{loading ? '...' : s.value}</div>
               <div className="text-white/50 text-xs">{s.label}</div>
             </div>
@@ -127,26 +134,31 @@ function Overview() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard emoji="👥" label="Utilisateurs" value={stats?.total_users || 0} color="blue" loading={loading} />
-        <StatCard emoji="✅" label="Annonces actives" value={stats?.listings_by_status?.active || 0} color="green" loading={loading} />
-        <StatCard emoji="⏳" label="En attente validation" value={stats?.pending_listings || 0} color="orange" loading={loading} urgent={true} />
-        <StatCard emoji="💬" label="Conversations" value={stats?.total_conversations || 0} color="purple" loading={loading} />
+        <StatCard icon={Users} label="Utilisateurs" value={stats?.total_users || 0} color="blue" loading={loading} />
+        <StatCard icon={CheckCircle} label="Annonces actives" value={stats?.listings_by_status?.active || 0} color="green" loading={loading} />
+        <StatCard icon={Clock} label="En attente validation" value={stats?.pending_listings || 0} color="orange" loading={loading} urgent={true} />
+        <StatCard icon={MessageCircle} label="Conversations" value={stats?.total_conversations || 0} color="purple" loading={loading} />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {[
-          { to: '/dashboard/admin/validation', icon: '⏳', label: 'Valider annonces', desc: `${stats?.pending_listings || 0} en attente`, color: 'bg-[#FEF3C7]', urgent: (stats?.pending_listings || 0) > 0 },
-          { to: '/dashboard/admin/utilisateurs', icon: '👥', label: 'Gérer utilisateurs', desc: `${stats?.total_users || 0} comptes`, color: 'bg-[#EFF6FF]', urgent: false },
-          { to: '/dashboard/admin/annonces', icon: '🏘️', label: 'Toutes les annonces', desc: `${stats?.total_listings || 0} annonces`, color: 'bg-[#EBF5ED]', urgent: false },
-          { to: '/dashboard/admin/messages', icon: '✉️', label: 'Écrire aux users', desc: 'Contacter un utilisateur', color: 'bg-purple-50', urgent: false },
-          { to: '/dashboard/admin/stats', icon: '📈', label: 'Statistiques', desc: 'Analyse complète', color: 'bg-[#EFF6FF]', urgent: false },
+          { to: '/dashboard/admin/validation', icon: Clock, label: 'Valider annonces', desc: `${stats?.pending_listings || 0} en attente`, color: 'bg-[#FEF3C7]', urgent: (stats?.pending_listings || 0) > 0 },
+          { to: '/dashboard/admin/utilisateurs', icon: Users, label: 'Gérer utilisateurs', desc: `${stats?.total_users || 0} comptes`, color: 'bg-[#EFF6FF]', urgent: false },
+          { to: '/dashboard/admin/annonces', icon: Home, label: 'Toutes les annonces', desc: `${stats?.total_listings || 0} annonces`, color: 'bg-[#EBF5ED]', urgent: false },
+          { to: '/dashboard/admin/commerciaux', icon: Briefcase, label: 'Commerciaux', desc: 'Équipe de prospection', color: 'bg-orange-50', urgent: false },
+          { to: '/dashboard/admin/messages', icon: Mail, label: 'Écrire aux users', desc: 'Contacter un utilisateur', color: 'bg-purple-50', urgent: false },
+          { to: '/dashboard/admin/stats', icon: TrendingUp, label: 'Statistiques', desc: 'Analyse complète', color: 'bg-[#EFF6FF]', urgent: false },
         ].map((a, i) => (
           <Link key={i} to={a.to}
             className={`${a.color} dark:bg-[#2A2A2A] card p-4 flex flex-col gap-2 hover:shadow-float transition-all ${a.urgent ? 'ring-2 ring-yellow-400' : ''}`}>
-            <span className="text-2xl">{a.icon}</span>
+            <a.icon size={24} className="text-[#3A7D44]" strokeWidth={2} />
             <span className="font-bold text-sm text-[#0F172A] dark:text-white">{a.label}</span>
             <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">{a.desc}</span>
-            {a.urgent && <span className="text-xs text-yellow-600 font-bold">⚠️ Action requise</span>}
+            {a.urgent && (
+              <span className="flex items-center gap-1 text-xs text-yellow-600 font-bold">
+                <AlertTriangle size={11} /> Action requise
+              </span>
+            )}
           </Link>
         ))}
       </div>
@@ -161,11 +173,11 @@ function Overview() {
             {recentUsers.map(u => (
               <div key={u.id} className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-[#3A7D44] text-white flex items-center justify-center font-bold text-xs shrink-0">
-                  {u.full_name?.charAt(0).toUpperCase()}
+                  {u.is_super_admin ? <Crown size={13} /> : u.full_name?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-xs text-[#0F172A] dark:text-white truncate">
-                    {u.full_name} {u.is_super_admin && <span className="text-purple-500">👑</span>}
+                    {u.full_name}
                   </div>
                   <div className="text-xs text-[#64748B] dark:text-[#94A3B8] capitalize">{u.role}</div>
                 </div>
@@ -183,17 +195,19 @@ function Overview() {
           <div className="space-y-3">
             {recentListings.map(l => (
               <div key={l.id} className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-[#EBF5ED] dark:bg-[#2A2A2A] flex items-center justify-center text-sm shrink-0">🏠</div>
+                <div className="w-8 h-8 rounded-xl bg-[#EBF5ED] dark:bg-[#2A2A2A] flex items-center justify-center shrink-0">
+                  <Home size={14} className="text-[#3A7D44]" />
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-xs text-[#0F172A] dark:text-white truncate">{l.title}</div>
                   <div className="text-xs text-[#64748B] dark:text-[#94A3B8]">{l.city}</div>
                 </div>
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full flex items-center ${
                   l.status === 'active' ? 'bg-[#EBF5ED] text-[#3A7D44]' :
                   l.status === 'pending' ? 'bg-[#FEF3C7] text-yellow-600' :
                   'bg-red-50 text-red-500'
                 }`}>
-                  {l.status === 'active' ? '✅' : l.status === 'pending' ? '⏳' : '❌'}
+                  {l.status === 'active' ? <CheckCircle size={12} /> : l.status === 'pending' ? <Clock size={12} /> : <XCircle size={12} />}
                 </span>
               </div>
             ))}
@@ -228,7 +242,7 @@ function ValidationListings() {
   const handleApprove = async (id) => {
     try {
       await api.put(`/admin/listings/${id}/approve`);
-      toast.success('✅ Annonce approuvée !');
+      toast.success('Annonce approuvée !');
       fetchListings();
     } catch (e) {
       toast.error('Erreur approbation');
@@ -238,7 +252,7 @@ function ValidationListings() {
   const handleReject = async (id) => {
     try {
       await api.put(`/admin/listings/${id}/reject`, { reason: rejectReason });
-      toast.success('❌ Annonce rejetée.');
+      toast.success('Annonce rejetée.');
       setRejectModal(null);
       setRejectReason('');
       fetchListings();
@@ -263,8 +277,8 @@ function ValidationListings() {
         </h2>
         <div className="flex items-center gap-3">
           {listings.length > 0 && (
-            <span className="text-xs bg-yellow-100 text-yellow-700 font-bold px-3 py-1 rounded-full animate-pulse">
-              ⚠️ {listings.length} à valider
+            <span className="flex items-center gap-1 text-xs bg-yellow-100 text-yellow-700 font-bold px-3 py-1 rounded-full animate-pulse">
+              <AlertTriangle size={11} /> {listings.length} à valider
             </span>
           )}
           {listings.length > 0 && (
@@ -274,7 +288,7 @@ function ValidationListings() {
                   ? 'bg-[#3A7D44] text-white shadow-lg'
                   : 'bg-[#F5F5F7] dark:bg-[#2A2A2A] text-[#64748B] hover:bg-[#EBF5ED] hover:text-[#3A7D44]'
               }`}>
-              {swipeMode ? '📋 Vue liste' : '👆 Mode Swipe'}
+              {swipeMode ? <><List size={14} /> Vue liste</> : <><Hand size={14} /> Mode Swipe</>}
             </button>
           )}
         </div>
@@ -286,11 +300,11 @@ function ValidationListings() {
           listings={listings}
           onApprove={async (id) => {
             await api.put(`/admin/listings/${id}/approve`);
-            toast.success('✅ Annonce approuvée !');
+            toast.success('Annonce approuvée !');
           }}
           onReject={async (id) => {
             await api.put(`/admin/listings/${id}/reject`, { reason: 'Rejeté via mode swipe' });
-            toast.error('❌ Annonce rejetée');
+            toast.error('Annonce rejetée');
           }}
           onAllDone={() => {
             setSwipeMode(false);
@@ -302,7 +316,7 @@ function ValidationListings() {
           {/* Vue liste classique */}
           {listings.length === 0 ? (
             <div className="card p-12 text-center text-[#94A3B8]">
-              <span className="text-5xl block mb-3">✅</span>
+              <CheckCircle size={48} className="mx-auto mb-3 text-[#3A7D44]" strokeWidth={1.5} />
               <p className="font-medium dark:text-white">Aucune annonce en attente</p>
               <p className="text-sm mt-1">Toutes les annonces ont été traitées</p>
             </div>
@@ -313,18 +327,19 @@ function ValidationListings() {
                   <div className="flex flex-col md:flex-row md:items-start gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs bg-[#FEF3C7] text-yellow-700 font-bold px-2 py-0.5 rounded-full">
-                          ⏳ En attente
+                        <span className="flex items-center gap-1 text-xs bg-[#FEF3C7] text-yellow-700 font-bold px-2 py-0.5 rounded-full">
+                          <Clock size={10} /> En attente
                         </span>
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                        <span className={`flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full ${
                           l.type === 'location' ? 'bg-blue-100 text-blue-600' : 'bg-[#FEF3C7] text-yellow-700'
                         }`}>
-                          {l.type === 'location' ? '🔑 Location' : '🏷️ Vente'}
+                          {l.type === 'location' ? <Key size={10} /> : <Tag size={10} />}
+                          {l.type === 'location' ? 'Location' : 'Vente'}
                         </span>
                       </div>
                       <h3 className="font-bold text-[#0F172A] dark:text-white mb-1">{l.title}</h3>
-                      <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mb-2">
-                        📍 {l.city} {l.neighborhood && `· ${l.neighborhood}`}
+                      <p className="flex items-center gap-1 text-sm text-[#64748B] dark:text-[#94A3B8] mb-2">
+                        <MapPin size={12} /> {l.city} {l.neighborhood && `· ${l.neighborhood}`}
                       </p>
                       {l.description && (
                         <p className="text-sm text-[#64748B] dark:text-[#94A3B8] line-clamp-2 mb-2">
@@ -332,13 +347,13 @@ function ValidationListings() {
                         </p>
                       )}
                       <div className="flex flex-wrap gap-3 text-xs text-[#64748B] dark:text-[#94A3B8]">
-                        <span>💰 {new Intl.NumberFormat('fr-FR').format(l.price)} FCFA{l.price_period ? `/${l.price_period}` : ''}</span>
-                        {l.bedrooms > 0 && <span>🛏 {l.bedrooms} ch.</span>}
-                        {l.area && <span>📐 {l.area}m²</span>}
+                        <span className="flex items-center gap-1"><Banknote size={11} /> {new Intl.NumberFormat('fr-FR').format(l.price)} FCFA{l.price_period ? `/${l.price_period}` : ''}</span>
+                        {l.bedrooms > 0 && <span className="flex items-center gap-1"><Bed size={11} /> {l.bedrooms} ch.</span>}
+                        {l.area && <span className="flex items-center gap-1"><Maximize size={11} /> {l.area}m²</span>}
                       </div>
                       <div className="mt-2 p-2 bg-[#F5F5F7] dark:bg-[#2A2A2A] rounded-lg">
-                        <p className="text-xs text-[#64748B] dark:text-[#94A3B8]">
-                          👤 <strong className="text-[#0F172A] dark:text-white">{l.users?.full_name}</strong>
+                        <p className="flex items-center gap-1.5 text-xs text-[#64748B] dark:text-[#94A3B8]">
+                          <User size={12} /> <strong className="text-[#0F172A] dark:text-white">{l.users?.full_name}</strong>
                           {l.users?.email && ` (${l.users.email})`}
                         </p>
                       </div>
@@ -408,7 +423,6 @@ function UsersList() {
       const res = await api.get('/admin/users');
       const allUsers = res.data.users || [];
       setUsers(allUsers);
-      // Vérifier si l'admin connecté est super admin
       const me = allUsers.find(u => u.id === user?.id);
       setIsSuperAdmin(me?.is_super_admin || false);
     } catch (e) {
@@ -466,7 +480,7 @@ function UsersList() {
   const handleSendMessage = async (id) => {
     try {
       await api.post(`/admin/users/${id}/message`, msgForm);
-      toast.success('Message envoyé ! ✉️');
+      toast.success('Message envoyé !');
       setMessageModal(null);
       setMsgForm({ subject: '', message: '' });
     } catch (e) {
@@ -478,8 +492,19 @@ function UsersList() {
     locataire: 'bg-blue-100 text-blue-700',
     proprietaire: 'bg-[#EBF5ED] text-[#3A7D44]',
     agent: 'bg-[#FEF3C7] text-yellow-700',
+    commercial: 'bg-orange-100 text-orange-700',
     admin: 'bg-purple-100 text-purple-600',
   };
+
+  const FILTER_OPTIONS = [
+    { value: 'all', label: 'Tous', icon: null },
+    { value: 'locataire', label: null, icon: Search },
+    { value: 'proprietaire', label: null, icon: Home },
+    { value: 'agent', label: null, icon: Handshake },
+    { value: 'commercial', label: null, icon: Briefcase },
+    { value: 'admin', label: null, icon: Settings },
+    { value: 'banned', label: null, icon: Ban },
+  ];
 
   const filtered = users
     .filter(u => filter === 'all' || u.role === filter || (filter === 'banned' && u.is_banned))
@@ -494,7 +519,7 @@ function UsersList() {
       {isSuperAdmin && (
         <div className="p-3 rounded-xl flex items-center gap-3"
           style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.1), rgba(139,92,246,0.05))', border: '1px solid rgba(139,92,246,0.2)' }}>
-          <span className="text-xl">👑</span>
+          <Crown size={20} className="text-purple-500" />
           <div>
             <div className="text-sm font-bold text-purple-600">Vous êtes Super Admin</div>
             <div className="text-xs text-[#94A3B8]">Vous pouvez gérer tous les comptes, y compris les admins</div>
@@ -514,19 +539,12 @@ function UsersList() {
               className="input-field pl-8 py-2 text-xs w-48" />
           </div>
           <div className="flex bg-[#F5F5F7] dark:bg-[#2A2A2A] border border-[#E2E8F0] dark:border-[#3A3A3A] rounded-xl p-1 gap-1">
-            {[
-              { value: 'all', label: 'Tous' },
-              { value: 'locataire', label: '🔍' },
-              { value: 'proprietaire', label: '🏠' },
-              { value: 'agent', label: '🤝' },
-              { value: 'admin', label: '⚙️' },
-              { value: 'banned', label: '🚫' },
-            ].map(f => (
+            {FILTER_OPTIONS.map(f => (
               <button key={f.value} onClick={() => setFilter(f.value)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 ${
                   filter === f.value ? 'bg-[#3A7D44] text-white' : 'text-[#64748B] hover:text-[#0F172A] dark:hover:text-white'
                 }`}>
-                {f.label}
+                {f.icon ? <f.icon size={13} /> : f.label}
               </button>
             ))}
           </div>
@@ -552,29 +570,38 @@ function UsersList() {
                         u.is_super_admin ? 'bg-purple-500' :
                         u.is_banned ? 'bg-red-500' : 'bg-[#3A7D44]'
                       }`}>
-                        {u.is_super_admin ? '👑' : u.is_banned ? '🚫' : u.full_name?.charAt(0).toUpperCase()}
+                        {u.is_super_admin ? <Crown size={13} /> : u.is_banned ? <Ban size={13} /> : u.full_name?.charAt(0).toUpperCase()}
                       </div>
                       <div>
                         <div className="font-medium text-sm text-[#0F172A] dark:text-white flex items-center gap-1">
                           {u.full_name}
-                          {u.is_super_admin && <span className="text-xs bg-purple-100 text-purple-600 font-bold px-1.5 py-0.5 rounded-full">👑 Super Admin</span>}
+                          {u.is_super_admin && (
+                            <span className="flex items-center gap-1 text-xs bg-purple-100 text-purple-600 font-bold px-1.5 py-0.5 rounded-full">
+                              <Crown size={9} /> Super Admin
+                            </span>
+                          )}
                         </div>
                         <div className="text-xs text-[#64748B] dark:text-[#94A3B8]">{u.email}</div>
-                        {u.is_banned && <div className="text-xs text-red-500 font-bold">🚫 {u.ban_reason}</div>}
+                        {u.is_banned && (
+                          <div className="flex items-center gap-1 text-xs text-red-500 font-bold">
+                            <Ban size={10} /> {u.ban_reason}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${ROLE_COLORS[u.role] || 'bg-gray-100'}`}>
+                    <span className={`text-xs font-bold px-2 py-1 rounded-full capitalize ${ROLE_COLORS[u.role] || 'bg-gray-100'}`}>
                       {u.role}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                    <span className={`flex items-center gap-1 w-fit text-xs font-bold px-2 py-1 rounded-full ${
                       u.is_banned ? 'bg-red-100 text-red-600' :
                       u.is_active ? 'bg-[#EBF5ED] text-[#3A7D44]' : 'bg-[#F5F5F7] text-[#94A3B8]'
                     }`}>
-                      {u.is_banned ? '🚫 Banni' : u.is_active ? '✅ Actif' : '⏸ Inactif'}
+                      {u.is_banned ? <Ban size={10} /> : u.is_active ? <CheckCircle size={10} /> : <PauseCircle size={10} />}
+                      {u.is_banned ? 'Banni' : u.is_active ? 'Actif' : 'Inactif'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-xs text-[#64748B] dark:text-[#94A3B8]">
@@ -583,14 +610,12 @@ function UsersList() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 flex-wrap">
 
-                      {/* Écrire — toujours disponible */}
                       <button onClick={() => setMessageModal(u)}
                         className="p-1.5 rounded-lg bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors"
                         title="Envoyer un message">
                         <Mail size={14} />
                       </button>
 
-                      {/* Activer/Désactiver — pas pour super admin */}
                       {!u.is_super_admin && (
                         <button onClick={() => handleToggle(u.id)}
                           className="p-1.5 rounded-lg bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED] text-[#64748B] hover:text-[#3A7D44] transition-colors"
@@ -599,7 +624,6 @@ function UsersList() {
                         </button>
                       )}
 
-                      {/* Bannir — pas pour super admin */}
                       {!u.is_super_admin && (
                         <button onClick={() => setBanModal(u)}
                           className={`p-1.5 rounded-lg transition-colors ${
@@ -612,7 +636,6 @@ function UsersList() {
                         </button>
                       )}
 
-                      {/* Changer rôle — super admin uniquement, pas sur soi-même */}
                       {isSuperAdmin && !u.is_super_admin && u.id !== user?.id && (
                         <select value={u.role}
                           onChange={(e) => handleChangeRole(u.id, e.target.value)}
@@ -621,11 +644,11 @@ function UsersList() {
                           <option value="locataire">Locataire</option>
                           <option value="proprietaire">Propriétaire</option>
                           <option value="agent">Agent</option>
+                          <option value="commercial">Commercial</option>
                           <option value="admin">Admin</option>
                         </select>
                       )}
 
-                      {/* Supprimer — pas pour super admin, admin normal ne peut pas supprimer autre admin */}
                       {!u.is_super_admin && (isSuperAdmin || u.role !== 'admin') && u.id !== user?.id && (
                         <button onClick={() => setDeleteModal(u)}
                           className="p-1.5 rounded-lg bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-red-50 text-[#64748B] hover:text-red-500 transition-colors"
@@ -641,7 +664,7 @@ function UsersList() {
           </table>
           {filtered.length === 0 && (
             <div className="text-center py-12 text-[#94A3B8]">
-              <span className="text-4xl block mb-2">👥</span>
+              <Users size={40} className="mx-auto mb-2" strokeWidth={1.5} />
               <p className="text-sm">Aucun utilisateur trouvé</p>
             </div>
           )}
@@ -652,8 +675,8 @@ function UsersList() {
       {messageModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-6 max-w-md w-full animate-scale-in">
-            <h3 className="font-display font-bold text-[#0F172A] dark:text-white mb-1">
-              ✉️ Écrire à {messageModal.full_name}
+            <h3 className="font-display font-bold text-[#0F172A] dark:text-white mb-1 flex items-center gap-2">
+              <Mail size={16} /> Écrire à {messageModal.full_name}
             </h3>
             <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mb-4">{messageModal.email}</p>
             <div className="space-y-3">
@@ -680,8 +703,9 @@ function UsersList() {
       {banModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-6 max-w-md w-full animate-scale-in">
-            <h3 className="font-display font-bold text-[#0F172A] dark:text-white mb-3">
-              {banModal.is_banned ? '✅ Lever le bannissement' : '🚫 Bannir'} — {banModal.full_name}
+            <h3 className="font-display font-bold text-[#0F172A] dark:text-white mb-3 flex items-center gap-2">
+              {banModal.is_banned ? <CheckCircle size={16} className="text-[#3A7D44]" /> : <Ban size={16} className="text-red-500" />}
+              {banModal.is_banned ? 'Lever le bannissement' : 'Bannir'} — {banModal.full_name}
             </h3>
             {!banModal.is_banned && (
               <input type="text" value={banReason}
@@ -707,12 +731,16 @@ function UsersList() {
       {deleteModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-6 max-w-md w-full animate-scale-in">
-            <h3 className="font-display font-bold text-red-500 mb-2">⚠️ Suppression définitive</h3>
+            <h3 className="font-display font-bold text-red-500 mb-2 flex items-center gap-2">
+              <AlertTriangle size={18} /> Suppression définitive
+            </h3>
             <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl mb-4">
               <p className="font-bold text-[#0F172A] dark:text-white">{deleteModal.full_name}</p>
               <p className="text-xs text-[#64748B] dark:text-[#94A3B8]">{deleteModal.email}</p>
             </div>
-            <p className="text-xs text-red-500 font-bold mb-4">⚠️ Cette action est irréversible !</p>
+            <p className="flex items-center gap-1 text-xs text-red-500 font-bold mb-4">
+              <AlertTriangle size={12} /> Cette action est irréversible !
+            </p>
             <div className="flex gap-3">
               <button onClick={() => handleDelete(deleteModal.id)}
                 className="flex-1 py-2.5 rounded-btn bg-red-500 text-white font-bold text-sm flex items-center justify-center gap-2">
@@ -765,6 +793,14 @@ function ListingsAdmin() {
     } catch (e) { toast.error('Erreur suppression'); }
   };
 
+  const FILTER_OPTIONS = [
+    { value: 'all', label: 'Toutes', icon: null },
+    { value: 'pending', label: null, icon: Clock },
+    { value: 'active', label: null, icon: CheckCircle },
+    { value: 'rejected', label: null, icon: XCircle },
+    { value: 'inactive', label: null, icon: PauseCircle },
+  ];
+
   const filtered = listings
     .filter(l => filter === 'all' || l.status === filter || l.type === filter)
     .filter(l => !search || l.title?.toLowerCase().includes(search.toLowerCase()) || l.city?.toLowerCase().includes(search.toLowerCase()));
@@ -783,18 +819,12 @@ function ListingsAdmin() {
               className="input-field pl-8 py-2 text-xs w-48" />
           </div>
           <div className="flex bg-[#F5F5F7] dark:bg-[#2A2A2A] border border-[#E2E8F0] dark:border-[#3A3A3A] rounded-xl p-1 gap-1">
-            {[
-              { value: 'all', label: 'Toutes' },
-              { value: 'pending', label: '⏳' },
-              { value: 'active', label: '✅' },
-              { value: 'rejected', label: '❌' },
-              { value: 'inactive', label: '⏸' },
-            ].map(f => (
+            {FILTER_OPTIONS.map(f => (
               <button key={f.value} onClick={() => setFilter(f.value)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 ${
                   filter === f.value ? 'bg-[#3A7D44] text-white' : 'text-[#64748B] hover:text-[#0F172A] dark:hover:text-white'
                 }`}>
-                {f.label}
+                {f.icon ? <f.icon size={13} /> : f.label}
               </button>
             ))}
           </div>
@@ -816,28 +846,31 @@ function ListingsAdmin() {
                 <tr key={l.id} className="hover:bg-[#F5F5F7] dark:hover:bg-[#2A2A2A] transition-colors">
                   <td className="px-4 py-3">
                     <div className="font-medium text-sm text-[#0F172A] dark:text-white max-w-xs truncate">{l.title}</div>
-                    <div className="text-xs text-[#64748B] dark:text-[#94A3B8]">📍 {l.city} · 👁️ {l.views_count || 0}</div>
+                    <div className="flex items-center gap-1 text-xs text-[#64748B] dark:text-[#94A3B8]">
+                      <MapPin size={10} /> {l.city} <span className="mx-0.5">·</span> <Eye size={10} /> {l.views_count || 0}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="text-sm text-[#334155] dark:text-[#94A3B8]">{l.users?.full_name}</div>
                     <div className="text-xs text-[#94A3B8] capitalize">{l.users?.role}</div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${l.type === 'location' ? 'bg-blue-100 text-blue-600' : 'bg-[#FEF3C7] text-yellow-700'}`}>
-                      {l.type === 'location' ? '🔑' : '🏷️'} {l.type}
+                    <span className={`flex items-center gap-1 w-fit text-xs font-bold px-2 py-1 rounded-full ${l.type === 'location' ? 'bg-blue-100 text-blue-600' : 'bg-[#FEF3C7] text-yellow-700'}`}>
+                      {l.type === 'location' ? <Key size={10} /> : <Tag size={10} />} {l.type}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm font-bold text-[#3A7D44]">
                     {new Intl.NumberFormat('fr-FR').format(l.price)} FCFA
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                    <span className={`flex items-center gap-1 w-fit text-xs font-bold px-2 py-1 rounded-full ${
                       l.status === 'active' ? 'bg-[#EBF5ED] text-[#3A7D44]' :
                       l.status === 'pending' ? 'bg-[#FEF3C7] text-yellow-600' :
                       l.status === 'rejected' ? 'bg-red-100 text-red-500' :
                       'bg-[#F5F5F7] text-[#94A3B8]'
                     }`}>
-                      {l.status === 'active' ? '✅ Actif' : l.status === 'pending' ? '⏳ En attente' : l.status === 'rejected' ? '❌ Rejeté' : '⏸ Inactif'}
+                      {l.status === 'active' ? <CheckCircle size={10} /> : l.status === 'pending' ? <Clock size={10} /> : l.status === 'rejected' ? <XCircle size={10} /> : <PauseCircle size={10} />}
+                      {l.status === 'active' ? 'Actif' : l.status === 'pending' ? 'En attente' : l.status === 'rejected' ? 'Rejeté' : 'Inactif'}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -874,11 +907,15 @@ function ListingsAdmin() {
       {deleteModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-6 max-w-md w-full animate-scale-in">
-            <h3 className="font-display font-bold text-red-500 mb-2">⚠️ Supprimer définitivement</h3>
+            <h3 className="font-display font-bold text-red-500 mb-2 flex items-center gap-2">
+              <AlertTriangle size={18} /> Supprimer définitivement
+            </h3>
             <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl mb-4">
               <p className="font-bold text-[#0F172A] dark:text-white">{deleteModal.title}</p>
             </div>
-            <p className="text-xs text-red-500 font-bold mb-4">⚠️ Cette action est irréversible !</p>
+            <p className="flex items-center gap-1 text-xs text-red-500 font-bold mb-4">
+              <AlertTriangle size={12} /> Cette action est irréversible !
+            </p>
             <div className="flex gap-3">
               <button onClick={() => handleDelete(deleteModal.id)}
                 className="flex-1 py-2.5 rounded-btn bg-red-500 text-white font-bold text-sm flex items-center justify-center gap-2">
@@ -915,7 +952,7 @@ function WriteToUsers() {
     setLoading(true);
     try {
       await api.post(`/admin/users/${selected.id}/message`, form);
-      toast.success(`Message envoyé à ${selected.full_name} ! ✉️`);
+      toast.success(`Message envoyé à ${selected.full_name} !`);
       setSelected(null);
       setForm({ subject: '', message: '' });
     } catch (e) {
@@ -931,7 +968,9 @@ function WriteToUsers() {
 
   return (
     <div className="space-y-4 animate-fade-in">
-      <h2 className="font-display font-bold text-[#0F172A] dark:text-white">✉️ Écrire à un utilisateur</h2>
+      <h2 className="font-display font-bold text-[#0F172A] dark:text-white flex items-center gap-2">
+        <Mail size={20} className="text-[#3A7D44]" /> Écrire à un utilisateur
+      </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="card p-5">
           <h3 className="font-bold text-sm text-[#0F172A] dark:text-white mb-3">1. Choisir le destinataire</h3>
@@ -948,15 +987,15 @@ function WriteToUsers() {
                   selected?.id === u.id ? 'bg-[#EBF5ED] border-2 border-[#3A7D44]' : 'bg-[#F5F5F7] dark:bg-[#2A2A2A] hover:bg-[#EBF5ED]'
                 }`}>
                 <div className="w-8 h-8 rounded-full bg-[#3A7D44] text-white flex items-center justify-center font-bold text-xs shrink-0">
-                  {u.full_name?.charAt(0).toUpperCase()}
+                  {u.is_super_admin ? <Crown size={12} /> : u.full_name?.charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="font-medium text-xs text-[#0F172A] dark:text-white truncate">
-                    {u.full_name} {u.is_super_admin && '👑'}
+                    {u.full_name}
                   </div>
                   <div className="text-xs text-[#64748B] dark:text-[#94A3B8] truncate">{u.email}</div>
                 </div>
-                {selected?.id === u.id && <span className="text-[#3A7D44] font-bold">✓</span>}
+                {selected?.id === u.id && <CheckCircle size={14} className="text-[#3A7D44]" />}
               </button>
             ))}
           </div>
@@ -1012,27 +1051,34 @@ function StatsAdmin() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <h2 className="font-display font-bold text-[#0F172A] dark:text-white">📈 Statistiques détaillées</h2>
+      <h2 className="font-display font-bold text-[#0F172A] dark:text-white flex items-center gap-2">
+        <TrendingUp size={20} className="text-[#3A7D44]" /> Statistiques détaillées
+      </h2>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard emoji="👥" label="Utilisateurs" value={stats?.total_users || 0} color="blue" loading={loading} />
-        <StatCard emoji="🏠" label="Annonces" value={stats?.total_listings || 0} color="green" loading={loading} />
-        <StatCard emoji="⏳" label="En attente" value={stats?.pending_listings || 0} color="orange" loading={loading} urgent={true} />
-        <StatCard emoji="💬" label="Messages" value={stats?.total_messages || 0} color="purple" loading={loading} />
+        <StatCard icon={Users} label="Utilisateurs" value={stats?.total_users || 0} color="blue" loading={loading} />
+        <StatCard icon={Home} label="Annonces" value={stats?.total_listings || 0} color="green" loading={loading} />
+        <StatCard icon={Clock} label="En attente" value={stats?.pending_listings || 0} color="orange" loading={loading} urgent={true} />
+        <StatCard icon={MessageCircle} label="Messages" value={stats?.total_messages || 0} color="purple" loading={loading} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="card p-6">
-          <h3 className="font-display font-bold text-[#0F172A] dark:text-white mb-5">👥 Utilisateurs par rôle</h3>
-          <ProgressBar emoji="🔍" label="Locataires" value={stats?.users_by_role?.locataire || 0} total={stats?.total_users || 1} color="#3B82F6" />
-          <ProgressBar emoji="🏠" label="Propriétaires" value={stats?.users_by_role?.proprietaire || 0} total={stats?.total_users || 1} color="#3A7D44" />
-          <ProgressBar emoji="🤝" label="Agents" value={stats?.users_by_role?.agent || 0} total={stats?.total_users || 1} color="#F59E0B" />
-          <ProgressBar emoji="⚙️" label="Admins" value={stats?.users_by_role?.admin || 0} total={stats?.total_users || 1} color="#8B5CF6" />
+          <h3 className="font-display font-bold text-[#0F172A] dark:text-white mb-5 flex items-center gap-2">
+            <Users size={16} className="text-[#3A7D44]" /> Utilisateurs par rôle
+          </h3>
+          <ProgressBar icon={Search} label="Locataires" value={stats?.users_by_role?.locataire || 0} total={stats?.total_users || 1} color="#3B82F6" />
+          <ProgressBar icon={Home} label="Propriétaires" value={stats?.users_by_role?.proprietaire || 0} total={stats?.total_users || 1} color="#3A7D44" />
+          <ProgressBar icon={Handshake} label="Agents" value={stats?.users_by_role?.agent || 0} total={stats?.total_users || 1} color="#F59E0B" />
+          <ProgressBar icon={Briefcase} label="Commerciaux" value={stats?.users_by_role?.commercial || 0} total={stats?.total_users || 1} color="#EA580C" />
+          <ProgressBar icon={Settings} label="Admins" value={stats?.users_by_role?.admin || 0} total={stats?.total_users || 1} color="#8B5CF6" />
         </div>
         <div className="card p-6">
-          <h3 className="font-display font-bold text-[#0F172A] dark:text-white mb-5">🏠 Annonces</h3>
-          <ProgressBar emoji="⏳" label="En attente" value={stats?.listings_by_status?.pending || 0} total={stats?.total_listings || 1} color="#F59E0B" />
-          <ProgressBar emoji="✅" label="Actives" value={stats?.listings_by_status?.active || 0} total={stats?.total_listings || 1} color="#3A7D44" />
-          <ProgressBar emoji="❌" label="Rejetées" value={stats?.listings_by_status?.rejected || 0} total={stats?.total_listings || 1} color="#EF4444" />
-          <ProgressBar emoji="⏸" label="Inactives" value={stats?.listings_by_status?.inactive || 0} total={stats?.total_listings || 1} color="#94A3B8" />
+          <h3 className="font-display font-bold text-[#0F172A] dark:text-white mb-5 flex items-center gap-2">
+            <Home size={16} className="text-[#3A7D44]" /> Annonces
+          </h3>
+          <ProgressBar icon={Clock} label="En attente" value={stats?.listings_by_status?.pending || 0} total={stats?.total_listings || 1} color="#F59E0B" />
+          <ProgressBar icon={CheckCircle} label="Actives" value={stats?.listings_by_status?.active || 0} total={stats?.total_listings || 1} color="#3A7D44" />
+          <ProgressBar icon={XCircle} label="Rejetées" value={stats?.listings_by_status?.rejected || 0} total={stats?.total_listings || 1} color="#EF4444" />
+          <ProgressBar icon={PauseCircle} label="Inactives" value={stats?.listings_by_status?.inactive || 0} total={stats?.total_listings || 1} color="#94A3B8" />
         </div>
       </div>
     </div>
@@ -1250,7 +1296,7 @@ function CommercialsAdmin() {
 export default function DashboardAdmin() {
   return (
     <DashboardLayout menuItems={MENU} title="Administration Logezy">
-        <Routes>
+      <Routes>
         <Route index element={<Overview />} />
         <Route path="validation" element={<ValidationListings />} />
         <Route path="utilisateurs" element={<UsersList />} />

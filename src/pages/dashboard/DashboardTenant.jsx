@@ -1,22 +1,24 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, Link ,  useLocation } from 'react-router-dom';
-import { Search, Heart, MessageSquare, Bell, Trash2, ToggleLeft, ToggleRight, Mail, MapPin, Bed, Bath, Maximize } from 'lucide-react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import {
+  Search, Heart, MessageSquare, Bell, Trash2, ToggleLeft, ToggleRight, Mail, MapPin, Bed, Bath, Maximize,
+  LayoutDashboard, User, Shield, X, CheckCircle, PauseCircle, Key, Tag, Lightbulb, Pin
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ListingCard from '../../components/common/ListingCard';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
 import AdminMessages from '../../components/common/AdminMessages';
-import VideoUploader from '../../components/common/VideoUploader';
 
 const MENU = [
-  { path: '/dashboard/locataire', icon: '📊', label: 'Vue générale' },
-  { path: '/dashboard/locataire/recherche', icon: '🔍', label: 'Rechercher' },
-  { path: '/dashboard/locataire/favoris', icon: '❤️', label: 'Mes favoris' },
-  { path: '/dashboard/locataire/alertes', icon: '🔔', label: 'Mes alertes' },
-  { path: '/dashboard/locataire/messages', icon: '💬', label: 'Messages' },
-  { path: '/dashboard/locataire/profil', icon: '👤', label: 'Mon profil' },
-  { path: '/dashboard/locataire/admin-messages', icon: '🛡️', label: 'Messages admin' },
+  { path: '/dashboard/locataire', icon: LayoutDashboard, label: 'Vue générale' },
+  { path: '/dashboard/locataire/recherche', icon: Search, label: 'Rechercher' },
+  { path: '/dashboard/locataire/favoris', icon: Heart, label: 'Mes favoris' },
+  { path: '/dashboard/locataire/alertes', icon: Bell, label: 'Mes alertes' },
+  { path: '/dashboard/locataire/messages', icon: MessageSquare, label: 'Messages' },
+  { path: '/dashboard/locataire/profil', icon: User, label: 'Mon profil' },
+  { path: '/dashboard/locataire/admin-messages', icon: Shield, label: 'Messages admin' },
 ];
 
 // ─── VUE GÉNÉRALE ────────────────────────────────────────────
@@ -55,7 +57,7 @@ function Overview() {
         <div className="absolute top-0 right-0 w-48 h-48 bg-white rounded-full opacity-5 blur-3xl" />
         <div className="relative z-10 flex items-center justify-between">
           <div>
-            <p className="text-white/60 text-sm font-medium mb-1">Bonjour 👋</p>
+            <p className="text-white/60 text-sm font-medium mb-1">Bonjour</p>
             <h2 className="font-display text-2xl font-bold">{user?.full_name}</h2>
             <p className="text-white/60 text-sm mt-1">Locataire · Logezy</p>
           </div>
@@ -82,14 +84,14 @@ function Overview() {
       {/* Actions rapides */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { to: '/dashboard/locataire/recherche', icon: '🔍', label: 'Rechercher', desc: 'Trouver un bien', color: 'bg-[#EBF5ED]' },
-          { to: '/dashboard/locataire/favoris', icon: '❤️', label: 'Favoris', desc: `${favorites.length} sauvegardé(s)`, color: 'bg-red-50' },
-          { to: '/dashboard/locataire/alertes', icon: '🔔', label: 'Alertes', desc: `${alerts.length} active(s)`, color: 'bg-[#FEF3C7]' },
-          { to: '/dashboard/locataire/messages', icon: '💬', label: 'Messages', desc: 'Mes conversations', color: 'bg-[#EFF6FF]' },
+          { to: '/dashboard/locataire/recherche', icon: Search, label: 'Rechercher', desc: 'Trouver un bien', color: 'bg-[#EBF5ED]' },
+          { to: '/dashboard/locataire/favoris', icon: Heart, label: 'Favoris', desc: `${favorites.length} sauvegardé(s)`, color: 'bg-red-50' },
+          { to: '/dashboard/locataire/alertes', icon: Bell, label: 'Alertes', desc: `${alerts.length} active(s)`, color: 'bg-[#FEF3C7]' },
+          { to: '/dashboard/locataire/messages', icon: MessageSquare, label: 'Messages', desc: 'Mes conversations', color: 'bg-[#EFF6FF]' },
         ].map((a, i) => (
           <Link key={i} to={a.to}
             className={`${a.color} dark:bg-[#2A2A2A] card p-4 flex flex-col items-center text-center gap-2 hover:shadow-float transition-all`}>
-            <span className="text-2xl">{a.icon}</span>
+            <a.icon size={22} className="text-[#3A7D44]" strokeWidth={2} />
             <span className="text-xs font-bold text-[#334155] dark:text-[#94A3B8]">{a.label}</span>
             <span className="text-xs text-[#94A3B8]">{a.desc}</span>
           </Link>
@@ -120,7 +122,7 @@ function Overview() {
       {/* Conseil */}
       <div className="card p-5 bg-[#FEF3C7] dark:bg-[#2A2A2A] border-[#F59E0B]/30">
         <div className="flex items-start gap-3">
-          <span className="text-2xl">💡</span>
+          <Lightbulb size={20} className="text-[#F59E0B] shrink-0" />
           <div>
             <div className="font-bold text-sm text-[#92400E] dark:text-[#F59E0B] mb-1">Conseil Logezy</div>
             <p className="text-xs text-[#92400E]/80 dark:text-[#94A3B8] leading-relaxed">
@@ -209,12 +211,12 @@ function SearchPage() {
                 onChange={(e) => update('max_price', e.target.value)} className="input-field" />
             </div>
             <div className="flex items-end gap-2">
-              <button type="submit" className="btn-primary flex-1 py-3 text-sm">
-                🔍 Rechercher
+              <button type="submit" className="btn-primary flex-1 py-3 text-sm flex items-center justify-center gap-2">
+                <Search size={14} /> Rechercher
               </button>
               <button type="button" onClick={handleReset}
                 className="px-3 py-3 rounded-btn border-2 border-[#E2E8F0] dark:border-[#2A2A2A] text-[#64748B] hover:text-red-500 hover:border-red-200 transition-all text-sm">
-                ✕
+                <X size={14} />
               </button>
             </div>
           </div>
@@ -232,7 +234,7 @@ function SearchPage() {
           </div>
         ) : listings.length === 0 ? (
           <div className="card p-12 text-center text-[#94A3B8]">
-            <span className="text-5xl block mb-3">🔍</span>
+            <Search size={48} className="mx-auto mb-3" strokeWidth={1.5} />
             <p className="font-medium dark:text-white">Aucun résultat</p>
             <p className="text-sm mt-1">Essayez d'élargir vos critères de recherche</p>
             <button onClick={handleReset} className="btn-primary mt-4 text-sm px-6 py-2">
@@ -287,10 +289,10 @@ function Favorites() {
 
       {favorites.length === 0 ? (
         <div className="card p-12 text-center text-[#94A3B8]">
-          <span className="text-5xl block mb-3">❤️</span>
+          <Heart size={48} className="mx-auto mb-3" strokeWidth={1.5} />
           <p className="font-medium dark:text-white">Aucun favori pour le moment</p>
           <p className="text-sm mt-1 mb-4">
-            Cliquez sur ❤️ sur une annonce pour la sauvegarder ici
+            Cliquez sur le cœur sur une annonce pour la sauvegarder ici
           </p>
           <Link to="/annonces" className="btn-primary inline-block text-sm px-6 py-2">
             Parcourir les annonces
@@ -403,18 +405,32 @@ function Alerts() {
                       <span className="font-bold text-sm text-[#0F172A] dark:text-white">
                         {alert.name}
                       </span>
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      <span className={`flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full ${
                         alert.is_active
                           ? 'bg-[#EBF5ED] text-[#3A7D44]'
                           : 'bg-[#F5F5F7] dark:bg-[#2A2A2A] text-[#94A3B8]'
                       }`}>
-                        {alert.is_active ? '✅ Active' : '⏸ Inactive'}
+                        {alert.is_active ? <CheckCircle size={10} /> : <PauseCircle size={10} />}
+                        {alert.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {alert.city && <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">📍 {alert.city}</span>}
-                      {alert.type && <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">{alert.type === 'location' ? '🔑 Location' : '🏷️ Vente'}</span>}
-                      {alert.bedrooms && <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">🛏 {alert.bedrooms}+ ch.</span>}
+                      {alert.city && (
+                        <span className="flex items-center gap-1 text-xs text-[#64748B] dark:text-[#94A3B8]">
+                          <MapPin size={10} /> {alert.city}
+                        </span>
+                      )}
+                      {alert.type && (
+                        <span className="flex items-center gap-1 text-xs text-[#64748B] dark:text-[#94A3B8]">
+                          {alert.type === 'location' ? <Key size={10} /> : <Tag size={10} />}
+                          {alert.type === 'location' ? 'Location' : 'Vente'}
+                        </span>
+                      )}
+                      {alert.bedrooms && (
+                        <span className="flex items-center gap-1 text-xs text-[#64748B] dark:text-[#94A3B8]">
+                          <Bed size={10} /> {alert.bedrooms}+ ch.
+                        </span>
+                      )}
                       {alert.min_price && <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">Min: {new Intl.NumberFormat('fr-FR').format(alert.min_price)} FCFA</span>}
                       {alert.max_price && <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">Max: {new Intl.NumberFormat('fr-FR').format(alert.max_price)} FCFA</span>}
                     </div>
@@ -465,27 +481,27 @@ function Messages() {
   const { user } = useAuthStore();
   const location = useLocation();
 
- useEffect(() => {
-  const fetch = async () => {
-    try {
-      const res = await api.get('/chat/conversations');
-      const convs = res.data.conversations || [];
-      setConversations(convs);
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const res = await api.get('/chat/conversations');
+        const convs = res.data.conversations || [];
+        setConversations(convs);
 
-      const params = new URLSearchParams(location.search);
-      const targetId = location.state?.openConversationId || params.get('conversation');
-      if (targetId) {
-        const target = convs.find(c => c.id === targetId);
-        if (target) openConversation(target);
+        const params = new URLSearchParams(location.search);
+        const targetId = location.state?.openConversationId || params.get('conversation');
+        if (targetId) {
+          const target = convs.find(c => c.id === targetId);
+          if (target) openConversation(target);
+        }
+      } catch (e) {
+        toast.error('Erreur chargement conversations');
+      } finally {
+        setLoading(false);
       }
-    } catch (e) {
-      toast.error('Erreur chargement conversations');
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetch();
-}, []);
+    };
+    fetch();
+  }, []);
 
   const openConversation = async (conv) => {
     setSelected(conv);
@@ -529,7 +545,7 @@ function Messages() {
           <div className="flex-1 overflow-y-auto">
             {conversations.length === 0 ? (
               <div className="p-8 text-center text-[#94A3B8]">
-                <span className="text-4xl block mb-2">💬</span>
+                <MessageSquare size={40} className="mx-auto mb-2" strokeWidth={1.5} />
                 <p className="text-sm">Aucune conversation</p>
                 <p className="text-xs mt-1">Contactez un propriétaire depuis une annonce</p>
               </div>
@@ -559,7 +575,7 @@ function Messages() {
           {!selected ? (
             <div className="flex-1 flex items-center justify-center text-[#94A3B8]">
               <div className="text-center">
-                <span className="text-5xl block mb-3">💬</span>
+                <MessageSquare size={48} className="mx-auto mb-3" strokeWidth={1.5} />
                 <p className="text-sm">Sélectionnez une conversation</p>
               </div>
             </div>
@@ -574,7 +590,11 @@ function Messages() {
                   <div className="font-bold text-sm text-[#0F172A] dark:text-white">
                     {(selected.buyer_id === user?.id ? selected.owner : selected.buyer)?.full_name}
                   </div>
-                  {selected.listings && <div className="text-xs text-[#64748B]">📌 {selected.listings.title}</div>}
+                  {selected.listings && (
+                    <div className="flex items-center gap-1 text-xs text-[#64748B]">
+                      <Pin size={10} /> {selected.listings.title}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -623,7 +643,7 @@ function Profile() {
     try {
       await api.put('/auth/profile', form);
       updateUser(form);
-      toast.success('Profil mis à jour ! ✅');
+      toast.success('Profil mis à jour !');
     } catch (e) {
       toast.error('Erreur mise à jour profil');
     } finally {
@@ -643,8 +663,8 @@ function Profile() {
           <div>
             <div className="font-bold text-[#0F172A] dark:text-white">{user?.full_name}</div>
             <div className="text-sm text-[#64748B] dark:text-[#94A3B8]">{user?.email}</div>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white dark:bg-[#1A1A1A] text-[#3A7D44] mt-1 inline-block">
-              🔍 Locataire
+            <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full bg-white dark:bg-[#1A1A1A] text-[#3A7D44] mt-1 inline-flex">
+              <Search size={11} /> Locataire
             </span>
           </div>
         </div>
@@ -672,7 +692,7 @@ function Profile() {
             className="btn-primary w-full py-3 flex items-center justify-center gap-2">
             {loading
               ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              : '✅ Sauvegarder le profil'}
+              : <><CheckCircle size={16} /> Sauvegarder le profil</>}
           </button>
         </div>
       </div>
