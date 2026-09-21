@@ -4,7 +4,7 @@ import {
   Eye, CheckCircle, XCircle, Users, Home, Search, Trash2, Ban, Mail, Send,
   LayoutDashboard, Clock, TrendingUp, Briefcase, UserPlus, Building2,
   Crown, Key, Tag, MapPin, Banknote, Bed, Maximize, User, Hand, List,
-  AlertTriangle, PauseCircle, MessageCircle, Handshake, Settings, Lightbulb, Pin
+  AlertTriangle, PauseCircle, MessageCircle, Handshake, Settings, Lightbulb, Pin,DraftingCompass,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
@@ -18,6 +18,7 @@ const MENU = [
   { path: '/dashboard/admin/utilisateurs', icon: Users, label: 'Utilisateurs' },
   { path: '/dashboard/admin/annonces', icon: Home, label: 'Toutes les annonces' },
   { path: '/dashboard/admin/commerciaux', icon: Briefcase, label: 'Commerciaux' },
+  { path: '/dashboard/admin/architectes',icon: DraftingCompass,label: 'Architectes',},
   { path: '/dashboard/admin/messages', icon: Mail, label: 'Écrire aux users' },
   { path: '/dashboard/admin/stats', icon: TrendingUp, label: 'Statistiques' },
 ];
@@ -1292,6 +1293,218 @@ function CommercialsAdmin() {
   );
 }
 
+// ARCHITECTES ────────────────────────────────────────────────
+function ArchitectsAdmin() {
+  const [form, setForm] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    password: '',
+  });
+
+  const [creating, setCreating] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const update = (field, value) => {
+    setForm((previous) => ({
+      ...previous,
+      [field]: value,
+    }));
+  };
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+
+    if (
+      !form.full_name.trim() ||
+      !form.email.trim() ||
+      !form.password
+    ) {
+      toast.error('Veuillez remplir les champs obligatoires.');
+      return;
+    }
+
+    if (form.password.length < 8) {
+      toast.error('Le mot de passe doit contenir au moins 8 caractères.');
+      return;
+    }
+
+    setCreating(true);
+
+    try {
+      await api.post('/admin/architects', {
+        full_name: form.full_name.trim(),
+        email: form.email.trim().toLowerCase(),
+        phone: form.phone.trim(),
+        password: form.password,
+      });
+
+      toast.success('Compte architecte créé avec succès !');
+
+      setForm({
+        full_name: '',
+        email: '',
+        phone: '',
+        password: '',
+      });
+    } catch (error) {
+      toast.error(
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        'Erreur lors de la création du compte.'
+      );
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-5 animate-fade-in">
+
+      {/* En-tête */}
+      <div className="card p-6">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-12 h-12 rounded-xl bg-[#EBF5ED]
+            flex items-center justify-center">
+            <DraftingCompass
+              size={25}
+              className="text-[#3A7D44]"
+            />
+          </div>
+
+          <div>
+            <h2 className="font-display text-xl font-bold
+              text-[#0F172A] dark:text-white">
+              Gestion des architectes
+            </h2>
+
+            <p className="text-sm text-[#64748B]
+              dark:text-[#94A3B8]">
+              Créer un compte architecte pour Logezy Plans.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Formulaire */}
+      <div className="card p-6 max-w-2xl">
+        <h3 className="font-display font-bold text-lg
+          text-[#0F172A] dark:text-white mb-5">
+          Nouveau compte architecte
+        </h3>
+
+        <form onSubmit={handleCreate} className="space-y-4">
+
+          {/* Nom */}
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Nom complet *
+            </label>
+
+            <input
+              type="text"
+              value={form.full_name}
+              onChange={(e) =>
+                update('full_name', e.target.value)
+              }
+              placeholder="Nom et prénom de l'architecte"
+              required
+              className="input-field w-full"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Adresse email *
+            </label>
+
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) =>
+                update('email', e.target.value)
+              }
+              placeholder="architecte@exemple.com"
+              required
+              className="input-field w-full"
+            />
+          </div>
+
+          {/* Téléphone */}
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Téléphone
+            </label>
+
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={(e) =>
+                update('phone', e.target.value)
+              }
+              placeholder="+229 ..."
+              className="input-field w-full"
+            />
+          </div>
+
+          {/* Mot de passe */}
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Mot de passe temporaire *
+            </label>
+
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={form.password}
+                onChange={(e) =>
+                  update('password', e.target.value)
+                }
+                placeholder="Minimum 8 caractères"
+                minLength={8}
+                required
+                className="input-field w-full pr-20"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowPassword((previous) => !previous)
+                }
+                className="absolute right-3 top-1/2
+                  -translate-y-1/2 text-sm
+                  text-[#3A7D44] font-medium"
+              >
+                {showPassword ? 'Masquer' : 'Afficher'}
+              </button>
+            </div>
+          </div>
+
+          <p className="text-xs text-[#64748B]
+            dark:text-[#94A3B8]">
+            Le compte sera créé avec le rôle architecte.
+            Ne partage pas le mot de passe temporaire publiquement.
+          </p>
+
+          <button
+            type="submit"
+            disabled={creating}
+            className="w-full py-3 rounded-xl bg-[#3A7D44]
+              text-white font-bold disabled:opacity-50
+              hover:bg-[#2F6637] transition-colors"
+          >
+            {creating
+              ? 'Création en cours...'
+              : 'Créer le compte architecte'}
+          </button>
+
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ─── COMPOSANT PRINCIPAL ──────────────────────────────────────
 export default function DashboardAdmin() {
   return (
@@ -1304,6 +1517,8 @@ export default function DashboardAdmin() {
         <Route path="commerciaux" element={<CommercialsAdmin />} />
         <Route path="messages" element={<WriteToUsers />} />
         <Route path="stats" element={<StatsAdmin />} />
+        <Route path="architectes" element={<ArchitectsAdmin />}
+/>
       </Routes>
     </DashboardLayout>
   );

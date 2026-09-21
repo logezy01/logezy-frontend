@@ -29,6 +29,21 @@ const DashboardAdmin = lazy(() => import('./pages/dashboard/DashboardAdmin'));
 const DashboardCommercial = lazy(() => import('./pages/dashboard/DashboardCommercial'));
 const Agencies = lazy(() => import('./pages/Agencies'));
 const AgencyDetail = lazy(() => import('./pages/AgencyDetail'));
+const Plans = lazy(() => import('./pages/Plans'));
+const PlanDetail = lazy(() => import('./pages/PlanDetail'));
+const ArchitectDashboard = lazy(() =>
+  import('./pages/architect/ArchitectDashboard')
+);
+
+const ArchitectProfile = lazy(() =>
+  import('./pages/architect/ArchitectProfile')
+);
+const CreatePlan = lazy(() => import("./pages/architect/CreatePlan"));
+const MyPlans = lazy(() => import("./pages/architect/MyPlans"));
+const EditPlan = lazy(() => import("./pages/architect/EditPlan"));
+const DashboardArchitecte = lazy(
+  () => import("./pages/dashboard/DashboardArchitecte")
+);
 
 // Composant de chargement pendant le lazy loading
 function PageLoader() {
@@ -45,6 +60,8 @@ function PageLoader() {
 const ProtectedRoute = ({ children, roles }) => {
   const { isAuthenticated, user } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" />;
+  console.log('Rôle utilisateur :', user?.role);
+console.log('Rôles autorisés :', roles);
   if (roles && !roles.includes(user?.role)) return <Navigate to="/" />;
   return children;
 };
@@ -56,6 +73,8 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/annonces" element={<Listings />} />
         <Route path="/annonces/:id" element={<ListingDetail />} />
+        <Route path="/plans" element={<Plans />} />
+<Route path="/plans/:id" element={<PlanDetail />} />
         <Route path="/confidentialite" element={<Privacy />} />
         <Route path="/conditions" element={<Terms />} />
         <Route path="/a-propos" element={<About />} />
@@ -87,6 +106,55 @@ export default function App() {
         <Route path="/dashboard/commercial/*" element={
           <ProtectedRoute roles={['commercial']}><DashboardCommercial /></ProtectedRoute>
         } />
+<Route
+  path="/architecte"
+  element={
+    <ProtectedRoute roles={['architecte']}>
+      <Navigate to="/dashboard/architecte" replace />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/dashboard/architecte/profil"
+  element={
+    <ProtectedRoute roles={['architecte']}>
+      <ArchitectProfile />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/architecte"
+  element={
+    <ProtectedRoute roles={['architecte']}>
+      <DashboardArchitecte />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/architecte/plans/nouveau"
+  element={
+    <ProtectedRoute roles={["architecte"]}>
+      <CreatePlan />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/architecte/plans"
+  element={
+    <ProtectedRoute roles={["architecte"]}>
+      <MyPlans />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/architecte/plans/:id/modifier"
+  element={
+    <ProtectedRoute roles={["architecte"]}>
+      <EditPlan />
+    </ProtectedRoute>
+  }
+/>
         <Route path="*" element={<NotFound />} />
         
       </Routes>

@@ -35,10 +35,15 @@ export default {
         'soft-sm': '0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',
         'soft-lg': '0 24px 48px -12px rgba(15,23,42,0.18), 0 8px 16px -8px rgba(15,23,42,0.08)',
         'glow-brand': '0 0 0 4px rgba(74,222,128,0.12), 0 20px 60px rgba(58,125,68,0.15)',
+                'glass': '0 8px 32px rgba(15,23,42,0.10), inset 0 1px 0 rgba(255,255,255,0.5)',
+        'glass-dark': '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.12)',
       },
       borderRadius: {
         btn: '10px',
         card: '16px',
+        squircle: '26px',
+        'squircle-sm': '16px',
+        'squircle-lg': '34px',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',

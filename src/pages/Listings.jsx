@@ -41,7 +41,6 @@ export default function Listings() {
 
   const ActiveCategoryIcon = filters.category ? getCategoryIcon(filters.category) : null;
 
-  // Chargement initial ou nouvelle recherche (reset)
   const fetchListings = async (currentFilters = filters) => {
     setLoading(true);
     setHasMore(true);
@@ -62,7 +61,6 @@ export default function Listings() {
     }
   };
 
-  // Chargement de la page suivante (append)
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasMore || loading) return;
     setLoadingMore(true);
@@ -86,7 +84,6 @@ export default function Listings() {
 
   useEffect(() => { fetchListings(); }, []);
 
-  // Observer la sentinelle en bas de la grille
   useEffect(() => {
     if (!sentinelRef.current) return;
     const observer = new IntersectionObserver(
@@ -110,11 +107,67 @@ export default function Listings() {
   const mapCenter = filters.city && CITY_COORDS[filters.city] ? CITY_COORDS[filters.city] : [6.3654, 2.4183];
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#0A0A0A] pb-20 md:pb-0">
+    <div className="min-h-screen bg-paper dark:bg-[#0A0A0A] pb-20 md:pb-0">
+      <style>{`
+        .glass-filter-btn {
+          background: rgba(255,255,255,0.55);
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.6);
+          box-shadow: 0 2px 10px rgba(15,23,42,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
+          transition: transform 0.3s cubic-bezier(0.23,1,0.32,1), background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-filter-btn:hover {
+          background: rgba(255,255,255,0.8);
+          box-shadow: 0 4px 16px rgba(15,23,42,0.1), inset 0 1px 0 rgba(255,255,255,0.7);
+        }
+        .glass-filter-btn:active { transform: scale(0.96); }
+        .glass-filter-btn.is-active {
+          background: rgba(58,125,68,0.12);
+          border-color: rgba(58,125,68,0.35);
+          box-shadow: 0 2px 12px rgba(58,125,68,0.15), inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+        .dark .glass-filter-btn {
+          background: rgba(26,26,26,0.55);
+          border-color: rgba(255,255,255,0.1);
+          box-shadow: 0 2px 10px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+        .dark .glass-filter-btn.is-active {
+          background: rgba(58,125,68,0.2);
+          border-color: rgba(58,125,68,0.4);
+        }
+        .glass-panel {
+          background: rgba(255,255,255,0.65);
+          backdrop-filter: blur(28px) saturate(180%);
+          -webkit-backdrop-filter: blur(28px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.6);
+          box-shadow: 0 20px 60px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+        }
+        .dark .glass-panel {
+          background: rgba(22,26,36,0.65);
+          border-color: rgba(255,255,255,0.1);
+          box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+        .glass-header {
+          background: rgba(255,255,255,0.6);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+        .dark .glass-header {
+          background: rgba(15,23,42,0.6);
+          border-bottom-color: rgba(255,255,255,0.08);
+        }
+        .glass-pill-active {
+          background: rgba(58,125,68,0.12);
+          border: 1px solid rgba(58,125,68,0.25);
+        }
+      `}</style>
+
       <Navbar />
 
-      {/* Header sticky premium */}
-      <div className="bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md border-b border-[#E8E8E8] dark:border-[#2A2A2A] sticky top-16 z-30">
+      {/* Header sticky — verre */}
+      <div className="glass-header sticky top-16 z-30">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between gap-3 flex-wrap">
 
@@ -138,19 +191,19 @@ export default function Listings() {
               {activeFiltersCount > 0 && (
                 <div className="hidden md:flex items-center gap-2">
                   {filters.type && (
-                    <span className="flex items-center gap-1 text-xs bg-[#EBF5ED] text-[#3A7D44] font-bold px-2 py-1 rounded-full">
+                    <span className="glass-pill-active flex items-center gap-1 text-xs text-[#3A7D44] font-bold px-2.5 py-1 rounded-full">
                       {filters.type === 'location' ? <Key size={10} strokeWidth={2.5} /> : <Tag size={10} strokeWidth={2.5} />}
                       {filters.type === 'location' ? 'Location' : 'Vente'}
                     </span>
                   )}
                   {filters.city && (
-                    <span className="flex items-center gap-1 text-xs bg-[#EFF6FF] text-[#3B82F6] font-bold px-2 py-1 rounded-full">
+                    <span className="glass-pill-active flex items-center gap-1 text-xs text-[#3A7D44] font-bold px-2.5 py-1 rounded-full">
                       <MapPin size={10} strokeWidth={2.5} />
                       {filters.city}
                     </span>
                   )}
                   {filters.category && ActiveCategoryIcon && (
-                    <span className="flex items-center gap-1 text-xs bg-[#FEF3C7] text-[#92400E] font-bold px-2 py-1 rounded-full">
+                    <span className="glass-pill-active flex items-center gap-1 text-xs text-[#3A7D44] font-bold px-2.5 py-1 rounded-full">
                       <ActiveCategoryIcon size={10} strokeWidth={2.5} />
                       {getCategoryLabel(filters.category)}
                     </span>
@@ -168,10 +221,8 @@ export default function Listings() {
 
               {/* Vue carte */}
               <button onClick={() => setShowMap(!showMap)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-bold transition-all ${
-                  showMap
-                    ? 'border-[#3A7D44] bg-[#EBF5ED] text-[#3A7D44]'
-                    : 'border-[#E8E8E8] dark:border-[#2A2A2A] text-[#64748B] dark:text-[#94A3B8] hover:border-[#3A7D44] hover:text-[#3A7D44]'
+                className={`glass-filter-btn flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold ${
+                  showMap ? 'is-active text-[#3A7D44]' : 'text-[#334155] dark:text-[#94A3B8]'
                 }`}>
                 <Map size={15} />
                 <span className="hidden sm:inline">{showMap ? 'Masquer carte' : 'Carte'}</span>
@@ -180,23 +231,21 @@ export default function Listings() {
               {/* Alerte */}
               <div className="relative">
                 <button onClick={() => { setShowMap(false); setShowAlertHelper(!showAlertHelper); }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-bold transition-all ${
-                    showAlertHelper
-                      ? 'border-[#3A7D44] bg-[#EBF5ED] text-[#3A7D44]'
-                      : 'border-[#3A7D44] text-[#3A7D44] hover:bg-[#EBF5ED]'
+                  className={`glass-filter-btn flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold ${
+                    showAlertHelper ? 'is-active text-[#3A7D44]' : 'text-[#3A7D44]'
                   }`}>
                   <Bell size={15} />
                   <span className="hidden sm:inline">Alerte</span>
                 </button>
 
                 {showAlertHelper && (
-                  <div className="absolute right-0 top-12 w-80 bg-white dark:bg-[#1A1A1A] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-[#E8E8E8] dark:border-[#2A2A2A] z-50 p-5 animate-scale-in">
+                  <div className="absolute right-0 top-14 w-80 glass-panel rounded-[26px] z-50 p-5 animate-scale-in">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-bold text-sm text-[#0F172A] dark:text-white flex items-center gap-2">
                         <Bell size={15} className="text-[#3A7D44]" /> Créer une alerte
                       </h3>
                       <button onClick={() => setShowAlertHelper(false)}
-                        className="p-1.5 rounded-lg hover:bg-[#F5F5F7] dark:hover:bg-[#2A2A2A] text-[#94A3B8]">
+                        className="glass-filter-btn p-1.5 rounded-full text-[#94A3B8]">
                         <X size={14} />
                       </button>
                     </div>
@@ -224,10 +273,8 @@ export default function Listings() {
 
               {/* Filtres */}
               <button onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-bold transition-all ${
-                  showFilters || activeFiltersCount > 0
-                    ? 'border-[#3A7D44] bg-[#EBF5ED] text-[#3A7D44]'
-                    : 'border-[#E8E8E8] dark:border-[#2A2A2A] text-[#64748B] dark:text-[#94A3B8] hover:border-[#3A7D44] hover:text-[#3A7D44]'
+                className={`glass-filter-btn flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold ${
+                  showFilters || activeFiltersCount > 0 ? 'is-active text-[#3A7D44]' : 'text-[#334155] dark:text-[#94A3B8]'
                 }`}>
                 <SlidersHorizontal size={15} />
                 <span className="hidden sm:inline">Filtres</span>
@@ -245,7 +292,7 @@ export default function Listings() {
           {showFilters && (
             <div className="mt-4 animate-slide-down">
               <form onSubmit={handleSearch}
-                className="bg-[#F8F9FA] dark:bg-[#1A1A1A] rounded-2xl p-4 border border-[#E8E8E8] dark:border-[#2A2A2A]">
+                className="glass-panel rounded-[26px] p-4">
                 <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
                   {[
                     {
@@ -273,20 +320,20 @@ export default function Listings() {
                       </label>
                       {f.type === 'select' ? (
                         <select value={filters[f.field]} onChange={(e) => update(f.field, e.target.value)}
-                          className="w-full px-3 py-2.5 rounded-xl border-2 border-[#E8E8E8] dark:border-[#2A2A2A] bg-white dark:bg-[#2A2A2A] text-[#0F172A] dark:text-white text-xs outline-none focus:border-[#3A7D44] transition-colors">
+                          className="glass-filter-btn w-full px-3 py-2.5 rounded-xl text-[#0F172A] dark:text-white text-xs outline-none">
                           {f.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                         </select>
                       ) : (
                         <input type="number" placeholder={f.placeholder} value={filters[f.field]}
                           onChange={(e) => update(f.field, e.target.value)}
-                          className="w-full px-3 py-2.5 rounded-xl border-2 border-[#E8E8E8] dark:border-[#2A2A2A] bg-white dark:bg-[#2A2A2A] text-[#0F172A] dark:text-white text-xs outline-none focus:border-[#3A7D44] transition-colors placeholder:text-[#C0C0C0]" />
+                          className="glass-filter-btn w-full px-3 py-2.5 rounded-xl text-[#0F172A] dark:text-white text-xs outline-none placeholder:text-[#C0C0C0]" />
                       )}
                     </div>
                   ))}
                 </div>
                 <div className="flex items-center gap-3">
                   <button type="submit"
-                    className="bg-[#3A7D44] hover:bg-[#2D6235] text-white font-bold px-6 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-all">
+                    className="bg-[#3A7D44] hover:bg-[#2D6235] text-white font-bold px-6 py-2.5 rounded-2xl text-sm flex items-center gap-2 transition-all">
                     <Search size={14} /> Rechercher
                   </button>
                   {activeFiltersCount > 0 && (
@@ -307,10 +354,10 @@ export default function Listings() {
         <div className="relative w-full animate-slide-down" style={{ height: '420px' }}>
           <MapView listings={listings} center={mapCenter} zoom={filters.city ? 13 : 11} height="420px" />
           <button onClick={() => setShowMap(false)}
-            className="absolute top-4 right-4 z-[1000] w-10 h-10 bg-white dark:bg-[#1A1A1A] rounded-full shadow-lg flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all border border-[#E8E8E8]">
+            className="glass-icon-btn absolute top-4 right-4 z-[1000] w-10 h-10 rounded-2xl flex items-center justify-center text-[#334155]">
             <X size={18} />
           </button>
-          <div className="absolute top-4 left-4 z-[1000] bg-white dark:bg-[#1A1A1A] rounded-xl shadow-lg px-3 py-2 text-xs font-bold text-[#3A7D44] border border-[#E8E8E8] flex items-center gap-1.5">
+          <div className="glass-filter-btn absolute top-4 left-4 z-[1000] rounded-2xl px-3 py-2 text-xs font-bold text-[#3A7D44] flex items-center gap-1.5">
             <MapPin size={13} />
             {listings.filter(l => l.latitude && l.longitude).length} biens géolocalisés
           </div>
@@ -321,9 +368,7 @@ export default function Listings() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="rounded-2xl bg-white dark:bg-[#1A1A1A] h-72 animate-pulse" />
-            ))}
+            {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : listings.length === 0 ? (
           <div className="text-center py-24">
@@ -347,7 +392,6 @@ export default function Listings() {
               {listings.map(l => <ListingCard key={l.id} listing={l} />)}
             </div>
 
-            {/* Sentinelle pour déclencher le chargement suivant */}
             {hasMore && (
               <div ref={sentinelRef} className="flex items-center justify-center py-10">
                 {loadingMore && (

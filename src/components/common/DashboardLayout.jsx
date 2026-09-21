@@ -118,19 +118,51 @@ export default function DashboardLayout({ children, menuItems, title }) {
       case 'admin': return 'from-purple-500 to-purple-700';
       case 'proprietaire': return 'from-[#3A7D44] to-[#1A6B3C]';
       case 'agent': return 'from-yellow-500 to-yellow-700';
+      case 'architecte':
+  return 'from-green-500 to-green-700';
       default: return 'from-blue-500 to-blue-700';
     }
   };
 
-  const getRoleBadge = () => {
-    switch (user?.role) {
-      case 'admin': return { label: 'Administrateur', color: 'text-purple-500 bg-purple-500/10' };
-      case 'proprietaire': return { label: 'Propriétaire', color: 'text-emerald-600 bg-emerald-500/10' };
-      case 'agent': return { label: 'Agent immobilier', color: 'text-yellow-600 bg-yellow-500/10' };
-      default: return { label: 'Locataire', color: 'text-blue-500 bg-blue-500/10' };
-    }
-  };
+const getRoleBadge = () => {
+  switch (user?.role) {
+    case 'admin':
+      return {
+        label: 'Administrateur',
+        color: 'text-purple-500 bg-purple-500/10',
+      };
 
+    case 'proprietaire':
+      return {
+        label: 'Propriétaire',
+        color: 'text-emerald-600 bg-emerald-500/10',
+      };
+
+    case 'agent':
+      return {
+        label: 'Agent immobilier',
+        color: 'text-yellow-600 bg-yellow-500/10',
+      };
+
+    case 'commercial':
+      return {
+        label: 'Commercial',
+        color: 'text-orange-600 bg-orange-500/10',
+      };
+
+    case 'architecte':
+      return {
+        label: 'Architecte',
+        color: 'text-green-600 bg-green-500/10',
+      };
+
+    default:
+      return {
+        label: 'Locataire',
+        color: 'text-blue-500 bg-blue-500/10',
+      };
+  }
+};
   const badge = getRoleBadge();
 
   // Styles dynamiques selon le thème

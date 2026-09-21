@@ -297,7 +297,7 @@ export default function Home() {
             </p>
 
             {/* Tabs */}
-            <div className="inline-flex mb-5 p-1 rounded-2xl gap-1" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)' }}>
+            <div className="inline-flex mb-5 p-1 gap-1 liquid-glass-dark glass-pill">
               {[
                 { value: '', label: 'Tout voir', icon: null },
                 { value: 'location', label: 'Location', icon: Key },
@@ -318,19 +318,12 @@ export default function Home() {
             </div>
 
             {/* Barre de recherche 3D — glassmorphism */}
-            <form onSubmit={handleSearch} className="mb-6 max-w-xl">
+                    <form onSubmit={handleSearch} className="mb-6 max-w-xl">
               <div
-                className="flex flex-col md:flex-row gap-2 p-2 rounded-2xl"
-                style={{
-                  background: 'rgba(255,255,255,0.12)',
-                  backdropFilter: 'blur(24px)',
-                  WebkitBackdropFilter: 'blur(24px)',
-                  border: '1px solid rgba(255,255,255,0.25)',
-                  boxShadow: '0 25px 70px rgba(0,0,0,0.45)',
-                  transition: 'all 0.35s cubic-bezier(0.23,1,0.32,1)',
-                }}
-                onFocus={(e) => { e.currentTarget.style.border = '1px solid rgba(74,222,128,0.6)'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 30px 80px rgba(0,0,0,0.5), 0 0 0 4px rgba(74,222,128,0.12)'; }}
-                onBlur={(e) => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.25)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 25px 70px rgba(0,0,0,0.45)'; }}
+                className="flex flex-col md:flex-row gap-2 p-2 liquid-glass-dark glass-squircle"
+                style={{ transition: 'all 0.35s cubic-bezier(0.23,1,0.32,1)' }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(74,222,128,0.6)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
                 <div className="flex items-center gap-3 flex-1 px-4 py-1">
                   <MapPin size={18} className="text-emerald-400 shrink-0" />
@@ -399,7 +392,7 @@ export default function Home() {
             </FloatingCard>
 
             <FloatingCard delay={1}>
-              <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 16, padding: '14px 18px' }}>
+              <div className="liquid-glass-dark glass-squircle-sm" style={{ padding: '16px 20px', minWidth: 200 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} className="animate-pulse" />
                   <span style={{ color: '#4ade80', fontSize: 11, fontWeight: 700 }}>EN DIRECT</span>
@@ -412,7 +405,7 @@ export default function Home() {
             </FloatingCard>
 
             <FloatingCard delay={1.5} style={{ alignSelf: 'flex-start' }}>
-              <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 16, padding: '14px 18px' }}>
+              <div className="liquid-glass-dark glass-squircle-sm" style={{ padding: '16px 20px', minWidth: 200 }}>
                 <div className="flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, marginBottom: 4 }}>
                   <Users size={12} /> Utilisateurs actifs
                 </div>
@@ -469,8 +462,7 @@ export default function Home() {
               <AnimatedSection key={cat.value} delay={i * 60}>
                 <button
                   onClick={() => navigate(`/annonces?category=${cat.value}`)}
-                  className="category-card w-full text-left p-5 rounded-2xl bg-white"
-                  style={{ border: '1px solid #E8E8E8' }}
+                  className="category-card liquid-glass glass-squircle w-full text-left p-5"
                 >
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center mb-3"
@@ -567,15 +559,10 @@ export default function Home() {
               { icon: TrendingUp, title: 'Marché transparent', desc: "Accédez aux prix réels du marché béninois pour prendre des décisions d'investissement éclairées.", color: '#F59E0B', glow: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)', tag: 'TRANSPARENCE' },
             ].map((item, i) => (
               <AnimatedSection key={i} delay={i * 150}>
-                <div className="h-full p-6 rounded-2xl"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${item.border}`,
-                    backdropFilter: 'blur(10px)',
-                    transition: 'background 0.4s cubic-bezier(0.23,1,0.32,1), transform 0.4s cubic-bezier(0.23,1,0.32,1)',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.background = item.glow; e.currentTarget.style.transform = 'translateY(-4px)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                <div className="liquid-glass-dark glass-squircle h-full p-6"
+                  style={{ transition: 'background 0.4s cubic-bezier(0.23,1,0.32,1), transform 0.4s cubic-bezier(0.23,1,0.32,1)' }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}>
                   <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: item.glow, animation: `float3d ${3 + i}s ease-in-out infinite` }}>
                     <item.icon size={26} color={item.color} strokeWidth={2} />
                   </div>

@@ -18,7 +18,7 @@ export default function CompareButton({ listing, className = '' }) {
       if (result?.error) {
         toast.error(result.error);
       } else {
-        toast.success('Ajouté à la comparaison ✅');
+        toast.success('Ajouté à la comparaison');
       }
     }
   };
@@ -26,14 +26,15 @@ export default function CompareButton({ listing, className = '' }) {
   return (
     <button
       onClick={handleToggle}
-      className={`flex items-center justify-center w-9 h-9 rounded-full transition-all ${
+      className={`glass-icon-btn flex items-center justify-center w-9 h-9 rounded-2xl ${className}`}
+      style={
         inCompare
-          ? 'bg-[#3A7D44] text-white shadow-lg scale-110'
-          : 'bg-white/90 text-[#64748B] hover:text-[#3A7D44] hover:bg-white shadow-float'
-      } ${className}`}
+          ? { borderColor: 'rgba(58,125,68,0.5)', boxShadow: '0 4px 16px rgba(58,125,68,0.25), inset 0 1px 0 rgba(255,255,255,0.6)' }
+          : undefined
+      }
       title={inCompare ? 'Retirer de la comparaison' : 'Ajouter à la comparaison'}
     >
-      <GitCompare size={16} />
+      <GitCompare size={16} className={inCompare ? 'text-[#3A7D44]' : 'text-[#64748B]'} strokeWidth={inCompare ? 2.5 : 2} />
     </button>
   );
 }

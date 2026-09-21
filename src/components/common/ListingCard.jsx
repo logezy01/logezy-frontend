@@ -41,6 +41,32 @@ export default function ListingCard({ listing }) {
 
   return (
     <>
+      <style>{`
+        .glass-icon-btn {
+          background: rgba(255,255,255,0.55);
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.6);
+          box-shadow: 0 4px 16px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+          transition: transform 0.3s cubic-bezier(0.23,1,0.32,1), background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-icon-btn:hover {
+          background: rgba(255,255,255,0.75);
+          transform: scale(1.08);
+          box-shadow: 0 6px 20px rgba(15,23,42,0.16), inset 0 1px 0 rgba(255,255,255,0.7);
+        }
+        .glass-icon-btn:active {
+          transform: scale(0.94);
+        }
+        .glass-badge {
+          background: rgba(255,255,255,0.5);
+          backdrop-filter: blur(14px) saturate(180%);
+          -webkit-backdrop-filter: blur(14px) saturate(180%);
+          border: 1px solid rgba(255,255,255,0.55);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+        }
+      `}</style>
+
       <div
         onClick={() => {
           if (!isAuthenticated) { setShowAuthModal(true); return; }
@@ -53,7 +79,7 @@ export default function ListingCard({ listing }) {
           if (!isAuthenticated) { setShowAuthModal(true); return; }
           navigate(`/annonces/${listing.id}`);
         }}
-        className="group block bg-white dark:bg-[#161616] rounded-[20px] overflow-hidden border border-[#F0F0F0] dark:border-[#262626] cursor-pointer"
+        className="group block bg-white dark:bg-[#161616] rounded-[26px] overflow-hidden border border-[#F0F0F0] dark:border-[#262626] cursor-pointer"
         style={{
           transition: 'transform 0.4s cubic-bezier(0.23,1,0.32,1), box-shadow 0.4s cubic-bezier(0.23,1,0.32,1)',
           boxShadow: '0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',
@@ -104,71 +130,46 @@ export default function ListingCard({ listing }) {
             </div>
           )}
 
-          {/* Overlay gradient bas — plus doux */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+          {/* Overlay dégradé — discret, juste pour la lisibilité du bas */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
 
-          {/* Badges haut gauche — type, catégorie, coup de cœur, nouveau, vidéo */}
+          {/* Badges haut gauche — verre blanc, accent couleur uniquement sur le texte/icône */}
           <div className="absolute top-3 left-3 right-14 flex flex-wrap items-center gap-1.5">
-            <span
-              className={`flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-md ${
-                listing.type === 'location'
-                  ? 'bg-[#3A7D44]/85 text-white'
-                  : 'bg-[#F59E0B]/85 text-white'
-              }`}
-              style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
-            >
-              {listing.type === 'location' ? <Key size={11} strokeWidth={2.5} /> : <Tag size={11} strokeWidth={2.5} />}
+            <span className="glass-badge flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full text-[#0F172A]">
+              {listing.type === 'location' ? <Key size={11} strokeWidth={2.5} className="text-[#3A7D44]" /> : <Tag size={11} strokeWidth={2.5} className="text-[#B45309]" />}
               {listing.type === 'location' ? 'Location' : 'Vente'}
             </span>
 
             {listing.category && CategoryIcon && (
-              <span
-                className="flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-full bg-white/85 text-[#334155] backdrop-blur-md"
-                style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
-              >
-                <CategoryIcon size={11} strokeWidth={2.5} />
+              <span className="glass-badge flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-full text-[#334155]">
+                <CategoryIcon size={11} strokeWidth={2.5} className="text-[#3A7D44]" />
                 {getCategoryLabel(listing.category)}
               </span>
             )}
 
             {listing.is_featured && (
-              <span
-                className="text-xs font-bold px-2.5 py-1.5 rounded-full text-white backdrop-blur-md flex items-center gap-1"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(236,72,153,0.9), rgba(217,70,239,0.9))',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                }}
-              >
+              <span className="glass-badge flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-full text-purple-600">
                 <Heart size={11} strokeWidth={2.5} fill="currentColor" /> Coup de cœur
               </span>
             )}
 
             {isNew && (
-              <span
-                className="text-xs font-bold px-2.5 py-1.5 rounded-full bg-[#3B82F6]/85 text-white backdrop-blur-md flex items-center gap-1"
-                style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
-              >
+              <span className="glass-badge flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-full text-blue-600">
                 <Zap size={11} strokeWidth={2.5} /> Nouveau
               </span>
             )}
 
             {listing.listing_videos?.length > 0 && (
-              <span
-                className="text-xs font-bold px-2.5 py-1.5 rounded-full bg-black/60 text-white backdrop-blur-md flex items-center gap-1"
-                style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
-              >
+              <span className="glass-badge flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-full text-[#0F172A]">
                 <Film size={11} /> Vidéo
               </span>
             )}
           </div>
 
-          {/* Actions top right */}
+          {/* Actions top right — verre blanc, iOS squircle */}
           <div className="absolute top-3 right-3 flex flex-col gap-2">
             {listing.users?.is_verified && (
-              <span
-                className="bg-white/85 backdrop-blur-md text-[#3A7D44] text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1"
-                style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-              >
+              <span className="glass-badge flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full text-[#3A7D44]">
                 <CheckCircle2 size={12} strokeWidth={2.5} /> Vérifié
               </span>
             )}
@@ -178,21 +179,16 @@ export default function ListingCard({ listing }) {
 
           {/* Nombre de photos */}
           {photoCount > 1 && (
-            <div
-              className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/45 backdrop-blur-md text-white text-xs px-2 py-1 rounded-full"
-            >
+            <div className="glass-badge absolute bottom-3 left-3 flex items-center gap-1 text-[#0F172A] text-xs px-2 py-1 rounded-full">
               <Eye size={10} />
               {photoCount} photos
             </div>
           )}
 
-          {/* Flèche hover */}
+          {/* Flèche hover — verre blanc squircle */}
           <div
-            className="absolute bottom-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0"
-            style={{
-              transition: 'all 0.35s cubic-bezier(0.23,1,0.32,1)',
-              boxShadow: '0 8px 20px rgba(0,0,0,0.18)',
-            }}
+            className="glass-icon-btn absolute bottom-3 right-3 w-9 h-9 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0"
+            style={{ transition: 'opacity 0.35s cubic-bezier(0.23,1,0.32,1), transform 0.35s cubic-bezier(0.23,1,0.32,1)' }}
           >
             <ArrowUpRight size={16} className="text-[#3A7D44]" />
           </div>
