@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, LayoutDashboard, Menu, X, ChevronDown, Plus, Settings } from 'lucide-react';
+import { LogOut, LayoutDashboard, Menu, X, ChevronDown, Plus, Settings, Building2 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import NotificationBell from './NotificationBell';
 import Logo from './Logo';
@@ -34,30 +34,24 @@ export default function Navbar() {
     setUserMenuOpen(false);
   };
 
-const getDashboardLink = () => {
-  switch (user?.role) {
-    case 'admin':
-      return '/dashboard/admin';
-
-    case 'commercial':
-      return '/dashboard/commercial';
-
-    case 'architecte':
-      return '/dashboard/architecte';
-
-    case 'proprietaire':
-      return '/dashboard/proprietaire';
-
-    case 'agent':
-      return '/dashboard/agent';
-
-    case 'locataire':
-      return '/dashboard/locataire';
-
-    default:
-      return '/';
-  }
-};
+  const getDashboardLink = () => {
+    switch (user?.role) {
+      case 'admin':
+        return '/dashboard/admin';
+      case 'commercial':
+        return '/dashboard/commercial';
+      case 'architecte':
+        return '/dashboard/architecte';
+      case 'proprietaire':
+        return '/dashboard/proprietaire';
+      case 'agent':
+        return '/dashboard/agent';
+      case 'locataire':
+        return '/dashboard/locataire';
+      default:
+        return '/';
+    }
+  };
 
   const getPublishLink = () => {
     if (user?.role === 'proprietaire') return '/dashboard/proprietaire/publier';
@@ -224,6 +218,18 @@ const getDashboardLink = () => {
 
             {/* Droite — Desktop */}
             <div className="hidden md:flex items-center gap-3 pl-6 lg:pl-10">
+
+              {/* Switcher vers Logezy Plans */}
+              <Link to="/plans"
+                className={`hidden lg:flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all ${
+                  isHome && !scrolled
+                    ? 'border-white/20 text-white/85 hover:bg-white/10'
+                    : 'border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-[#3A7D44]/30 hover:text-[#3A7D44]'
+                }`}>
+                <Building2 size={15} />
+                Plans
+              </Link>
+
               {isAuthenticated ? (
                 <>
                   {/* Bouton publier */}
@@ -379,6 +385,11 @@ const getDashboardLink = () => {
                   {link.label}
                 </Link>
               ))}
+
+              <Link to="/plans" onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-[#3A7D44] bg-[#3A7D44]/8">
+                <Building2 size={15} /> Découvrir Logezy Plans
+              </Link>
 
               <hr className="border-[#0F172A]/5 dark:border-white/10 my-2" />
 

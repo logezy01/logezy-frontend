@@ -4,7 +4,7 @@ import {
   Eye, CheckCircle, XCircle, Users, Home, Search, Trash2, Ban, Mail, Send,
   LayoutDashboard, Clock, TrendingUp, Briefcase, UserPlus, Building2,
   Crown, Key, Tag, MapPin, Banknote, Bed, Maximize, User, Hand, List,
-  AlertTriangle, PauseCircle, MessageCircle, Handshake, Settings, Lightbulb, Pin,DraftingCompass,
+  AlertTriangle, PauseCircle, MessageCircle, Handshake, Settings, Lightbulb, Pin,DraftingCompass,ClipboardList,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
@@ -15,10 +15,12 @@ import SwipeValidation from '../../components/admin/SwipeValidation';
 const MENU = [
   { path: '/dashboard/admin', icon: LayoutDashboard, label: 'Vue générale' },
   { path: '/dashboard/admin/validation', icon: Clock, label: 'Validation annonces' },
+  { path: '/dashboard/admin/validation-plans', icon: DraftingCompass, label: 'Validation plans' },
   { path: '/dashboard/admin/utilisateurs', icon: Users, label: 'Utilisateurs' },
   { path: '/dashboard/admin/annonces', icon: Home, label: 'Toutes les annonces' },
   { path: '/dashboard/admin/commerciaux', icon: Briefcase, label: 'Commerciaux' },
   { path: '/dashboard/admin/architectes',icon: DraftingCompass,label: 'Architectes',},
+  { path: '/dashboard/admin/demandes-plans', icon: ClipboardList, label: 'Demandes de plans' },
   { path: '/dashboard/admin/messages', icon: Mail, label: 'Écrire aux users' },
   { path: '/dashboard/admin/stats', icon: TrendingUp, label: 'Statistiques' },
 ];
@@ -386,6 +388,155 @@ function ValidationListings() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-6 max-w-md w-full animate-scale-in">
             <h3 className="font-display font-bold text-[#0F172A] dark:text-white mb-2">Rejeter l'annonce</h3>
+            <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mb-4">"{rejectModal.title}"</p>
+            <textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Raison du rejet (optionnel)..."
+              className="input-field min-h-[100px] resize-none mb-4" rows={4} />
+            <div className="flex gap-3">
+              <button onClick={() => handleReject(rejectModal.id)}
+                className="flex-1 py-2.5 bg-red-500 text-white rounded-btn font-bold flex items-center justify-center gap-2">
+                <XCircle size={16} /> Confirmer
+              </button>
+              <button onClick={() => { setRejectModal(null); setRejectReason(''); }}
+                className="btn-secondary flex-1 py-2.5">Annuler</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── VALIDATION PLANS ──────────────────────────────────────
+function ValidationPlans() {
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [rejectModal, setRejectModal] = useState(null);
+  const [rejectReason, setRejectReason] = useState('');
+
+  const fetchPlans = async () => {
+    try {
+      const res = await api.get('/admin/plans/pending');
+      setPlans(res.data.plans || []);
+    } catch (e) {
+      toast.error('Erreur chargement');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchPlans(); }, []);
+
+  const handleApprove = async (id) => {
+    try {
+      await api.put(`/admin/plans/${id}/approve`);
+      toast.success('Plan approuvé !');
+      fetchPlans();
+    } catch (e) {
+      toast.error('Erreur approbation');
+    }
+  };
+
+  const handleReject = async (id) => {
+    try {
+      await api.put(`/admin/plans/${id}/reject`, { reason: rejectReason });
+      toast.success('Plan rejeté.');
+      setRejectModal(null);
+      setRejectReason('');
+      fetchPlans();
+    } catch (e) {
+      toast.error('Erreur rejet');
+    }
+  };
+
+  if (loading) return (
+    <div className="space-y-3">
+      {[...Array(3)].map((_, i) => <div key={i} className="card h-32 animate-pulse" />)}
+    </div>
+  );
+
+  return (
+    <div className="space-y-4 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <h2 className="font-display font-bold text-[#0F172A] dark:text-white">
+          Plans en attente ({plans.length})
+        </h2>
+        {plans.length > 0 && (
+          <span className="flex items-center gap-1 text-xs bg-yellow-100 text-yellow-700 font-bold px-3 py-1 rounded-full animate-pulse">
+            <AlertTriangle size={11} /> {plans.length} à valider
+          </span>
+        )}
+      </div>
+
+      {plans.length === 0 ? (
+        <div className="card p-12 text-center text-[#94A3B8]">
+          <CheckCircle size={48} className="mx-auto mb-3 text-[#3A7D44]" strokeWidth={1.5} />
+          <p className="font-medium dark:text-white">Aucun plan en attente</p>
+          <p className="text-sm mt-1">Tous les plans ont été traités</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {plans.map(p => {
+            const cover = (p.plan_images || []).find(i => i.is_cover) || (p.plan_images || [])[0];
+            return (
+              <div key={p.id} className="card p-5 border-l-4 border-yellow-400">
+                <div className="flex flex-col md:flex-row md:items-start gap-4">
+                  {cover && (
+                    <img src={cover.image_url} alt={p.title}
+                      className="w-full md:w-32 h-32 rounded-xl object-cover shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="flex items-center gap-1 text-xs bg-[#FEF3C7] text-yellow-700 font-bold px-2 py-0.5 rounded-full">
+                        <Clock size={10} /> En attente
+                      </span>
+                      {p.style && (
+                        <span className="flex items-center gap-1 text-xs bg-[#EBF5ED] text-[#3A7D44] font-bold px-2 py-0.5 rounded-full capitalize">
+                          <DraftingCompass size={10} /> {p.style}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-bold text-[#0F172A] dark:text-white mb-1">{p.title}</h3>
+                    {p.description && (
+                      <p className="text-sm text-[#64748B] dark:text-[#94A3B8] line-clamp-2 mb-2">
+                        {p.description}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-3 text-xs text-[#64748B] dark:text-[#94A3B8]">
+                      <span className="flex items-center gap-1"><Banknote size={11} /> {new Intl.NumberFormat('fr-FR').format(p.price)} FCFA</span>
+                      {p.bedrooms > 0 && <span className="flex items-center gap-1"><Bed size={11} /> {p.bedrooms} ch.</span>}
+                      {p.area && <span className="flex items-center gap-1"><Maximize size={11} /> {p.area}m²</span>}
+                      {p.floors > 0 && <span>{p.floors} étage(s)</span>}
+                      {p.roof_type && <span>Toiture : {p.roof_type}</span>}
+                    </div>
+                    <div className="mt-2 p-2 bg-[#F5F5F7] dark:bg-[#2A2A2A] rounded-lg">
+                      <p className="flex items-center gap-1.5 text-xs text-[#64748B] dark:text-[#94A3B8]">
+                        <User size={12} /> <strong className="text-[#0F172A] dark:text-white">{p.owner?.full_name}</strong>
+                        {p.owner?.email && ` (${p.owner.email})`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex md:flex-col gap-2">
+                    <button onClick={() => handleApprove(p.id)}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#3A7D44] text-white rounded-xl text-sm font-bold hover:bg-[#2D6235] transition-colors">
+                      <CheckCircle size={16} /> Approuver
+                    </button>
+                    <button onClick={() => setRejectModal(p)}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-500 rounded-xl text-sm font-bold hover:bg-red-100 transition-colors">
+                      <XCircle size={16} /> Rejeter
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {rejectModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-6 max-w-md w-full animate-scale-in">
+            <h3 className="font-display font-bold text-[#0F172A] dark:text-white mb-2">Rejeter le plan</h3>
             <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mb-4">"{rejectModal.title}"</p>
             <textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
               placeholder="Raison du rejet (optionnel)..."
@@ -1304,6 +1455,35 @@ function ArchitectsAdmin() {
 
   const [creating, setCreating] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [architects, setArchitects] = useState([]);
+  const [loadingList, setLoadingList] = useState(true);
+  const [togglingId, setTogglingId] = useState(null);
+
+  const fetchArchitects = async () => {
+    try {
+      const res = await api.get('/admin/architects');
+      setArchitects(res.data.architects || []);
+    } catch (e) {
+      toast.error('Erreur chargement des architectes');
+    } finally {
+      setLoadingList(false);
+    }
+  };
+
+  useEffect(() => { fetchArchitects(); }, []);
+
+  const handleToggleApproval = async (id) => {
+    setTogglingId(id);
+    try {
+      const res = await api.put(`/admin/architects/${id}/toggle-approval`);
+      toast.success(res.data.message);
+      fetchArchitects();
+    } catch (e) {
+      toast.error('Erreur');
+    } finally {
+      setTogglingId(null);
+    }
+  };
 
   const update = (field, value) => {
     setForm((previous) => ({
@@ -1498,9 +1678,183 @@ function ArchitectsAdmin() {
               ? 'Création en cours...'
               : 'Créer le compte architecte'}
           </button>
-
         </form>
       </div>
+
+      {/* Liste des architectes existants */}
+      <div className="card p-6">
+        <h3 className="font-bold text-[#0F172A] dark:text-white mb-4 flex items-center gap-2">
+          <Users size={16} className="text-[#3A7D44]" />
+          Architectes ({architects.length})
+        </h3>
+
+        {loadingList ? (
+          <div className="space-y-2">
+            {[...Array(3)].map((_, i) => <div key={i} className="h-16 rounded-xl bg-[#F5F5F7] dark:bg-[#2A2A2A] animate-pulse" />)}
+          </div>
+        ) : architects.length === 0 ? (
+          <p className="text-sm text-[#94A3B8] text-center py-6">Aucun architecte pour le moment</p>
+        ) : (
+          <div className="space-y-2">
+            {architects.map(a => (
+              <div key={a.id} className="flex items-center gap-3 p-3 bg-[#F5F5F7] dark:bg-[#2A2A2A] rounded-xl">
+                <div className="w-9 h-9 rounded-full bg-[#3A7D44] text-white flex items-center justify-center font-bold text-sm shrink-0">
+                  {a.user?.full_name?.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-[#0F172A] dark:text-white truncate">{a.user?.full_name}</p>
+                  <p className="text-xs text-[#94A3B8] truncate">{a.user?.email}{a.city && ` · ${a.city}`}</p>
+                </div>
+                <span className={`text-xs font-bold px-2 py-1 rounded-full shrink-0 ${
+                  a.is_approved ? 'bg-[#EBF5ED] text-[#3A7D44]' : 'bg-[#FEF3C7] text-yellow-700'
+                }`}>
+                  {a.is_approved ? 'Approuvé' : 'En attente'}
+                </span>
+                <button onClick={() => handleToggleApproval(a.id)} disabled={togglingId === a.id}
+                  className={`p-2 rounded-xl transition-colors shrink-0 ${
+                    a.is_approved
+                      ? 'bg-[#F5F5F7] dark:bg-[#1A1A1A] hover:bg-red-50 text-[#64748B] hover:text-red-500'
+                      : 'bg-[#3A7D44] text-white hover:bg-[#2D6235]'
+                  }`}
+                  title={a.is_approved ? "Retirer l'approbation" : 'Approuver'}>
+                  {togglingId === a.id
+                    ? <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    : a.is_approved ? <XCircle size={16} /> : <CheckCircle size={16} />
+                  }
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── DEMANDES DE PLANS ─────────────────────────────────────
+function PlanRequestsAdmin() {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
+  const [updatingId, setUpdatingId] = useState(null);
+
+  const STATUS_LABELS = {
+    nouveau: { label: 'Nouveau', classes: 'bg-[#EFF6FF] text-[#3B82F6]' },
+    en_cours: { label: 'En cours', classes: 'bg-[#FEF3C7] text-yellow-700' },
+    traite: { label: 'Traité', classes: 'bg-[#EBF5ED] text-[#3A7D44]' },
+  };
+
+  const fetchRequests = async () => {
+    try {
+      const res = await api.get('/admin/plan-requests');
+      setRequests(res.data.requests || []);
+    } catch (e) {
+      toast.error('Erreur chargement des demandes');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchRequests(); }, []);
+
+  const handleStatusChange = async (id, status) => {
+    setUpdatingId(id);
+    try {
+      await api.put(`/admin/plan-requests/${id}/status`, { status });
+      toast.success('Statut mis à jour');
+      fetchRequests();
+    } catch (e) {
+      toast.error('Erreur mise à jour');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const filtered = filter === 'all' ? requests : requests.filter(r => r.status === filter);
+
+  if (loading) return (
+    <div className="space-y-3">
+      {[...Array(3)].map((_, i) => <div key={i} className="card h-28 animate-pulse" />)}
+    </div>
+  );
+
+  return (
+    <div className="space-y-4 animate-fade-in">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <h2 className="font-display font-bold text-[#0F172A] dark:text-white flex items-center gap-2">
+          <ClipboardList size={18} className="text-[#3A7D44]" />
+          Demandes de plans sur mesure ({requests.length})
+        </h2>
+        <div className="flex bg-[#F5F5F7] dark:bg-[#2A2A2A] border border-[#E2E8F0] dark:border-[#3A3A3A] rounded-xl p-1 gap-1">
+          {[
+            { value: 'all', label: 'Toutes' },
+            { value: 'nouveau', label: 'Nouvelles' },
+            { value: 'en_cours', label: 'En cours' },
+            { value: 'traite', label: 'Traitées' },
+          ].map(f => (
+            <button key={f.value} onClick={() => setFilter(f.value)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                filter === f.value ? 'bg-[#3A7D44] text-white' : 'text-[#64748B] hover:text-[#0F172A] dark:hover:text-white'
+              }`}>
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="card p-12 text-center text-[#94A3B8]">
+          <ClipboardList size={48} className="mx-auto mb-3" strokeWidth={1.5} />
+          <p className="font-medium dark:text-white">Aucune demande</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map(r => (
+            <div key={r.id} className="card p-5">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATUS_LABELS[r.status]?.classes || ''}`}>
+                      {STATUS_LABELS[r.status]?.label || r.status}
+                    </span>
+                    <span className="text-xs text-[#94A3B8]">
+                      {new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-[#334155] dark:text-white mb-2">{r.description}</p>
+                  <div className="flex flex-wrap gap-3 text-xs text-[#64748B] dark:text-[#94A3B8]">
+                    {r.city && <span className="flex items-center gap-1"><MapPin size={11} /> {r.city}</span>}
+                    {r.bedrooms && <span className="flex items-center gap-1"><Bed size={11} /> {r.bedrooms} ch.</span>}
+                    {(r.budget_min || r.budget_max) && (
+                      <span className="flex items-center gap-1">
+                        <Banknote size={11} />
+                        {r.budget_min ? new Intl.NumberFormat('fr-FR').format(r.budget_min) : '0'} – {r.budget_max ? new Intl.NumberFormat('fr-FR').format(r.budget_max) : '?'} FCFA
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-2 p-2 bg-[#F5F5F7] dark:bg-[#2A2A2A] rounded-lg">
+                    <p className="flex items-center gap-1.5 text-xs text-[#64748B] dark:text-[#94A3B8]">
+                      <User size={12} /> <strong className="text-[#0F172A] dark:text-white">{r.user?.full_name}</strong>
+                      {r.user?.email && ` · ${r.user.email}`}
+                      {r.user?.phone && ` · ${r.user.phone}`}
+                    </p>
+                  </div>
+                </div>
+                <select
+                  value={r.status}
+                  disabled={updatingId === r.id}
+                  onChange={(e) => handleStatusChange(r.id, e.target.value)}
+                  className="input-field text-xs py-2 shrink-0"
+                >
+                  <option value="nouveau">Nouveau</option>
+                  <option value="en_cours">En cours</option>
+                  <option value="traite">Traité</option>
+                </select>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1512,13 +1866,14 @@ export default function DashboardAdmin() {
       <Routes>
         <Route index element={<Overview />} />
         <Route path="validation" element={<ValidationListings />} />
+        <Route path="validation-plans" element={<ValidationPlans />} />
         <Route path="utilisateurs" element={<UsersList />} />
         <Route path="annonces" element={<ListingsAdmin />} />
         <Route path="commerciaux" element={<CommercialsAdmin />} />
         <Route path="messages" element={<WriteToUsers />} />
         <Route path="stats" element={<StatsAdmin />} />
-        <Route path="architectes" element={<ArchitectsAdmin />}
-/>
+        <Route path="architectes" element={<ArchitectsAdmin />}/>
+        <Route path="demandes-plans" element={<PlanRequestsAdmin />} />
       </Routes>
     </DashboardLayout>
   );

@@ -31,9 +31,10 @@ const Agencies = lazy(() => import('./pages/Agencies'));
 const AgencyDetail = lazy(() => import('./pages/AgencyDetail'));
 const Plans = lazy(() => import('./pages/Plans'));
 const PlanDetail = lazy(() => import('./pages/PlanDetail'));
-const ArchitectDashboard = lazy(() =>
-  import('./pages/architect/ArchitectDashboard')
-);
+const ArchitectsDirectory = lazy(() => import('./pages/ArchitectsDirectory'));
+const ArchitectPublicProfile = lazy(() => import('./pages/ArchitectPublicProfile'));
+const RequestPlan = lazy(() => import('./pages/RequestPlan'));
+
 
 const ArchitectProfile = lazy(() =>
   import('./pages/architect/ArchitectProfile')
@@ -75,6 +76,9 @@ export default function App() {
         <Route path="/annonces/:id" element={<ListingDetail />} />
         <Route path="/plans" element={<Plans />} />
 <Route path="/plans/:id" element={<PlanDetail />} />
+<Route path="/architectes" element={<ArchitectsDirectory />} />
+<Route path="/architectes/:id" element={<ArchitectPublicProfile />} />
+<Route path="/demander-un-plan" element={<RequestPlan />} />
         <Route path="/confidentialite" element={<Privacy />} />
         <Route path="/conditions" element={<Terms />} />
         <Route path="/a-propos" element={<About />} />

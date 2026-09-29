@@ -206,17 +206,16 @@ export default function ArchitectProfile() {
             </div>
           </div>
 
-          {existingProfile?.is_approved && (
-            <div className="mt-6 flex items-center gap-2 rounded-xl bg-green-50 p-4 text-sm text-green-700 dark:bg-green-950/30 dark:text-green-400">
+                   {existingProfile?.is_approved && (
+            <div className="mt-6 flex items-center gap-2 rounded-xl bg-[#EBF5ED] p-4 text-sm text-[#3A7D44] dark:bg-[#3A7D44]/15 dark:text-[#4ade80]">
               <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
-              Votre profil est approuvé.
+              Votre profil est vérifié et visible dans l'annuaire public.
             </div>
           )}
 
           {existingProfile && !existingProfile.is_approved && (
             <div className="mt-6 rounded-xl bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
-              Votre profil est en attente de validation par l’administration.
-              Une modification du profil peut nécessiter une nouvelle validation.
+              Votre profil n'est pas encore vérifié par l'administration — vous pouvez continuer à publier des plans normalement, mais votre profil n'apparaîtra pas encore dans l'annuaire public des architectes.
             </div>
           )}
 

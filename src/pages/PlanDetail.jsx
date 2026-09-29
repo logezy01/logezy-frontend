@@ -7,12 +7,14 @@ Bath,
 Maximize,
 Layers3,
 Eye,
+
 MapPin,
 UserRound,
+ChevronRight,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import PlansNavbar from '../components/common/PlansNavbar';
+import api from '../lib/axios';
 
 export default function PlanDetail() {
 const { id } = useParams();
@@ -26,14 +28,8 @@ const fetchPlan = async () => {
 try {
 setLoading(true);
 
-
-    const response = await fetch(`${API_URL}/api/plans/${id}`);
-
-    if (!response.ok) {
-      throw new Error('Plan introuvable');
-    }
-
-    const data = await response.json();
+    const res = await api.get(`/plans/${id}`);
+    const data = res.data;
 
     setPlan(data.plan);
 
@@ -57,7 +53,7 @@ fetchPlan();
 }, [id]);
 
 if (loading) {
-return ( <div className="min-h-screen bg-slate-50 dark:bg-[#080B14]"> <div className="mx-auto max-w-7xl animate-pulse px-4 py-10 sm:px-6 lg:px-8"> <div className="h-5 w-32 rounded bg-slate-200 dark:bg-slate-800" />
+return ( <div className="min-h-screen bg-slate-50 dark:bg-[#080B14]"> <PlansNavbar /><div className="mx-auto max-w-7xl animate-pulse px-4 py-10 sm:px-6 lg:px-8"> <div className="h-5 w-32 rounded bg-slate-200 dark:bg-slate-800" />
 
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2">
@@ -77,7 +73,7 @@ return ( <div className="min-h-screen bg-slate-50 dark:bg-[#080B14]"> <div class
 }
 
 if (!plan) {
-return ( <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-[#080B14]"> <div className="text-center"> <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+return ( <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-[#080B14]"> <PlansNavbar /> <div className="text-center"> <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
 Plan introuvable </h1>
 
 
@@ -101,7 +97,7 @@ Plan introuvable </h1>
 const images = plan.plan_images || [];
 const architect = plan.owner?.architect_profile;
 
-return ( <div className="min-h-screen bg-slate-50 dark:bg-[#080B14]"> <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8"> <Link
+return ( <div className="min-h-screen bg-slate-50 dark:bg-[#080B14]"> <PlansNavbar /> <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 pt-28"> <Link
        to="/plans"
        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#3A7D44] dark:text-slate-300"
      > <ArrowLeft className="h-4 w-4" />
@@ -241,6 +237,16 @@ Retour aux plans </Link>
               <span className="font-medium">Spécialités :</span>{' '}
               {architect.specialties}
             </p>
+          )}
+
+          {architect?.id && (
+            <Link
+              to={`/architectes/${architect.id}`}
+              className="mt-5 flex items-center justify-between rounded-xl bg-[#EBF5ED] px-4 py-3 text-sm font-semibold text-[#3A7D44] transition hover:bg-[#3A7D44]/15 dark:bg-[#16351d]"
+            >
+              Voir le profil complet
+              <ChevronRight className="h-4 w-4" />
+            </Link>
           )}
         </div>
       </section>
