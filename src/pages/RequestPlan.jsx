@@ -71,7 +71,7 @@ export default function RequestPlan() {
               <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                 Notre équipe va étudier votre projet et vous recontacter prochainement.
               </p>
-              <Link to="/plans" className="mt-6 inline-flex rounded-xl bg-[#3A7D44] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#2D6235]">
+              <Link to="/plans/annonces" className="mt-6 inline-flex rounded-xl bg-[#3A7D44] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#2D6235]">
                 Parcourir les plans existants
               </Link>
             </div>

@@ -45,11 +45,11 @@ export default function PlansNavbar() {
   const isActive = (path) => location.pathname === path;
 
   const links = [
-    { path: '/plans', label: 'Tous les plans' },
+    { path: '/plans', label: 'Accueil' },
+    { path: '/plans/annonces', label: 'Tous les plans' },
     { path: '/architectes', label: 'Architectes' },
     { path: '/demander-un-plan', label: 'Demander un plan' },
   ];
-
   const navBg = scrolled
     ? 'bg-white/70 dark:bg-slate-950/70 backdrop-blur-2xl border-b border-white/60 dark:border-white/10 shadow-sm'
     : 'bg-white/50 dark:bg-slate-950/50 backdrop-blur-xl border-b border-white/40 dark:border-white/5';

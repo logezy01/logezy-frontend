@@ -30,6 +30,7 @@ const DashboardCommercial = lazy(() => import('./pages/dashboard/DashboardCommer
 const Agencies = lazy(() => import('./pages/Agencies'));
 const AgencyDetail = lazy(() => import('./pages/AgencyDetail'));
 const Plans = lazy(() => import('./pages/Plans'));
+const PlansHome = lazy(() => import('./pages/PlansHome'));
 const PlanDetail = lazy(() => import('./pages/PlanDetail'));
 const ArchitectsDirectory = lazy(() => import('./pages/ArchitectsDirectory'));
 const ArchitectPublicProfile = lazy(() => import('./pages/ArchitectPublicProfile'));
@@ -74,11 +75,12 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/annonces" element={<Listings />} />
         <Route path="/annonces/:id" element={<ListingDetail />} />
-        <Route path="/plans" element={<Plans />} />
-<Route path="/plans/:id" element={<PlanDetail />} />
-<Route path="/architectes" element={<ArchitectsDirectory />} />
-<Route path="/architectes/:id" element={<ArchitectPublicProfile />} />
-<Route path="/demander-un-plan" element={<RequestPlan />} />
+        <Route path="/plans" element={<PlansHome />} />
+        <Route path="/plans/annonces" element={<Plans />} />
+        <Route path="/plans/:id" element={<PlanDetail />} />
+        <Route path="/architectes" element={<ArchitectsDirectory />} />
+        <Route path="/architectes/:id" element={<ArchitectPublicProfile />} />
+        <Route path="/demander-un-plan" element={<RequestPlan />} />
         <Route path="/confidentialite" element={<Privacy />} />
         <Route path="/conditions" element={<Terms />} />
         <Route path="/a-propos" element={<About />} />
