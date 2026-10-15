@@ -4,8 +4,8 @@ import {
   Eye, CheckCircle, XCircle, Users, Home, Search, Trash2, Ban, Mail, Send,
   LayoutDashboard, Clock, TrendingUp, Briefcase, UserPlus, Building2,
   Crown, Key, Tag, MapPin, Banknote, Bed, Maximize, User, Hand, List,
-  AlertTriangle, PauseCircle, MessageCircle, Handshake, Settings, Lightbulb, Pin,DraftingCompass,ClipboardList,
-  BarChart3, SlidersHorizontal,
+  AlertTriangle, PauseCircle, MessageCircle, Handshake, Settings, Lightbulb, Pin, DraftingCompass, ClipboardList,
+  BarChart3, SlidersHorizontal, CalendarDays, RefreshCw, Phone,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
@@ -1742,7 +1742,10 @@ function PlanRequestsAdmin() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
   const [updatingId, setUpdatingId] = useState(null);
+  const [loadError, setLoadError] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const STATUS_LABELS = {
     nouveau: { label: 'Nouveau', classes: 'bg-[#EFF6FF] text-[#3B82F6]' },
@@ -1754,10 +1757,13 @@ function PlanRequestsAdmin() {
     try {
       const res = await api.get('/admin/plan-requests');
       setRequests(res.data.requests || []);
-    } catch (e) {
+      setLoadError(false);
+    } catch {
+      setLoadError(true);
       toast.error('Erreur chargement des demandes');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -1769,95 +1775,245 @@ function PlanRequestsAdmin() {
       await api.put(`/admin/plan-requests/${id}/status`, { status });
       toast.success('Statut mis à jour');
       fetchRequests();
-    } catch (e) {
+    } catch {
       toast.error('Erreur mise à jour');
     } finally {
       setUpdatingId(null);
     }
   };
 
-  const filtered = filter === 'all' ? requests : requests.filter(r => r.status === filter);
+  const counts = requests.reduce((result, request) => {
+    result[request.status] = (result[request.status] || 0) + 1;
+    return result;
+  }, {});
+  const query = search.trim().toLocaleLowerCase('fr');
+  const filtered = requests.filter((request) => {
+    const matchesStatus = filter === 'all' || request.status === filter;
+    const searchable = [
+      request.description,
+      request.city,
+      request.user?.full_name,
+      request.user?.email,
+      request.user?.phone,
+    ].filter(Boolean).join(' ').toLocaleLowerCase('fr');
+    return matchesStatus && (!query || searchable.includes(query));
+  });
+  const formatBudget = (value) => new Intl.NumberFormat('fr-FR').format(Number(value) || 0);
+  const formatRequestDate = (value) => {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+      ? 'Date non disponible'
+      : new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+  };
+  const statusFilters = [
+    { value: 'all', label: 'Toutes', count: requests.length },
+    { value: 'nouveau', label: 'Nouvelles', count: counts.nouveau || 0 },
+    { value: 'en_cours', label: 'En cours', count: counts.en_cours || 0 },
+    { value: 'traite', label: 'Traitées', count: counts.traite || 0 },
+  ];
 
   if (loading) return (
-    <div className="space-y-3">
-      {[...Array(3)].map((_, i) => <div key={i} className="card h-28 animate-pulse" />)}
+    <div className="space-y-5 animate-pulse">
+      <div className="h-28 rounded-2xl bg-[#F1F5F9] dark:bg-[#242424]" />
+      <div className="grid gap-4 sm:grid-cols-3">
+        {[...Array(3)].map((_, i) => <div key={i} className="card h-24" />)}
+      </div>
+      <div className="grid gap-4 xl:grid-cols-2">
+        {[...Array(2)].map((_, i) => <div key={i} className="card h-64" />)}
+      </div>
     </div>
   );
 
   return (
-    <div className="space-y-4 animate-fade-in">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <h2 className="font-display font-bold text-[#0F172A] dark:text-white flex items-center gap-2">
-          <ClipboardList size={18} className="text-[#3A7D44]" />
-          Demandes de plans sur mesure ({requests.length})
-        </h2>
-        <div className="flex bg-[#F5F5F7] dark:bg-[#2A2A2A] border border-[#E2E8F0] dark:border-[#3A3A3A] rounded-xl p-1 gap-1">
-          {[
-            { value: 'all', label: 'Toutes' },
-            { value: 'nouveau', label: 'Nouvelles' },
-            { value: 'en_cours', label: 'En cours' },
-            { value: 'traite', label: 'Traitées' },
-          ].map(f => (
-            <button key={f.value} onClick={() => setFilter(f.value)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                filter === f.value ? 'bg-[#3A7D44] text-white' : 'text-[#64748B] hover:text-[#0F172A] dark:hover:text-white'
-              }`}>
-              {f.label}
+    <div className="space-y-6 animate-fade-in">
+      <header className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#163A2B] via-[#24573D] to-[#3A7D44] p-6 text-white shadow-lg sm:p-8">
+        <div className="pointer-events-none absolute -right-12 -top-20 h-64 w-64 rounded-full border-[32px] border-white/5" />
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="max-w-2xl">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/85">
+              <ClipboardList size={14} /> Espace de suivi
+            </div>
+            <h2 className="font-display text-2xl font-black tracking-tight sm:text-3xl">Demandes de plans sur mesure</h2>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/75">
+              Retrouvez les besoins des clients, consultez leurs critères et suivez chaque demande jusqu’à son traitement.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => { setRefreshing(true); fetchRequests(); }}
+            disabled={refreshing}
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20 disabled:cursor-wait disabled:opacity-70"
+          >
+            <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+            Actualiser
+          </button>
+        </div>
+      </header>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        {[
+          { label: 'Toutes les demandes', value: requests.length, color: 'text-[#3A7D44]', icon: ClipboardList, tone: 'bg-[#EBF5ED] dark:bg-[#183321]' },
+          { label: 'À traiter', value: (counts.nouveau || 0) + (counts.en_cours || 0), color: 'text-amber-600 dark:text-amber-400', icon: Clock, tone: 'bg-amber-50 dark:bg-amber-950/40' },
+          { label: 'Traitées', value: counts.traite || 0, color: 'text-blue-600 dark:text-blue-400', icon: CheckCircle, tone: 'bg-blue-50 dark:bg-blue-950/40' },
+        ].map(({ label, value, color, icon: Icon, tone }) => (
+          <div key={label} className="card flex items-center gap-4 p-5 transition hover:-translate-y-0.5 hover:shadow-float">
+            <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${tone} ${color}`}>
+              <Icon size={21} />
+            </span>
+            <div>
+              <p className={`font-display text-2xl font-black ${color}`}>{value}</p>
+              <p className="mt-0.5 text-sm text-[#64748B] dark:text-[#94A3B8]">{label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <section className="card space-y-4 p-4 sm:p-5">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <h3 className="font-display font-bold text-[#0F172A] dark:text-white">Boîte de demandes</h3>
+            <p className="mt-1 text-xs text-[#64748B] dark:text-[#94A3B8]">
+              {filtered.length} résultat{filtered.length > 1 ? 's' : ''} sur {requests.length}
+            </p>
+          </div>
+          <label className="relative block w-full xl:max-w-sm">
+            <Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Rechercher une ville, un client…"
+              aria-label="Rechercher une demande de plan"
+              className="input-field w-full py-2.5 pl-10"
+            />
+          </label>
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {statusFilters.map((item) => (
+            <button
+              key={item.value}
+              type="button"
+              onClick={() => setFilter(item.value)}
+              aria-pressed={filter === item.value}
+              className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold transition ${
+                filter === item.value
+                  ? 'bg-[#3A7D44] text-white shadow-sm'
+                  : 'bg-[#F5F5F7] text-[#64748B] hover:bg-[#EBF5ED] hover:text-[#24573D] dark:bg-[#252525] dark:text-[#94A3B8] dark:hover:bg-[#183321] dark:hover:text-white'
+              }`}
+            >
+              {item.label}
+              <span className={`rounded-md px-1.5 py-0.5 text-[10px] ${filter === item.value ? 'bg-white/20 text-white' : 'bg-white text-[#64748B] dark:bg-[#333] dark:text-[#CBD5E1]'}`}>
+                {item.count}
+              </span>
             </button>
           ))}
         </div>
-      </div>
+      </section>
 
-      {filtered.length === 0 ? (
-        <div className="card p-12 text-center text-[#94A3B8]">
-          <ClipboardList size={48} className="mx-auto mb-3" strokeWidth={1.5} />
-          <p className="font-medium dark:text-white">Aucune demande</p>
+      {loadError ? (
+        <div className="card flex flex-col items-center gap-3 p-10 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500 dark:bg-red-950/40">
+            <AlertTriangle size={22} />
+          </span>
+          <div>
+            <p className="font-semibold text-[#0F172A] dark:text-white">Impossible de charger les demandes</p>
+            <p className="mt-1 text-sm text-[#64748B] dark:text-[#94A3B8]">Vérifiez votre connexion puis réessayez.</p>
+          </div>
+          <button type="button" onClick={() => { setLoading(true); fetchRequests(); }} className="btn-secondary px-4 py-2 text-sm">
+            Réessayer
+          </button>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="card flex flex-col items-center p-10 text-center sm:p-14">
+          <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EBF5ED] text-[#3A7D44] dark:bg-[#183321]">
+            <ClipboardList size={30} strokeWidth={1.5} />
+          </span>
+          <p className="font-display text-lg font-bold text-[#0F172A] dark:text-white">
+            {requests.length ? 'Aucun résultat pour ces filtres' : 'Aucune demande pour le moment'}
+          </p>
+          <p className="mt-1 max-w-md text-sm text-[#64748B] dark:text-[#94A3B8]">
+            {requests.length ? 'Modifiez votre recherche ou sélectionnez un autre statut.' : 'Les nouvelles demandes de plans apparaîtront ici.'}
+          </p>
+          {(search || filter !== 'all') && (
+            <button type="button" onClick={() => { setSearch(''); setFilter('all'); }} className="mt-4 text-sm font-semibold text-[#3A7D44] hover:underline">
+              Effacer les filtres
+            </button>
+          )}
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid gap-4 xl:grid-cols-2">
           {filtered.map(r => (
-            <div key={r.id} className="card p-5">
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATUS_LABELS[r.status]?.classes || ''}`}>
-                      {STATUS_LABELS[r.status]?.label || r.status}
-                    </span>
-                    <span className="text-xs text-[#94A3B8]">
-                      {new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </span>
-                  </div>
-                  <p className="text-sm text-[#334155] dark:text-white mb-2">{r.description}</p>
-                  <div className="flex flex-wrap gap-3 text-xs text-[#64748B] dark:text-[#94A3B8]">
-                    {r.city && <span className="flex items-center gap-1"><MapPin size={11} /> {r.city}</span>}
-                    {r.bedrooms && <span className="flex items-center gap-1"><Bed size={11} /> {r.bedrooms} ch.</span>}
-                    {(r.budget_min || r.budget_max) && (
-                      <span className="flex items-center gap-1">
-                        <Banknote size={11} />
-                        {r.budget_min ? new Intl.NumberFormat('fr-FR').format(r.budget_min) : '0'} – {r.budget_max ? new Intl.NumberFormat('fr-FR').format(r.budget_max) : '?'} FCFA
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-2 p-2 bg-[#F5F5F7] dark:bg-[#2A2A2A] rounded-lg">
-                    <p className="flex items-center gap-1.5 text-xs text-[#64748B] dark:text-[#94A3B8]">
-                      <User size={12} /> <strong className="text-[#0F172A] dark:text-white">{r.user?.full_name}</strong>
-                      {r.user?.email && ` · ${r.user.email}`}
-                      {r.user?.phone && ` · ${r.user.phone}`}
-                    </p>
-                  </div>
+            <article key={r.id} className="card overflow-hidden transition hover:-translate-y-0.5 hover:shadow-float">
+              <div className="flex items-center justify-between gap-3 border-b border-[#E2E8F0] bg-[#FAFBFC] px-5 py-4 dark:border-[#2A2A2A] dark:bg-[#202020]">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${r.status === 'nouveau' ? 'bg-blue-500' : r.status === 'en_cours' ? 'bg-amber-500' : 'bg-[#3A7D44]'}`} />
+                  <span className={`truncate rounded-full px-2.5 py-1 text-[11px] font-bold ${STATUS_LABELS[r.status]?.classes || 'bg-slate-100 text-slate-600'}`}>
+                    {STATUS_LABELS[r.status]?.label || r.status}
+                  </span>
+                  <span className="hidden items-center gap-1.5 text-xs text-[#64748B] dark:text-[#94A3B8] sm:inline-flex">
+                    <CalendarDays size={13} /> {formatRequestDate(r.created_at)}
+                  </span>
                 </div>
                 <select
                   value={r.status}
                   disabled={updatingId === r.id}
                   onChange={(e) => handleStatusChange(r.id, e.target.value)}
-                  className="input-field text-xs py-2 shrink-0"
+                  aria-label={`Modifier le statut de la demande de ${r.user?.full_name || 'cet utilisateur'}`}
+                  className="input-field w-auto max-w-[145px] shrink-0 py-2 text-xs"
                 >
                   <option value="nouveau">Nouveau</option>
                   <option value="en_cours">En cours</option>
                   <option value="traite">Traité</option>
                 </select>
               </div>
-            </div>
+              <div className="space-y-5 p-5">
+                <div>
+                  <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#94A3B8]">Projet recherché</p>
+                  <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[#334155] dark:text-[#E2E8F0]">
+                    {r.description || 'Aucune précision fournie.'}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <div className="rounded-xl bg-[#F8FAFC] p-3 dark:bg-[#222]">
+                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#94A3B8]">Localisation</p>
+                    <p className="flex items-center gap-1.5 text-xs font-semibold text-[#334155] dark:text-[#E2E8F0]">
+                      <MapPin size={13} className="shrink-0 text-[#3A7D44]" /> {r.city || 'Non précisée'}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-[#F8FAFC] p-3 dark:bg-[#222]">
+                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#94A3B8]">Chambres</p>
+                    <p className="flex items-center gap-1.5 text-xs font-semibold text-[#334155] dark:text-[#E2E8F0]">
+                      <Bed size={13} className="shrink-0 text-[#3A7D44]" /> {r.bedrooms ?? '—'}
+                    </p>
+                  </div>
+                  <div className="col-span-2 rounded-xl bg-[#F8FAFC] p-3 dark:bg-[#222] sm:col-span-1">
+                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#94A3B8]">Budget estimé</p>
+                    <p className="flex items-center gap-1.5 text-xs font-semibold text-[#334155] dark:text-[#E2E8F0]">
+                      <Banknote size={13} className="shrink-0 text-[#3A7D44]" />
+                      {r.budget_min != null || r.budget_max != null
+                        ? `${r.budget_min != null ? formatBudget(r.budget_min) : '—'} – ${r.budget_max != null ? formatBudget(r.budget_max) : '—'} FCFA`
+                        : 'Non précisé'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-3 rounded-2xl border border-[#E2E8F0] bg-white p-4 dark:border-[#333] dark:bg-[#1D1D1D] sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EBF5ED] font-bold text-[#3A7D44] dark:bg-[#183321]">
+                      {(r.user?.full_name || 'U').trim().charAt(0).toUpperCase()}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-[#0F172A] dark:text-white">{r.user?.full_name || 'Utilisateur'}</p>
+                      <p className="truncate text-xs text-[#64748B] dark:text-[#94A3B8]">{r.user?.email || 'Coordonnées non disponibles'}</p>
+                    </div>
+                  </div>
+                  {r.user?.phone && (
+                    <a href={`tel:${r.user.phone}`} className="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-[#EBF5ED] px-3 py-2 text-xs font-semibold text-[#24573D] transition hover:bg-[#D9EBDD] dark:bg-[#183321] dark:text-[#B7E4C0] sm:self-auto">
+                      <Phone size={13} /> {r.user.phone}
+                    </a>
+                  )}
+                </div>
+              </div>
+            </article>
           ))}
         </div>
       )}
