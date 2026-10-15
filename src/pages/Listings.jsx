@@ -5,6 +5,7 @@ import Navbar from '../components/common/Navbar';
 import ListingCard from '../components/common/ListingCard';
 import MapView from '../components/common/MapView';
 import SaveSearch from '../components/common/SaveSearch';
+import CurrencySelect from '../components/common/CurrencySelect';
 import api from '../lib/axios';
 import SkeletonCard from '../components/common/SkeletonCard';
 import { LISTING_CATEGORIES, getCategoryIcon, getCategoryLabel } from '../data/listingCategories';
@@ -33,6 +34,7 @@ export default function Listings() {
     city: searchParams.get('city') || '',
     type: searchParams.get('type') || '',
     category: searchParams.get('category') || '',
+    currency_code: searchParams.get('currency_code') || '',
     bedrooms: '',
     min_price: '',
     max_price: '',
@@ -98,9 +100,12 @@ export default function Listings() {
 
   const handleSearch = (e) => { e?.preventDefault(); fetchListings(); };
   const handleReset = () => {
-    const cleared = { city: '', type: '', category: '', bedrooms: '', min_price: '', max_price: '' };
+    const cleared = {
+      city: '', type: '', category: '', bedrooms: '',
+      min_price: '', max_price: '', currency_code: '',
+    };
     setFilters(cleared);
-    setTimeout(() => fetchListings(cleared), 100);
+    fetchListings(cleared);
   };
   const update = (f, v) => setFilters(p => ({ ...p, [f]: v }));
   const activeFiltersCount = Object.values(filters).filter(v => v !== '').length;
@@ -293,7 +298,7 @@ export default function Listings() {
             <div className="mt-4 animate-slide-down">
               <form onSubmit={handleSearch}
                 className="glass-panel rounded-[26px] p-4">
-                <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3 mb-4">
                   {[
                     {
                       label: 'Ville', field: 'city', type: 'select',
@@ -311,14 +316,23 @@ export default function Listings() {
                       label: 'Chambres min.', field: 'bedrooms', type: 'select',
                       options: [{ value: '', label: 'Peu importe' }, ...[1,2,3,4,5].map(n => ({ value: n, label: `${n}+` }))]
                     },
-                    { label: 'Prix min (FCFA)', field: 'min_price', type: 'number', placeholder: 'Ex: 50 000' },
-                    { label: 'Prix max (FCFA)', field: 'max_price', type: 'number', placeholder: 'Ex: 500 000' },
+                    { label: 'Devise', field: 'currency_code', type: 'currency' },
+                    { label: `Prix min${filters.currency_code ? ` (${filters.currency_code})` : ''}`, field: 'min_price', type: 'number', placeholder: 'Ex: 50 000' },
+                    { label: `Prix max${filters.currency_code ? ` (${filters.currency_code})` : ''}`, field: 'max_price', type: 'number', placeholder: 'Ex: 500 000' },
                   ].map(f => (
                     <div key={f.field}>
                       <label className="block text-xs font-bold text-[#334155] dark:text-[#94A3B8] mb-1.5">
                         {f.label}
                       </label>
-                      {f.type === 'select' ? (
+                      {f.type === 'currency' ? (
+                        <CurrencySelect
+                          value={filters.currency_code}
+                          onChange={(value) => update('currency_code', value)}
+                          allowAll
+                          required={Boolean(filters.min_price || filters.max_price)}
+                          className="glass-filter-btn w-full px-3 py-2.5 rounded-xl text-[#0F172A] dark:text-white text-xs outline-none"
+                        />
+                      ) : f.type === 'select' ? (
                         <select value={filters[f.field]} onChange={(e) => update(f.field, e.target.value)}
                           className="glass-filter-btn w-full px-3 py-2.5 rounded-xl text-[#0F172A] dark:text-white text-xs outline-none">
                           {f.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}

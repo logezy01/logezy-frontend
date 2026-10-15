@@ -4,6 +4,7 @@ import useAuthStore from './store/authStore';
 import BottomNav from './components/common/BottomNav';
 import CompareBar from './components/common/CompareBar';
 import ChatBot from './components/common/ChatBot';
+import SiteRuntime from './components/common/SiteRuntime';
 import NotFound from './pages/NotFound';
 
 // Lazy loading — chaque page est chargée seulement quand nécessaire
@@ -164,6 +165,7 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
         
       </Routes>
+      <SiteRuntime />
       <BottomNav />
       <CompareBar />
       <ChatBot />

@@ -10,6 +10,8 @@ import ListingCard from '../../components/common/ListingCard';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
 import AdminMessages from '../../components/common/AdminMessages';
+import CurrencySelect from '../../components/common/CurrencySelect';
+import { formatCurrency } from '../../data/currencies';
 
 const MENU = [
   { path: '/dashboard/locataire', icon: LayoutDashboard, label: 'Vue générale' },
@@ -141,17 +143,17 @@ function SearchPage() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
-    city: '', type: '', bedrooms: '', min_price: '', max_price: ''
+    city: '', type: '', bedrooms: '', min_price: '', max_price: '', currency_code: ''
   });
 
   const CITIES = ['Cotonou', 'Porto-Novo', 'Parakou', 'Abomey-Calavi', 'Bohicon', 'Natitingou', 'Ouidah', 'Lokossa'];
 
-  const handleSearch = async (e) => {
+  const handleSearch = async (e, searchFilters = filters) => {
     e?.preventDefault();
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      Object.entries(filters).forEach(([k, v]) => { if (v) params.append(k, v); });
+      Object.entries(searchFilters).forEach(([k, v]) => { if (v) params.append(k, v); });
       const res = await api.get(`/listings?${params.toString()}`);
       setListings(res.data.listings || []);
     } catch (e) {
@@ -166,8 +168,11 @@ function SearchPage() {
   const update = (f, v) => setFilters(p => ({ ...p, [f]: v }));
 
   const handleReset = () => {
-    setFilters({ city: '', type: '', bedrooms: '', min_price: '', max_price: '' });
-    setTimeout(() => handleSearch(), 100);
+    const cleared = {
+      city: '', type: '', bedrooms: '', min_price: '', max_price: '', currency_code: '',
+    };
+    setFilters(cleared);
+    handleSearch(null, cleared);
   };
 
   return (
@@ -201,12 +206,25 @@ function SearchPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#334155] dark:text-[#94A3B8] mb-1">Prix min (FCFA)</label>
+              <label className="block text-xs font-medium text-[#334155] dark:text-[#94A3B8] mb-1">Devise</label>
+              <CurrencySelect
+                value={filters.currency_code}
+                onChange={(value) => update('currency_code', value)}
+                allowAll
+                required={Boolean(filters.min_price || filters.max_price)}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-[#334155] dark:text-[#94A3B8] mb-1">
+                Prix min{filters.currency_code ? ` (${filters.currency_code})` : ''}
+              </label>
               <input type="number" placeholder="Ex: 50000" value={filters.min_price}
                 onChange={(e) => update('min_price', e.target.value)} className="input-field" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#334155] dark:text-[#94A3B8] mb-1">Prix max (FCFA)</label>
+              <label className="block text-xs font-medium text-[#334155] dark:text-[#94A3B8] mb-1">
+                Prix max{filters.currency_code ? ` (${filters.currency_code})` : ''}
+              </label>
               <input type="number" placeholder="Ex: 500000" value={filters.max_price}
                 onChange={(e) => update('max_price', e.target.value)} className="input-field" />
             </div>
@@ -431,8 +449,8 @@ function Alerts() {
                           <Bed size={10} /> {alert.bedrooms}+ ch.
                         </span>
                       )}
-                      {alert.min_price && <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">Min: {new Intl.NumberFormat('fr-FR').format(alert.min_price)} FCFA</span>}
-                      {alert.max_price && <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">Max: {new Intl.NumberFormat('fr-FR').format(alert.max_price)} FCFA</span>}
+                      {alert.min_price !== null && alert.min_price !== undefined && <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">Min: {formatCurrency(alert.min_price, alert.currency_code || 'XOF')}</span>}
+                      {alert.max_price !== null && alert.max_price !== undefined && <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">Max: {formatCurrency(alert.max_price, alert.currency_code || 'XOF')}</span>}
                     </div>
                     {alert.last_sent_at && (
                       <p className="text-xs text-[#94A3B8] mt-1">

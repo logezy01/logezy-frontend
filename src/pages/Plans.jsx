@@ -17,134 +17,11 @@ FileImage,
 } from "lucide-react";
 import api from "../lib/axios";
 import PlansNavbar from '../components/common/PlansNavbar';
+import PlanCard from '../components/common/PlanCard';
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-const STYLES = [
-"Moderne",
-"Contemporain",
-"Traditionnel",
-"Minimaliste",
-"Africain",
-"Luxe",
-];
 
-function formatPrice(price) {
-if (price === null || price === undefined || price === "") {
-return "Prix sur demande";
-}
-
-return `${new Intl.NumberFormat("fr-FR").format(Number(price))} FCFA`;
-}
-
-function getCoverImage(plan) {
-const images = [...(plan?.plan_images || [])].sort(
-(a, b) => (a.order_index || 0) - (b.order_index || 0)
-);
-
-const cover = images.find((image) => image.is_cover) || images[0];
-
-if (!cover?.image_url) return null;
-
-if (
-cover.image_url.startsWith("http://") ||
-cover.image_url.startsWith("https://")
-) {
-return cover.image_url;
-}
-
-return `${API_URL.replace("/api", "")}${cover.image_url}`;
-}
-
-function PlanCard({ plan }) {
-const image = getCoverImage(plan);
-
-return ( <article className="group overflow-hidden rounded-[26px] border border-white/60 bg-white/65 shadow-card backdrop-blur-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-slate-900/60"> <div className="relative aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-800">
-{image ? ( <img
-         src={image}
-         alt={plan.title}
-         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-       />
-) : ( <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900"> <FileImage className="h-14 w-14 text-slate-400" /> </div>
-)}
-
-```
-    <div className="absolute left-4 top-4 rounded-full border border-white/70 bg-white/75 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/70 dark:text-white">
-      Plan architectural
-    </div>
-  </div>
-
-  <div className="p-5">
-    <div className="mb-2 flex items-start justify-between gap-3">
-      <h2 className="line-clamp-2 font-display text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
-        {plan.title}
-      </h2>
-
-      {plan.price !== null && plan.price !== undefined && (
-        <span className="shrink-0 text-sm font-bold text-[#3A7D44]">
-          {formatPrice(plan.price)}
-        </span>
-      )}
-    </div>
-
-    {plan.description && (
-      <p className="mb-4 line-clamp-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
-        {plan.description}
-      </p>
-    )}
-
-    <div className="mb-4 grid grid-cols-2 gap-2">
-      <InfoChip
-        icon={<BedDouble size={15} />}
-        label={`${plan.bedrooms || 0} chambre${
-          Number(plan.bedrooms) > 1 ? "s" : ""
-        }`}
-      />
-
-      <InfoChip
-        icon={<Bath size={15} />}
-        label={`${plan.bathrooms || 0} salle${
-          Number(plan.bathrooms) > 1 ? "s" : ""
-        } de bain`}
-      />
-
-      <InfoChip
-        icon={<Ruler size={15} />}
-        label={plan.area ? `${plan.area} m²` : "Surface NC"}
-      />
-
-      <InfoChip
-        icon={<Layers3 size={15} />}
-        label={`${plan.floors || 0} niveau${
-          Number(plan.floors) > 1 ? "x" : ""
-        }`}
-      />
-    </div>
-
-    <div className="mb-4 flex flex-wrap gap-2">
-      {plan.style && <Tag>{plan.style}</Tag>}
-      {plan.roof_type && <Tag>{plan.roof_type}</Tag>}
-    </div>
-
-    {plan.owner?.architect_profile?.city && (
-      <div className="mb-4 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-        <MapPin size={16} className="text-[#3A7D44]" />
-        <span>{plan.owner.architect_profile.city}</span>
-      </div>
-    )}
-
-    <Link
-      to={`/plans/${plan.id}`}
-      className="flex w-full items-center justify-center rounded-[12px] border border-[#3A7D44]/20 bg-[#3A7D44]/10 px-4 py-3 text-sm font-semibold text-[#3A7D44] transition hover:bg-[#3A7D44]/15 active:scale-[0.98]"
-    >
-      Voir le plan
-    </Link>
-  </div>
-</article>
-
-
-);
-}
 
 function InfoChip({ icon, label }) {
 return ( <div className="flex items-center gap-2 rounded-[12px] border border-slate-200/70 bg-white/50 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300"> <span className="text-[#3A7D44]">{icon}</span> <span className="truncate">{label}</span> </div>
@@ -250,11 +127,11 @@ min_price: "",
 max_price: "",
 };
 
-```
+
 setDraftFilters(emptyFilters);
 setFilters(emptyFilters);
 setShowFilters(false);
-```
+
 
 };
 

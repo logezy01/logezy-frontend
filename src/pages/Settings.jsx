@@ -6,6 +6,8 @@ import Navbar from '../components/common/Navbar';
 import useAuthStore from '../store/authStore';
 import api from '../lib/axios';
 import useThemeStore from '../store/themeStore';
+import { CountryMultiSelect } from '../components/common/CountrySelect';
+import { getCountryName } from '../data/countries';
 
 export default function Settings() {
   const { user, logout, updateUser } = useAuthStore();
@@ -24,6 +26,15 @@ export default function Settings() {
     full_name: user?.full_name || '',
     phone: user?.phone || '',
   });
+  const [feedCountries, setFeedCountries] = useState(
+    user?.feed_country_codes?.length ? user.feed_country_codes : [user?.country_code || 'BJ']
+  );
+  const [allAudienceCountries, setAllAudienceCountries] = useState(
+    !Array.isArray(user?.listing_visibility_country_codes)
+  );
+  const [audienceCountries, setAudienceCountries] = useState(
+    user?.listing_visibility_country_codes || []
+  );
   const [passwords, setPasswords] = useState({
     current: '', new: '', confirm: ''
   });
@@ -63,6 +74,36 @@ export default function Settings() {
     }
   };
 
+  const handleSaveCountrySettings = async () => {
+    if (feedCountries.length === 0) {
+      toast.error('Sélectionnez au moins un pays pour votre fil.');
+      return;
+    }
+    if (
+      ['proprietaire', 'agent'].includes(user?.role) &&
+      !allAudienceCountries &&
+      audienceCountries.length === 0
+    ) {
+      toast.error('Sélectionnez au moins un pays pour l’audience de vos annonces.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const payload = { feed_country_codes: feedCountries };
+      if (['proprietaire', 'agent'].includes(user?.role)) {
+        payload.listing_visibility_country_codes = allAudienceCountries ? null : audienceCountries;
+      }
+      const res = await api.put('/auth/profile', payload);
+      updateUser(res.data.user);
+      toast.success('Préférences de pays enregistrées.');
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Erreur lors de l’enregistrement des préférences.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDeleteAccount = () => {
     if (confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')) {
       toast.error('Fonctionnalité bientôt disponible');
@@ -71,6 +112,7 @@ export default function Settings() {
 
   const SECTIONS = [
     { id: 'profil', icon: '👤', label: 'Profil' },
+    { id: 'visibilite', icon: '🌍', label: 'Pays & visibilité' },
     { id: 'apparence', icon: '🎨', label: 'Apparence' },
     { id: 'notifications', icon: '🔔', label: 'Notifications' },
     { id: 'langue', icon: '🌍', label: 'Langue' },
@@ -184,6 +226,58 @@ export default function Settings() {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* APPARENCE */}
+            {activeSection === 'visibilite' && (
+              <div className="card p-6">
+                <h2 className="font-display font-bold text-[#0F172A] mb-2">Pays et visibilité</h2>
+                <p className="text-sm text-[#64748B] mb-5">
+                  Pays détecté pour votre compte : <strong>{getCountryName(user?.country_code) || 'Non renseigné'}</strong>.
+                  Votre sélection de fil reste enregistrée même si vous voyagez.
+                </p>
+
+                <div className="mb-6">
+                  <h3 className="mb-2 text-sm font-bold text-[#334155]">Pays des annonces de mon fil</h3>
+                  <p className="mb-3 text-xs text-[#64748B]">
+                    À l’inscription, votre pays détecté est sélectionné par défaut. Vous pouvez en ajouter plusieurs.
+                  </p>
+                  <CountryMultiSelect value={feedCountries} onChange={setFeedCountries} />
+                </div>
+
+                {['proprietaire', 'agent'].includes(user?.role) && (
+                  <div className="mb-6 border-t border-[#E2E8F0] pt-5">
+                    <h3 className="mb-2 text-sm font-bold text-[#334155]">Qui peut voir mes annonces ?</h3>
+                    <label className="mb-3 flex cursor-pointer items-start gap-2 text-sm text-[#334155]">
+                      <input
+                        type="radio"
+                        name="listing-audience"
+                        checked={allAudienceCountries}
+                        onChange={() => setAllAudienceCountries(true)}
+                        className="mt-1 accent-[#3A7D44]"
+                      />
+                      <span>Tous les pays (réglage par défaut)</span>
+                    </label>
+                    <label className="mb-3 flex cursor-pointer items-start gap-2 text-sm text-[#334155]">
+                      <input
+                        type="radio"
+                        name="listing-audience"
+                        checked={!allAudienceCountries}
+                        onChange={() => setAllAudienceCountries(false)}
+                        className="mt-1 accent-[#3A7D44]"
+                      />
+                      <span>Limiter aux spectateurs dont le pays détecté fait partie de la sélection</span>
+                    </label>
+                    {!allAudienceCountries && (
+                      <CountryMultiSelect value={audienceCountries} onChange={setAudienceCountries} />
+                    )}
+                  </div>
+                )}
+
+                <button onClick={handleSaveCountrySettings} disabled={loading} className="btn-primary w-full">
+                  {loading ? 'Enregistrement...' : 'Enregistrer les préférences'}
+                </button>
               </div>
             )}
 

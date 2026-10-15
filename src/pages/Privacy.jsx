@@ -11,9 +11,12 @@ export default function Privacy() {
       
 - Informations d'identité : nom complet, adresse email, numéro de téléphone
 - Informations de profil : type de compte (locataire, propriétaire, agent)
+- Pays détecté à l'inscription et à chaque connexion, ainsi que vos pays de fil et de visibilité
 - Données d'annonces : titre, description, photos, localisation, prix
 - Données de communication : messages échangés entre utilisateurs
-- Données techniques : adresse IP, type de navigateur, pages visitées
+- Données techniques : informations nécessaires à la sécurité et au fonctionnement du service
+- Statistiques d'utilisation : pages consultées, identifiant aléatoire de session sans lien avec un compte utilisateur et, lorsque l'hébergeur fournit une localisation approximative fiable, pays et ville. L'adresse IP n'est pas enregistrée dans la base de statistiques.
+- Si vous autorisez la géolocalisation du navigateur, vos coordonnées sont transmises temporairement à BigDataCloud pour déterminer le pays ; elles ne sont pas enregistrées par Logezy. Si le GPS est indisponible, l'adresse IP peut être transmise à ipapi.co pour déterminer le pays.
 - Données de transaction : historique des paiements (à venir)`
     },
     {
@@ -64,6 +67,8 @@ Vos données peuvent être partagées uniquement dans ces cas :
 
 - Avec les autres utilisateurs : vos annonces et informations de contact sont visibles selon vos paramètres
 - Avec nos prestataires techniques : Supabase (hébergement), Render (serveur), Vercel (frontend)
+- Avec les services de géolocalisation BigDataCloud et ipapi.co, uniquement pour déterminer votre pays selon les modalités décrites ci-dessus
+- Les statistiques de visite ne transmettent pas l'adresse IP à un service de géolocalisation tiers ; le pays et la ville ne sont utilisés que s'ils sont fournis par l'infrastructure d'hébergement de confiance.
 - Sur obligation légale : si requis par les autorités béninoises compétentes
 - Avec votre consentement explicite pour tout autre partage`
     },

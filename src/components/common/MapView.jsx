@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { getImageUrl } from '../../lib/imageUrl';
+import { formatListingPrice } from '../../data/currencies';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -23,11 +24,6 @@ function MapController({ center }) {
   }, [center, map]);
   return null;
 }
-
-const formatPrice = (price, period) => {
-  const formatted = new Intl.NumberFormat('fr-FR').format(price);
-  return period ? `${formatted} FCFA/${period}` : `${formatted} FCFA`;
-};
 
 export default function MapView({
   listings = [],
@@ -91,7 +87,11 @@ export default function MapView({
                 </p>
 
                 <p style={{ fontWeight: '900', fontSize: '13px', color: '#3A7D44', marginBottom: '8px' }}>
-                  {formatPrice(listing.price, listing.price_period)}
+                  {formatListingPrice(
+                    listing.price,
+                    listing.currency_code,
+                    listing.type === 'location' ? listing.price_period : null
+                  )}
                 </p>
 
                 <div style={{ display: 'flex', gap: '8px', fontSize: '11px', color: '#666', marginBottom: '8px' }}>

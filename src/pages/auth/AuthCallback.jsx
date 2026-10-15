@@ -1,56 +1,98 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import useAuthStore from '../../store/authStore';
 import api from '../../lib/axios';
 import toast from 'react-hot-toast';
+import { CountrySelect } from '../../components/common/CountrySelect';
+import { requestBrowserCoordinates } from '../../lib/location';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
   const { login } = useAuthStore();
+  const [countryRequired, setCountryRequired] = useState(false);
+  const [fallbackCountry, setFallbackCountry] = useState('BJ');
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const handleCallback = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          toast.error('Erreur de connexion Google');
-          navigate('/login');
-          return;
-        }
-        const googleUser = session.user;
-        const res = await api.post('/auth/google', {
-          email: googleUser.email,
-          full_name: googleUser.user_metadata?.full_name || googleUser.email,
-          avatar_url: googleUser.user_metadata?.avatar_url || null,
-          google_id: googleUser.id,
+  const completeGoogleLogin = useCallback(async (manualCountryCode = null) => {
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Erreur de connexion Google');
+        navigate('/login');
+        return;
+      }
+      const googleUser = session.user;
+      const googleData = {
+        email: googleUser.email,
+        full_name: googleUser.user_metadata?.full_name || googleUser.email,
+        avatar_url: googleUser.user_metadata?.avatar_url || null,
+        google_id: googleUser.id,
+      };
+      const coordinates = manualCountryCode ? null : await requestBrowserCoordinates();
+      const res = await api.post('/auth/google', {
+        ...googleData,
+        ...(coordinates || {}),
+        ...(manualCountryCode ? { country_code: manualCountryCode } : {}),
+      });
+      if (res.data.new_user) {
+        navigate('/auth/complete', {
+          state: {
+            ...googleData,
+            country_code: res.data.country_code,
+          }
         });
-        if (res.data.new_user) {
-          navigate('/auth/complete', {
-            state: {
-              email: googleUser.email,
-              full_name: googleUser.user_metadata?.full_name || googleUser.email,
-              avatar_url: googleUser.user_metadata?.avatar_url || null,
-              google_id: googleUser.id,
-            }
-          });
-          return;
-        }
-        login(res.data.user, res.data.token);
-        toast.success(`Bienvenue ${res.data.user.full_name} ! 👋`);
-        switch (res.data.user.role) {
-          case 'proprietaire': navigate('/dashboard/proprietaire'); break;
-          case 'agent': navigate('/dashboard/agent'); break;
-          case 'admin': navigate('/dashboard/admin'); break;
-          default: navigate('/dashboard/locataire');
-        }
-      } catch (e) {
-        toast.error('Erreur lors de la connexion');
+        return;
+      }
+      login(res.data.user, res.data.token);
+      toast.success(`Bienvenue ${res.data.user.full_name} ! 👋`);
+      switch (res.data.user.role) {
+        case 'proprietaire': navigate('/dashboard/proprietaire'); break;
+        case 'agent': navigate('/dashboard/agent'); break;
+        case 'admin': navigate('/dashboard/admin'); break;
+        default: navigate('/dashboard/locataire');
+      }
+    } catch (error) {
+      if (error.response?.data?.code === 'COUNTRY_REQUIRED') {
+        setCountryRequired(true);
+        toast('Choisissez votre pays pour terminer la connexion Google.');
+      } else {
+        toast.error(error.response?.data?.error || 'Erreur lors de la connexion');
         navigate('/login');
       }
-    };
-    handleCallback();
-  }, []);
+    } finally {
+      setLoading(false);
+    }
+  }, [login, navigate]);
+
+  useEffect(() => {
+    completeGoogleLogin();
+  }, [completeGoogleLogin]);
+
+  if (countryRequired) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-[#0F172A] flex items-center justify-center p-6">
+        <div className="w-full max-w-md rounded-2xl border border-[#E2E8F0] p-6">
+          <h1 className="font-display text-xl font-bold text-[#0F172A] dark:text-white">
+            Confirmez votre pays
+          </h1>
+          <p className="my-3 text-sm text-[#64748B] dark:text-[#94A3B8]">
+            La position n’a pas pu être détectée automatiquement. Le Bénin est proposé par défaut.
+          </p>
+          <CountrySelect value={fallbackCountry} onChange={setFallbackCountry} className="input-field" required />
+          <button
+            type="button"
+            onClick={() => completeGoogleLogin(fallbackCountry)}
+            disabled={loading || !fallbackCountry}
+            className="btn-primary mt-4 w-full"
+          >
+            {loading ? 'Connexion...' : 'Continuer'}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0F172A] flex items-center justify-center">

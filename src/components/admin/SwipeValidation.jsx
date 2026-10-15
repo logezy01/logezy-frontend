@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-mo
 import { CheckCircle, XCircle, MapPin, Bed, Maximize, Calendar, RotateCcw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../lib/axios';
+import { formatListingPrice } from '../../data/currencies';
 
 function SwipeCard({ listing, onSwipe, isTop, stackIndex }) {
   const x = useMotionValue(0);
@@ -93,9 +94,10 @@ function SwipeCard({ listing, onSwipe, isTop, stackIndex }) {
           </p>
 
           <div className="font-display font-black text-xl text-[#3A7D44] mb-3">
-            {new Intl.NumberFormat('fr-FR').format(listing.price)} FCFA
-            {listing.price_period && (
-              <span className="text-sm font-normal text-[#94A3B8]"> /{listing.price_period}</span>
+            {formatListingPrice(
+              listing.price,
+              listing.currency_code,
+              listing.type === 'location' ? listing.price_period : null
             )}
           </div>
 

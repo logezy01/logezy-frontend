@@ -3,14 +3,14 @@ import { ChevronLeft, Check, X } from 'lucide-react';
 import Navbar from '../components/common/Navbar';
 import useCompareStore from '../store/compareStore';
 import { getImageUrl } from '../lib/imageUrl';
-
-const formatPrice = (price, period) => {
-  const formatted = new Intl.NumberFormat('fr-FR').format(price);
-  return period ? `${formatted} FCFA/${period}` : `${formatted} FCFA`;
-};
+import { formatListingPrice } from '../data/currencies';
 
 const CRITERIA = [
-  { key: 'price', label: '💰 Prix', format: (l) => formatPrice(l.price, l.price_period) },
+  {
+    key: 'price',
+    label: '💰 Prix',
+    format: (l) => formatListingPrice(l.price, l.currency_code, l.type === 'location' ? l.price_period : null),
+  },
   { key: 'type', label: '🏷️ Type', format: (l) => l.type === 'location' ? '🔑 Location' : '🏷️ Vente' },
   { key: 'city', label: '📍 Ville', format: (l) => `${l.neighborhood ? `${l.neighborhood}, ` : ''}${l.city}` },
   { key: 'bedrooms', label: '🛏 Chambres', format: (l) => l.bedrooms || '—' },
@@ -56,7 +56,10 @@ export default function Compare() {
   };
 
   // Trouver le meilleur prix
-  const bestPrice = Math.min(...items.map(l => l.price));
+  const hasComparablePrices = items.every(
+    (listing) => (listing.currency_code || 'XOF') === (items[0].currency_code || 'XOF')
+  );
+  const bestPrice = hasComparablePrices ? Math.min(...items.map(l => l.price)) : null;
 
   return (
     <div className="min-h-screen bg-[#F5F5F7] dark:bg-[#0F0F0F] pb-20 md:pb-0">
@@ -141,7 +144,9 @@ export default function Compare() {
               {/* Critères */}
               <tbody>
                 {CRITERIA.map((criterion, i) => {
-                  const different = isDifferent(criterion.key);
+                  const different = criterion.key === 'price'
+                    ? new Set(items.map((l) => `${l.price}:${l.currency_code || 'XOF'}`)).size > 1
+                    : isDifferent(criterion.key);
                   return (
                     <tr
                       key={criterion.key}

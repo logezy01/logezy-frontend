@@ -1,5 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { MapPin, Bed, Bath, Maximize, Eye, ArrowUpRight, Film, Key, Tag, CheckCircle2, Heart, Building2, Zap, Home } from 'lucide-react';
+import { getCountryName } from '../../data/countries';
+import { formatListingPrice } from '../../data/currencies';
 import { getImageUrl } from '../../lib/imageUrl';
 import FavoriteButton from './FavoriteButton';
 import CompareButton from './CompareButton';
@@ -16,11 +18,6 @@ export default function ListingCard({ listing }) {
 
   const coverImagePath = listing.listing_images?.find(img => img.is_cover)?.image_url;
   const coverImage = getImageUrl(coverImagePath);
-
-  const formatPrice = (price, period) => {
-    const formatted = new Intl.NumberFormat('fr-FR').format(price);
-    return period ? `${formatted} FCFA/${period}` : `${formatted} FCFA`;
-  };
 
   const formatTitle = (title) => {
     if (!title) return '';
@@ -201,7 +198,7 @@ export default function ListingCard({ listing }) {
           <div className="flex items-center gap-1.5 text-[#94A3B8] text-xs mb-2">
             <MapPin size={11} className="text-[#3A7D44] shrink-0" />
             <span className="truncate">
-              {listing.neighborhood ? `${listing.neighborhood}, ` : ''}{listing.city}
+              {listing.neighborhood ? `${listing.neighborhood}, ` : ''}{listing.city}, {getCountryName(listing.country_code)}
             </span>
           </div>
 
@@ -263,10 +260,11 @@ export default function ListingCard({ listing }) {
           <div className="flex items-center justify-between">
             <div>
               <div className="font-black text-xl text-[#3A7D44] leading-none" style={{ letterSpacing: '-0.02em' }}>
-                {new Intl.NumberFormat('fr-FR').format(listing.price)}
-              </div>
-              <div className="text-xs text-[#94A3B8] mt-1 font-medium">
-                FCFA{listing.type === 'location' && listing.price_period && `/${listing.price_period}`}
+                {formatListingPrice(
+                  listing.price,
+                  listing.currency_code,
+                  listing.type === 'location' ? listing.price_period : null
+                )}
               </div>
             </div>
 

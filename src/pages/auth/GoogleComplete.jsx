@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
+import { CountrySelect } from '../../components/common/CountrySelect';
 
 const ROLES = [
   { value: 'locataire', emoji: '🔍', label: 'Locataire / Acheteur', desc: 'Je cherche une maison à louer ou à acheter', color: 'border-[#3B82F6] bg-[#EFF6FF] text-[#3B82F6]' },
@@ -15,10 +16,12 @@ export default function GoogleComplete() {
   const location = useLocation();
   const navigate = useNavigate();
   const { login } = useAuthStore();
+  const googleData = location.state;
   const [role, setRole] = useState('');
   const [loading, setLoading] = useState(false);
+  const [countryCode, setCountryCode] = useState(googleData?.country_code || 'BJ');
+  const countryRequired = !googleData?.country_code;
 
-  const googleData = location.state;
   if (!googleData) { navigate('/login'); return null; }
 
   const handleComplete = async () => {
@@ -31,6 +34,7 @@ export default function GoogleComplete() {
         avatar_url: googleData.avatar_url,
         google_id: googleData.google_id,
         role,
+        country_code: countryCode,
       });
       login(res.data.user, res.data.token);
       toast.success('Compte créé avec succès ! 🎉');
@@ -66,6 +70,15 @@ export default function GoogleComplete() {
             Dernière étape — choisissez votre type de compte
           </p>
         </div>
+
+        {countryRequired && (
+          <div className="mb-6 rounded-xl border border-[#F59E0B]/30 bg-[#FEF3C7] p-4">
+            <label className="mb-2 block text-sm font-bold text-[#92400E]">
+              Pays non détecté — confirmez votre pays (Bénin proposé)
+            </label>
+            <CountrySelect value={countryCode} onChange={setCountryCode} className="input-field" required />
+          </div>
+        )}
 
         {/* Infos Google */}
         <div className="bg-[#F8F9FA] dark:bg-[#1A1A1A] border border-[#E8E8E8] dark:border-[#2A2A2A] rounded-2xl p-4 mb-8 flex items-center gap-4">

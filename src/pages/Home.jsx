@@ -77,6 +77,7 @@ function FloatingCard({ children, delay = 0, style = {} }) {
 
 const CITIES = ['Cotonou', 'Porto-Novo', 'Parakou', 'Abomey-Calavi', 'Bohicon', 'Natitingou', 'Ouidah', 'Lokossa'];
 const HERO_IMAGES = [
+
   'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80',
   'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80',
   'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1920&q=80',
@@ -702,7 +703,7 @@ export default function Home() {
                   onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>
                 </a>
-                <a href="https://wa.me/22901908212" target="_blank" rel="noopener noreferrer"
+                <a href="https://wa.me/2290190821282" target="_blank" rel="noopener noreferrer"
                   aria-label="WhatsApp"
                   className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
                   style={{ background: 'rgba(255,255,255,0.06)', color: 'white' }}

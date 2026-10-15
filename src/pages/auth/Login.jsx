@@ -5,12 +5,16 @@ import toast from 'react-hot-toast';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
+import { CountrySelect } from '../../components/common/CountrySelect';
+import { requestBrowserCoordinates } from '../../lib/location';
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [countryRequired, setCountryRequired] = useState(false);
+  const [fallbackCountry, setFallbackCountry] = useState('BJ');
   const { login } = useAuthStore();
   const navigate = useNavigate();
 
@@ -18,7 +22,13 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await api.post('/auth/login', form);
+      const coordinates = countryRequired ? null : await requestBrowserCoordinates();
+      const payload = {
+        ...form,
+        ...(coordinates || {}),
+        ...(countryRequired ? { country_code: fallbackCountry } : {}),
+      };
+      const res = await api.post('/auth/login', payload);
       login(res.data.user, res.data.token);
       toast.success(`Bienvenue ${res.data.user.full_name} !!`);
       switch (res.data.user.role) {
@@ -30,7 +40,12 @@ export default function Login() {
         default: navigate('/');
       }
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Email ou mot de passe incorrect');
+      if (error.response?.data?.code === 'COUNTRY_REQUIRED') {
+        setCountryRequired(true);
+        toast('Choisissez votre pays pour terminer la connexion.');
+      } else {
+        toast.error(error.response?.data?.error || 'Email ou mot de passe incorrect');
+      }
     } finally {
       setLoading(false);
     }
@@ -121,6 +136,19 @@ export default function Login() {
               Connectez-vous à votre compte Logezy
             </p>
           </div>
+
+          <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mb-5">
+            Logezy actualise votre pays avec votre autorisation GPS, ou via votre adresse IP si le GPS n’est pas disponible. Seul le pays est enregistré.
+          </p>
+
+          {countryRequired && (
+            <div className="mb-5 rounded-xl border border-[#F59E0B]/30 bg-[#FEF3C7] p-4">
+              <label className="mb-2 block text-sm font-bold text-[#92400E]">
+                Pays non détecté — confirmez votre pays (Bénin proposé)
+              </label>
+              <CountrySelect value={fallbackCountry} onChange={setFallbackCountry} className="input-field" required />
+            </div>
+          )}
 
           {/* Bouton Google premium */}
           <button onClick={handleGoogleLogin} disabled={googleLoading}

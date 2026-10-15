@@ -12,6 +12,9 @@ import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
 import AdminMessages from '../../components/common/AdminMessages';
 import VideoUploader from '../../components/common/VideoUploader';
+import { CountrySelect } from '../../components/common/CountrySelect';
+import CurrencySelect from '../../components/common/CurrencySelect';
+import { formatListingPrice, getCurrencyForCountry } from '../../data/currencies';
 
 const MENU = [
   { path: '/dashboard/proprietaire', icon: LayoutDashboard, label: 'Vue générale' },
@@ -147,7 +150,7 @@ function Overview() {
                   <div>
                     <div className="font-medium text-sm text-[#0F172A] dark:text-white line-clamp-1">{l.title}</div>
                     <div className="flex items-center gap-1 text-xs text-[#64748B] dark:text-[#94A3B8]">
-                      {l.city} <span className="mx-0.5">·</span> <Eye size={11} /> {l.views_count || 0} vues <span className="mx-0.5">·</span> {new Intl.NumberFormat('fr-FR').format(l.price)} FCFA
+                      {l.city} <span className="mx-0.5">·</span> <Eye size={11} /> {l.views_count || 0} vues <span className="mx-0.5">·</span> {formatListingPrice(l.price, l.currency_code)}
                     </div>
                   </div>
                 </div>
@@ -289,7 +292,7 @@ function MyListings() {
                     </div>
                     <div className="flex items-center gap-3 mt-1 flex-wrap">
                       <span className="text-xs font-bold text-[#3A7D44]">
-                        {new Intl.NumberFormat('fr-FR').format(l.price)} FCFA{l.price_period && `/${l.price_period}`}
+                        {formatListingPrice(l.price, l.currency_code, l.price_period)}
                       </span>
                       <span className="flex items-center gap-1 text-xs text-[#64748B] dark:text-[#94A3B8]">
                         <Eye size={11} /> {l.views_count || 0} vues
@@ -525,9 +528,12 @@ function Messages() {
 
 // ─── PUBLIER ─────────────────────────────────────────────────
 function PublishListing() {
+  const { user } = useAuthStore();
+  const initialCountryCode = user?.country_code || 'BJ';
   const [form, setForm] = useState({
     title: '', description: '', type: 'location', price: '',
-    price_period: 'mois', city: '', neighborhood: '',
+    price_period: 'mois', country_code: initialCountryCode,
+    currency_code: getCurrencyForCountry(initialCountryCode), city: '', neighborhood: '',
     bedrooms: 0, bathrooms: 0, living_rooms: 0, area: '',
     floors: 0, is_furnished: false, has_parking: false,
     has_garden: false, has_pool: false, has_security: false,
@@ -618,9 +624,13 @@ function PublishListing() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Prix (FCFA) *</label>
+              <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Prix ({form.currency_code}) *</label>
               <input type="number" placeholder="Ex: 150000" value={form.price}
                 onChange={(e) => update('price', e.target.value)} className="input-field" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Devise *</label>
+              <CurrencySelect value={form.currency_code} onChange={(value) => update('currency_code', value)} required />
             </div>
             {form.type === 'location' && (
               <div>
@@ -636,11 +646,39 @@ function PublishListing() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
+              <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Pays du bien *</label>
+              <CountrySelect
+                value={form.country_code}
+                onChange={(value) => {
+                  setForm((previous) => ({
+                    ...previous,
+                    country_code: value,
+                    currency_code: getCurrencyForCountry(value),
+                    city: '',
+                    neighborhood: '',
+                  }));
+                }}
+                className="input-field"
+                required
+              />
+            </div>
+            <div>
               <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Ville *</label>
-              <select value={form.city} onChange={(e) => update('city', e.target.value)} className="input-field" required>
-                <option value="">Choisir une ville</option>
-                {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              {form.country_code === 'BJ' ? (
+                <select value={form.city} onChange={(e) => update('city', e.target.value)} className="input-field" required>
+                  <option value="">Choisir une ville</option>
+                  {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  value={form.city}
+                  onChange={(e) => update('city', e.target.value)}
+                  className="input-field"
+                  placeholder="Ville du bien"
+                  required
+                />
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-[#334155] dark:text-[#94A3B8] mb-2">Quartier</label>

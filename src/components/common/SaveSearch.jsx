@@ -3,6 +3,7 @@ import { Bell, X, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
+import { formatCurrency } from '../../data/currencies';
 
 export default function SaveSearch({ filters = {}, onSaved }) {
   const [open, setOpen] = useState(false);
@@ -19,6 +20,10 @@ export default function SaveSearch({ filters = {}, onSaved }) {
       toast.error('Donnez un nom à votre alerte');
       return;
     }
+    if ((filters.min_price || filters.max_price) && !filters.currency_code) {
+      toast.error('Choisissez une devise pour votre filtre de prix');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -29,6 +34,7 @@ export default function SaveSearch({ filters = {}, onSaved }) {
         bedrooms: filters.bedrooms || null,
         min_price: filters.min_price || null,
         max_price: filters.max_price || null,
+        currency_code: filters.currency_code || null,
       });
       toast.success('🔔 Alerte créée ! Vous serez notifié par email.');
       setOpen(false);
@@ -47,8 +53,9 @@ export default function SaveSearch({ filters = {}, onSaved }) {
     if (filters.city) parts.push(`📍 ${filters.city}`);
     if (filters.type) parts.push(filters.type === 'location' ? '🔑 Location' : '🏷️ Vente');
     if (filters.bedrooms) parts.push(`🛏 ${filters.bedrooms}+ chambres`);
-    if (filters.min_price) parts.push(`Min: ${new Intl.NumberFormat('fr-FR').format(filters.min_price)} FCFA`);
-    if (filters.max_price) parts.push(`Max: ${new Intl.NumberFormat('fr-FR').format(filters.max_price)} FCFA`);
+    if (filters.currency_code) parts.push(filters.currency_code);
+    if (filters.min_price) parts.push(`Min: ${formatCurrency(filters.min_price, filters.currency_code)}`);
+    if (filters.max_price) parts.push(`Max: ${formatCurrency(filters.max_price, filters.currency_code)}`);
     return parts.length > 0 ? parts.join(' · ') : 'Toutes les annonces';
   };
 

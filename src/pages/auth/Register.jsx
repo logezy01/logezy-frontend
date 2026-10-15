@@ -5,6 +5,8 @@ import toast from 'react-hot-toast';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
+import { CountrySelect } from '../../components/common/CountrySelect';
+import { requestBrowserCoordinates } from '../../lib/location';
 
 const ROLES = [
   { value: 'locataire', emoji: '🔍', label: 'Locataire / Acheteur', desc: 'Je cherche une maison', color: 'border-[#3B82F6] bg-[#EFF6FF]' },
@@ -17,6 +19,8 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [countryRequired, setCountryRequired] = useState(false);
+  const [fallbackCountry, setFallbackCountry] = useState('BJ');
   const { login } = useAuthStore();
   const navigate = useNavigate();
 
@@ -25,18 +29,29 @@ export default function Register() {
     if (!form.role) { toast.error('Choisissez un type de compte'); return; }
     if (form.password.length < 6) { toast.error('Mot de passe minimum 6 caractères'); return; }
     setLoading(true);
-try {
-  const res = await api.post('/auth/register', form);
-  login(res.data.user, res.data.token);
-  toast.success('Compte créé avec succès ! Bienvenue 🎉');
-  switch (res.data.user.role) {
-    case 'proprietaire': navigate('/dashboard/proprietaire'); break;
-    case 'agent': navigate('/dashboard/agent'); break;
-    default: navigate('/dashboard/locataire');
-  }
-} catch (error) {
-  toast.error(error.response?.data?.error || 'Erreur création compte');
-}finally {
+    try {
+      const coordinates = countryRequired ? null : await requestBrowserCoordinates();
+      const payload = {
+        ...form,
+        ...(coordinates || {}),
+        ...(countryRequired ? { country_code: fallbackCountry } : {}),
+      };
+      const res = await api.post('/auth/register', payload);
+      login(res.data.user, res.data.token);
+      toast.success('Compte créé avec succès ! Bienvenue 🎉');
+      switch (res.data.user.role) {
+        case 'proprietaire': navigate('/dashboard/proprietaire'); break;
+        case 'agent': navigate('/dashboard/agent'); break;
+        default: navigate('/dashboard/locataire');
+      }
+    } catch (error) {
+      if (error.response?.data?.code === 'COUNTRY_REQUIRED') {
+        setCountryRequired(true);
+        toast('Choisissez votre pays pour terminer l’inscription.');
+      } else {
+        toast.error(error.response?.data?.error || 'Erreur création compte');
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -119,6 +134,19 @@ try {
               Rejoignez Logezy gratuitement
             </p>
           </div>
+
+          <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mb-5">
+            Logezy détecte votre pays avec votre autorisation GPS, ou via votre adresse IP si le GPS n’est pas disponible. Seul le pays est enregistré.
+          </p>
+
+          {countryRequired && (
+            <div className="mb-5 rounded-xl border border-[#F59E0B]/30 bg-[#FEF3C7] p-4">
+              <label className="mb-2 block text-sm font-bold text-[#92400E]">
+                Pays non détecté — confirmez votre pays (Bénin proposé)
+              </label>
+              <CountrySelect value={fallbackCountry} onChange={setFallbackCountry} className="input-field" required />
+            </div>
+          )}
 
           {/* Google */}
           <button onClick={handleGoogleRegister} disabled={googleLoading}

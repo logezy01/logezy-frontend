@@ -8,10 +8,12 @@ import {
 } from 'lucide-react';
 import Navbar from '../components/common/Navbar';
 import api from '../lib/axios';
+import { getCountryName } from '../data/countries';
 import useAuthStore from '../store/authStore';
 import useCompareStore from '../store/compareStore';
 import toast from 'react-hot-toast';
 import { getCategoryIcon, getCategoryLabel } from '../data/listingCategories';
+import { formatCurrency, formatListingPrice } from '../data/currencies';
 
 // Hook pour détecter si l'élément est visible
 function useInView(threshold = 0.1) {
@@ -161,8 +163,6 @@ export default function ListingDetail() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const formatPrice = (price) => new Intl.NumberFormat('fr-FR').format(price);
-
   if (loading) return (
     <div className="min-h-screen bg-paper dark:bg-[#080B14]">
       <Navbar />
@@ -288,7 +288,7 @@ export default function ListingDetail() {
           </Link>
           <ChevronRight size={13} className="text-[#CBD5E1]" />
           <Link to={`/annonces?city=${listing.city}`} className="hover:text-[#3A7D44] transition-colors font-medium">
-            {listing.city}
+            {listing.city}, {getCountryName(listing.country_code)}
           </Link>
           {listing.neighborhood && (
             <>
@@ -345,7 +345,7 @@ export default function ListingDetail() {
             <div className="flex items-center gap-4 flex-wrap text-sm text-[#64748B] dark:text-[#94A3B8] mb-4">
               <span className="flex items-center gap-1.5">
                 <MapPin size={14} className="text-[#3A7D44]" />
-                {listing.neighborhood ? `${listing.neighborhood}, ` : ''}{listing.city}
+                {listing.neighborhood ? `${listing.neighborhood}, ` : ''}{listing.city}, {getCountryName(listing.country_code)}
               </span>
               <span className="flex items-center gap-1.5">
                 <Eye size={14} />
@@ -362,15 +362,16 @@ export default function ListingDetail() {
               <div>
                 <div className="flex items-baseline gap-2">
                   <span className="font-serif text-3xl md:text-4xl font-bold text-[#0F172A] dark:text-white">
-                    {formatPrice(listing.price)}
-                  </span>
-                  <span className="text-[#64748B] dark:text-[#94A3B8] font-medium">
-                    FCFA{listing.type === 'location' && listing.price_period && `/${listing.price_period}`}
+                    {formatListingPrice(
+                      listing.price,
+                      listing.currency_code,
+                      listing.type === 'location' ? listing.price_period : null
+                    )}
                   </span>
                 </div>
                 {pricePerM2 && (
                   <p className="text-xs text-[#94A3B8] mt-0.5">
-                    {formatPrice(pricePerM2)} FCFA / m²
+                    {formatCurrency(pricePerM2, listing.currency_code)} / m²
                   </p>
                 )}
               </div>
@@ -606,10 +607,11 @@ export default function ListingDetail() {
                 <div className="mb-4 pb-4 border-b border-[#0F172A]/5 dark:border-white/5">
                   <div className="flex items-baseline gap-1.5">
                     <span className="font-serif text-2xl font-bold text-[#0F172A] dark:text-white">
-                      {formatPrice(listing.price)}
-                    </span>
-                    <span className="text-sm text-[#64748B] font-medium">
-                      FCFA{listing.type === 'location' && listing.price_period && `/${listing.price_period}`}
+                      {formatListingPrice(
+                        listing.price,
+                        listing.currency_code,
+                        listing.type === 'location' ? listing.price_period : null
+                      )}
                     </span>
                   </div>
                   <p className="text-xs text-[#94A3B8] mt-0.5">

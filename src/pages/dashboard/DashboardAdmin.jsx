@@ -5,12 +5,16 @@ import {
   LayoutDashboard, Clock, TrendingUp, Briefcase, UserPlus, Building2,
   Crown, Key, Tag, MapPin, Banknote, Bed, Maximize, User, Hand, List,
   AlertTriangle, PauseCircle, MessageCircle, Handshake, Settings, Lightbulb, Pin,DraftingCompass,ClipboardList,
+  BarChart3, SlidersHorizontal,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
 import SwipeValidation from '../../components/admin/SwipeValidation';
+import { formatListingPrice } from '../../data/currencies';
+import AdminAnalytics from './AdminAnalytics';
+import AdminSiteSettings from './AdminSiteSettings';
 
 const MENU = [
   { path: '/dashboard/admin', icon: LayoutDashboard, label: 'Vue générale' },
@@ -23,6 +27,8 @@ const MENU = [
   { path: '/dashboard/admin/demandes-plans', icon: ClipboardList, label: 'Demandes de plans' },
   { path: '/dashboard/admin/messages', icon: Mail, label: 'Écrire aux users' },
   { path: '/dashboard/admin/stats', icon: TrendingUp, label: 'Statistiques' },
+  { path: '/dashboard/admin/visites', icon: BarChart3, label: 'Visites du site' },
+  { path: '/dashboard/admin/reglages', icon: SlidersHorizontal, label: 'Réglages plateforme' },
 ];
 
 function StatCard({ icon: Icon, label, value, color = 'green', loading, urgent }) {
@@ -350,7 +356,7 @@ function ValidationListings() {
                         </p>
                       )}
                       <div className="flex flex-wrap gap-3 text-xs text-[#64748B] dark:text-[#94A3B8]">
-                        <span className="flex items-center gap-1"><Banknote size={11} /> {new Intl.NumberFormat('fr-FR').format(l.price)} FCFA{l.price_period ? `/${l.price_period}` : ''}</span>
+                        <span className="flex items-center gap-1"><Banknote size={11} /> {formatListingPrice(l.price, l.currency_code, l.type === 'location' ? l.price_period : null)}</span>
                         {l.bedrooms > 0 && <span className="flex items-center gap-1"><Bed size={11} /> {l.bedrooms} ch.</span>}
                         {l.area && <span className="flex items-center gap-1"><Maximize size={11} /> {l.area}m²</span>}
                       </div>
@@ -1012,7 +1018,7 @@ function ListingsAdmin() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm font-bold text-[#3A7D44]">
-                    {new Intl.NumberFormat('fr-FR').format(l.price)} FCFA
+                    {formatListingPrice(l.price, l.currency_code)}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`flex items-center gap-1 w-fit text-xs font-bold px-2 py-1 rounded-full ${
@@ -1872,6 +1878,8 @@ export default function DashboardAdmin() {
         <Route path="commerciaux" element={<CommercialsAdmin />} />
         <Route path="messages" element={<WriteToUsers />} />
         <Route path="stats" element={<StatsAdmin />} />
+        <Route path="visites" element={<AdminAnalytics />} />
+        <Route path="reglages" element={<AdminSiteSettings />} />
         <Route path="architectes" element={<ArchitectsAdmin />}/>
         <Route path="demandes-plans" element={<PlanRequestsAdmin />} />
       </Routes>
