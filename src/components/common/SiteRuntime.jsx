@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '../../lib/axios';
 import useAuthStore from '../../store/authStore';
+import { sendSessionHeartbeat, startUserSession } from '../../lib/userSession';
 
 let publicConfigRequest;
 
@@ -25,6 +26,7 @@ function createId() {
 export default function SiteRuntime() {
   const { pathname } = useLocation();
   const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const lastTrackedPath = useRef(null);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
@@ -46,6 +48,41 @@ export default function SiteRuntime() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id) return undefined;
+
+    let active = true;
+    let heartbeatTimer;
+    let heartbeatInFlight = false;
+
+    const heartbeat = async (sessionId) => {
+      if (!active || heartbeatInFlight || document.visibilityState !== 'visible') return;
+      heartbeatInFlight = true;
+      try {
+        await sendSessionHeartbeat(sessionId);
+      } catch (error) {
+        console.warn('La durée de cette session ne peut pas être actualisée.', error.message);
+      } finally {
+        heartbeatInFlight = false;
+      }
+    };
+
+    startUserSession()
+      .then((sessionId) => {
+        if (!active || !sessionId) return;
+        heartbeatTimer = window.setInterval(() => heartbeat(sessionId), 30_000);
+        heartbeat(sessionId);
+      })
+      .catch((error) => {
+        console.warn('La session utilisateur ne peut pas encore être suivie.', error.message);
+      });
+
+    return () => {
+      active = false;
+      window.clearInterval(heartbeatTimer);
+    };
+  }, [isAuthenticated, user?.id]);
 
   useEffect(() => {
     if (!analyticsEnabled || user?.role === 'admin' || lastTrackedPath.current === pathname) return;

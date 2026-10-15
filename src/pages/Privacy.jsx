@@ -16,6 +16,7 @@ export default function Privacy() {
 - Données de communication : messages échangés entre utilisateurs
 - Données techniques : informations nécessaires à la sécurité et au fonctionnement du service
 - Statistiques d'utilisation : pages consultées, identifiant aléatoire de session sans lien avec un compte utilisateur et, lorsque l'hébergeur fournit une localisation approximative fiable, pays et ville. L'adresse IP n'est pas enregistrée dans la base de statistiques.
+- Données de connexion des comptes : heure de début, dernière activité et durée active estimée pendant la session. Ces données sont accessibles aux administrateurs et supprimées automatiquement après 12 mois ; aucune adresse IP n'est enregistrée.
 - Si vous autorisez la géolocalisation du navigateur, vos coordonnées sont transmises temporairement à BigDataCloud pour déterminer le pays ; elles ne sont pas enregistrées par Logezy. Si le GPS est indisponible, l'adresse IP peut être transmise à ipapi.co pour déterminer le pays.
 - Données de transaction : historique des paiements (à venir)`
     },
