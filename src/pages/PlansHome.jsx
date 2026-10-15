@@ -16,6 +16,34 @@ const STYLES = [
   { value: 'bioclimatique', label: 'Bioclimatique' },
 ];
 
+const HERO_PLAN_IMAGES = [
+  {
+    src: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=900&q=80',
+    alt: 'Maison moderne',
+    label: 'Moderne',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80',
+    alt: 'Intérieur de maison',
+    label: 'Interieur',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80',
+    alt: 'Villa contemporaine',
+    label: 'Villa',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=900&q=80',
+    alt: 'Plan architectural',
+    label: 'Blueprint',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=900&q=80',
+    alt: 'Maison de luxe',
+    label: 'Luxe',
+  },
+];
+
 function formatPrice(price) {
   if (!price) return 'Prix sur demande';
   return `${new Intl.NumberFormat('fr-FR').format(Number(price))} FCFA`;
@@ -118,7 +146,15 @@ export default function PlansHome() {
       <PlansNavbar />
 
       {/* ══ HERO ══ */}
-      <section className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0A1510 0%, #0F1B15 45%, #071410 100%)' }}>
+      <section className="relative overflow-hidden bg-[#071410]">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: "url('/plans-hero-blueprint.png')",
+            opacity: 0.48,
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#071410]/90 via-[#071410]/65 to-[#071410]/45" />
         <div className="absolute inset-0 opacity-40" style={{
           backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(58,125,68,0.35) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(74,222,128,0.15) 0%, transparent 50%)',
         }} />
@@ -164,6 +200,25 @@ export default function PlansHome() {
               Rechercher
             </button>
           </form>
+
+          <div className="mt-10 grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {HERO_PLAN_IMAGES.map((image, index) => (
+              <div
+                key={image.label}
+                className={`group relative overflow-hidden rounded-[22px] border border-white/15 bg-white/5 shadow-[0_16px_36px_rgba(15,23,42,0.18)] backdrop-blur-sm ${index === 0 ? 'lg:translate-y-6' : index === 1 ? 'lg:translate-y-12' : index === 2 ? 'lg:-translate-y-2' : index === 3 ? 'lg:translate-y-8' : 'lg:-translate-y-4'}`}
+                style={{ animation: `plansFloat 7s ease-in-out infinite`, animationDelay: `${index * 0.6}s` }}
+              >
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  className="h-28 w-full object-cover transition duration-500 group-hover:scale-105 sm:h-32 lg:h-36"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/80 via-slate-900/20 to-transparent p-2">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/90">{image.label}</span>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {/* Stats */}
           <div className="mt-10 flex gap-8">

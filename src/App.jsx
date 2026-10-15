@@ -47,6 +47,9 @@ const EditPlan = lazy(() => import("./pages/architect/EditPlan"));
 const DashboardArchitecte = lazy(
   () => import("./pages/dashboard/DashboardArchitecte")
 );
+const ArchitectPlanRequests = lazy(
+  () => import("./pages/dashboard/ArchitectPlanRequests")
+);
 
 // Composant de chargement pendant le lazy loading
 function PageLoader() {
@@ -135,6 +138,14 @@ export default function App() {
   element={
     <ProtectedRoute roles={['architecte']}>
       <DashboardArchitecte />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/architecte/demandes-plans"
+  element={
+    <ProtectedRoute roles={["architecte"]}>
+      <ArchitectPlanRequests />
     </ProtectedRoute>
   }
 />

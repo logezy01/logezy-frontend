@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   FileText,
   ChevronRight,
+  ClipboardList,
 } from "lucide-react";
 
 import DashboardLayout from "../../components/common/DashboardLayout";
@@ -18,6 +19,11 @@ const menuItems = [
     label: "Vue d'ensemble",
     path: "/dashboard/architecte",
     icon: LayoutDashboard,
+  },
+  {
+    label: "Mes demandes",
+    path: "/dashboard/architecte/demandes-plans",
+    icon: ClipboardList,
   },
   {
     label: "Mon profil",
@@ -37,6 +43,14 @@ const menuItems = [
 ];
 
 const quickActions = [
+  {
+    title: "Demandes sur mesure",
+    description:
+      "Consulte les projets des clients qui t'ont choisi et contacte-les directement.",
+    icon: ClipboardList,
+    path: "/dashboard/architecte/demandes-plans",
+    label: "Voir mes demandes",
+  },
   {
     title: "Compléter mon profil",
     description:

@@ -1795,6 +1795,8 @@ function PlanRequestsAdmin() {
       request.user?.full_name,
       request.user?.email,
       request.user?.phone,
+      request.architect?.full_name,
+      request.reference_plan?.title,
     ].filter(Boolean).join(' ').toLocaleLowerCase('fr');
     return matchesStatus && (!query || searchable.includes(query));
   });
@@ -1973,6 +1975,26 @@ function PlanRequestsAdmin() {
                     {r.description || 'Aucune précision fournie.'}
                   </p>
                 </div>
+                {(r.architect || r.reference_plan) && (
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {r.architect && (
+                      <div className="rounded-xl bg-[#F8FAFC] p-3 dark:bg-[#222]">
+                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#94A3B8]">Architecte choisi</p>
+                        <p className="text-xs font-semibold text-[#334155] dark:text-[#E2E8F0]">{r.architect.full_name}</p>
+                        {r.architect.email && <p className="mt-1 truncate text-xs text-[#64748B] dark:text-[#94A3B8]">{r.architect.email}</p>}
+                      </div>
+                    )}
+                    {r.reference_plan && (
+                      <div className="rounded-xl bg-[#F8FAFC] p-3 dark:bg-[#222]">
+                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#94A3B8]">Plan de référence</p>
+                        <Link to={`/plans/${r.reference_plan.id}`} target="_blank" className="text-xs font-semibold text-[#3A7D44] hover:underline">
+                          {r.reference_plan.title}
+                        </Link>
+                        {r.reference_plan.style && <p className="mt-1 text-xs text-[#64748B] dark:text-[#94A3B8]">{r.reference_plan.style}</p>}
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   <div className="rounded-xl bg-[#F8FAFC] p-3 dark:bg-[#222]">
                     <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#94A3B8]">Localisation</p>

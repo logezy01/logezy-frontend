@@ -11,6 +11,7 @@ Eye,
 MapPin,
 UserRound,
 ChevronRight,
+ClipboardList,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PlansNavbar from '../components/common/PlansNavbar';
@@ -230,6 +231,16 @@ Retour aux plans </Link>
             <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-400">
               {architect.bio}
             </p>
+          )}
+
+          {plan.owner?.id && (
+            <Link
+              to={`/demander-un-plan?architect_user_id=${encodeURIComponent(plan.owner.id)}&reference_plan_id=${encodeURIComponent(plan.id)}`}
+              className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-[#3A7D44] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2D6235]"
+            >
+              <ClipboardList className="h-4 w-4" />
+              Demander un plan sur mesure à cet architecte
+            </Link>
           )}
 
           {architect?.specialties && (

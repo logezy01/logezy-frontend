@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, UserRound, MapPin, Globe, Building2, Loader2 } from 'lucide-react';
+import { ArrowLeft, UserRound, MapPin, Globe, Building2, Loader2, ClipboardList } from 'lucide-react';
 import PlansNavbar from '../components/common/PlansNavbar';
 import api from '../lib/axios';
 
@@ -117,6 +117,15 @@ export default function ArchitectPublicProfile() {
               <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
                 <span className="font-medium text-slate-700 dark:text-slate-300">Spécialités :</span> {architect.specialties}
               </p>
+            )}
+            {architect.user?.id && (
+              <Link
+                to={`/demander-un-plan?architect_user_id=${encodeURIComponent(architect.user.id)}`}
+                className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-[#3A7D44] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#2D6235]"
+              >
+                <ClipboardList size={16} />
+                Demander un plan à cet architecte
+              </Link>
             )}
           </div>
 

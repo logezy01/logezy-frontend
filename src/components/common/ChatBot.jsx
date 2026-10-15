@@ -1,19 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot, User, Minimize2 } from 'lucide-react';
-
-const SYSTEM_PROMPT = `Tu es Logezy Assistant, un assistant immobilier expert au Bénin. 
-Tu aides les utilisateurs à trouver des logements, comprendre le marché immobilier béninois, 
-et naviguer sur la plateforme Logezy.
-
-Tu connais :
-- Les villes du Bénin : Cotonou, Porto-Novo, Parakou, Abomey-Calavi, Bohicon, Natitingou, Ouidah, Lokossa
-- Les prix moyens du marché immobilier béninois
-- Les quartiers populaires de chaque ville
-- Les conseils pour louer ou acheter au Bénin
-- Le fonctionnement de la plateforme Logezy
-
-Réponds toujours en français, de manière concise et utile.
-Si on te demande de faire quelque chose hors de ton domaine, redirige vers l'immobilier.`;
+import api from '../../lib/axios';
 
 export default function ChatBot() {
   const [open, setOpen] = useState(false);
@@ -26,6 +13,7 @@ export default function ChatBot() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [minimized, setMinimized] = useState(false);
+  const [webSearchStatus, setWebSearchStatus] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -51,31 +39,22 @@ export default function ChatBot() {
     setLoading(true);
 
     try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL}/chatbot/message`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              messages: newMessages.map(m => ({
-                role: m.role,
-                content: m.content,
-              })),
-            }),
-          });
+      const { data } = await api.post('/chatbot/message', {
+        messages: newMessages.slice(-20).map(({ role, content }) => ({ role, content })),
+      });
 
-          const data = await response.json();
+      if (typeof data.message !== 'string' || !data.message.trim()) {
+        throw new Error('Réponse invalide du chatbot');
+      }
 
-          if (data.error) {
-            throw new Error(data.error);
-          }
-
-          const assistantMessage = {
-            role: 'assistant',
-            content: data.message,
-          };
-          setMessages(prev => [...prev, assistantMessage]);
-    } catch (e) {
+      setWebSearchStatus(data.webSearchStatus || null);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: data.message,
+        sources: Array.isArray(data.sources) ? data.sources : [],
+      }]);
+    } catch (error) {
+      console.error('Erreur lors de l’envoi du message au chatbot :', error);
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: 'Désolé, je rencontre un problème technique. Veuillez réessayer.',
@@ -148,6 +127,16 @@ export default function ChatBot() {
               <>
                 {/* Messages */}
                 <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 bg-[#F8F9FA] dark:bg-[#0F172A]">
+                  {webSearchStatus === 'not_configured' && (
+                    <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+                      La recherche en ligne n’est pas encore configurée sur le serveur.
+                    </p>
+                  )}
+                  {webSearchStatus === 'unavailable' && (
+                    <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+                      La recherche en ligne est temporairement indisponible ; les résultats Logezy restent consultables.
+                    </p>
+                  )}
                   {messages.map((msg, i) => (
                     <div key={i} className={`flex items-start gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                       {msg.role === 'assistant' && (
@@ -161,6 +150,25 @@ export default function ChatBot() {
                           : 'bg-white dark:bg-[#1A1A1A] text-[#0F172A] dark:text-white border border-[#E8E8E8] dark:border-[#2A2A2A] rounded-bl-sm'
                       }`}>
                         {msg.content}
+                        {msg.sources?.length > 0 && (
+                          <div className="mt-2 border-t border-slate-200 pt-2 dark:border-slate-700">
+                            <p className="mb-1 text-[11px] font-semibold opacity-70">Sources en ligne</p>
+                            <ul className="space-y-1">
+                              {msg.sources.map(source => (
+                                <li key={source.url}>
+                                  <a
+                                    href={source.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-[#3A7D44] underline dark:text-[#4ade80]"
+                                  >
+                                    {source.title}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                       {msg.role === 'user' && (
                         <div className="w-7 h-7 rounded-full bg-[#E8E8E8] dark:bg-[#2A2A2A] flex items-center justify-center shrink-0 mt-0.5">
