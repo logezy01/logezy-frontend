@@ -23,12 +23,8 @@ export default function AuthCallback() {
         navigate('/login');
         return;
       }
-      const googleUser = session.user;
       const googleData = {
-        email: googleUser.email,
-        full_name: googleUser.user_metadata?.full_name || googleUser.email,
-        avatar_url: googleUser.user_metadata?.avatar_url || null,
-        google_id: googleUser.id,
+        access_token: session.access_token,
       };
       const coordinates = manualCountryCode ? null : await requestBrowserCoordinates();
       const res = await api.post('/auth/google', {
@@ -39,7 +35,10 @@ export default function AuthCallback() {
       if (res.data.new_user) {
         navigate('/auth/complete', {
           state: {
-            ...googleData,
+            access_token: session.access_token,
+            email: res.data.email,
+            full_name: res.data.full_name,
+            avatar_url: res.data.avatar_url,
             country_code: res.data.country_code,
           }
         });

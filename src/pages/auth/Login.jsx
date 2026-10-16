@@ -137,9 +137,7 @@ export default function Login() {
             </p>
           </div>
 
-          <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mb-5">
-            Logezy actualise votre pays avec votre autorisation GPS, ou via votre adresse IP si le GPS n’est pas disponible. Seul le pays est enregistré.
-          </p>
+
 
           {countryRequired && (
             <div className="mb-5 rounded-xl border border-[#F59E0B]/30 bg-[#FEF3C7] p-4">

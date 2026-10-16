@@ -29,10 +29,7 @@ export default function GoogleComplete() {
     setLoading(true);
     try {
       const res = await api.post('/auth/google/complete', {
-        email: googleData.email,
-        full_name: googleData.full_name,
-        avatar_url: googleData.avatar_url,
-        google_id: googleData.google_id,
+        access_token: googleData.access_token,
         role,
         country_code: countryCode,
       });

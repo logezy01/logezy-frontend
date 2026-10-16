@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client';
+import useAuthStore from '../store/authStore';
 
 const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
@@ -8,6 +9,7 @@ export const getSocket = () => {
   if (!socket) {
     socket = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],
+      auth: { token: useAuthStore.getState().token },
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,

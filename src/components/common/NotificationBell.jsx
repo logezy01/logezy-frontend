@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, X, MessageSquare, Home, Heart } from 'lucide-react';
-import { getSocket } from '../../lib/socket';
+import { disconnectSocket, getSocket } from '../../lib/socket';
 import useAuthStore from '../../store/authStore';
 import api from '../../lib/axios';
 
@@ -32,7 +32,6 @@ export default function NotificationBell() {
   useEffect(() => {
     if (!isAuthenticated || !user) return;
     const socket = getSocket();
-    socket.emit('register_user', user.id);
 
     socket.on('new_notification', (notification) => {
       setNotifications(prev => [notification, ...prev].slice(0, 20));
@@ -43,7 +42,10 @@ export default function NotificationBell() {
       } catch (e) {}
     });
 
-    return () => socket.off('new_notification');
+    return () => {
+      socket.off('new_notification');
+      disconnectSocket();
+    };
   }, [isAuthenticated, user]);
 
   useEffect(() => {
