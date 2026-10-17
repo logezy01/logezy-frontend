@@ -9,6 +9,7 @@ export default function NotificationBell() {
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(0);
+  const [currentTime, setCurrentTime] = useState(null);
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
@@ -38,8 +39,10 @@ export default function NotificationBell() {
       setUnread(prev => prev + 1);
       try {
         const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAA');
-        audio.play().catch(() => {});
-      } catch (e) {}
+        audio.play().catch(error => console.warn('Erreur lecture notification sonore:', error));
+      } catch (error) {
+        console.warn('Erreur lecture notification sonore:', error);
+      }
     });
 
     return () => {
@@ -47,6 +50,15 @@ export default function NotificationBell() {
       disconnectSocket();
     };
   }, [isAuthenticated, user]);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setCurrentTime(Date.now()), 0);
+    const interval = window.setInterval(() => setCurrentTime(Date.now()), 60000);
+    return () => {
+      window.clearTimeout(timeout);
+      window.clearInterval(interval);
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -87,8 +99,11 @@ export default function NotificationBell() {
     }
   };
 
-  const getTimeAgo = (dateStr) => {
-    const diff = Date.now() - new Date(dateStr).getTime();
+  const getTimeAgo = (dateStr, now) => {
+    if (now === null) return 'À l\'instant';
+    const timestamp = new Date(dateStr).getTime();
+    if (!Number.isFinite(timestamp)) return '';
+    const diff = now - timestamp;
     const mins = Math.floor(diff / 60000);
     if (mins < 1) return 'À l\'instant';
     if (mins < 60) return `Il y a ${mins} min`;
@@ -153,7 +168,7 @@ export default function NotificationBell() {
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-sm text-[#0F172A] dark:text-white">{notif.title}</div>
                     <div className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5 line-clamp-2">{notif.message}</div>
-                    <div className="text-xs text-[#94A3B8] mt-1">{getTimeAgo(notif.created_at || notif.createdAt)}</div>
+                    <div className="text-xs text-[#94A3B8] mt-1">{getTimeAgo(notif.created_at || notif.createdAt, currentTime)}</div>
                   </div>
                   {!notif.is_read && (
                     <div className="w-2 h-2 rounded-full bg-[#3A7D44] shrink-0 mt-1.5" />

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
-  Search, Heart, MessageSquare, Bell, Trash2, ToggleLeft, ToggleRight, Mail, MapPin, Bed, Bath, Maximize,
+  Search, Heart, MessageSquare, Bell, Trash2, ToggleLeft, ToggleRight, Mail, MapPin, Bed,
   LayoutDashboard, User, Shield, X, CheckCircle, PauseCircle, Key, Tag, Lightbulb, Pin
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -141,7 +141,7 @@ function Overview() {
 // ─── RECHERCHE ────────────────────────────────────────────────
 function SearchPage() {
   const [listings, setListings] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     city: '', type: '', bedrooms: '', min_price: '', max_price: '', currency_code: ''
   });
@@ -156,14 +156,27 @@ function SearchPage() {
       Object.entries(searchFilters).forEach(([k, v]) => { if (v) params.append(k, v); });
       const res = await api.get(`/listings?${params.toString()}`);
       setListings(res.data.listings || []);
-    } catch (e) {
+    } catch {
       toast.error('Erreur recherche');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { handleSearch(); }, []);
+  useEffect(() => {
+    let active = true;
+    api.get('/listings')
+      .then(res => {
+        if (active) setListings(res.data.listings || []);
+      })
+      .catch(() => {
+        if (active) toast.error('Erreur recherche');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
 
   const update = (f, v) => setFilters(p => ({ ...p, [f]: v }));
 
@@ -279,7 +292,7 @@ function Favorites() {
       try {
         const res = await api.get('/listings/user/favorites');
         setFavorites(res.data.favorites || []);
-      } catch (e) {
+      } catch {
         toast.error('Erreur chargement favoris');
       } finally {
         setLoading(false);
@@ -333,25 +346,28 @@ function Alerts() {
   const [loading, setLoading] = useState(true);
   const [testing, setTesting] = useState(null);
 
-  const fetchAlerts = async () => {
+  const fetchAlerts = useCallback(async () => {
     try {
       const res = await api.get('/alerts');
       setAlerts(res.data.alerts || []);
-    } catch (e) {
+    } catch {
       toast.error('Erreur chargement alertes');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  useEffect(() => { fetchAlerts(); }, []);
+  useEffect(() => {
+    const timeout = window.setTimeout(() => { void fetchAlerts(); }, 0);
+    return () => window.clearTimeout(timeout);
+  }, [fetchAlerts]);
 
   const handleToggle = async (id) => {
     try {
       const res = await api.put(`/alerts/${id}/toggle`);
       toast.success(res.data.message);
       fetchAlerts();
-    } catch (e) {
+    } catch {
       toast.error('Erreur mise à jour');
     }
   };
@@ -362,7 +378,7 @@ function Alerts() {
       await api.delete(`/alerts/${id}`);
       toast.success('Alerte supprimée');
       fetchAlerts();
-    } catch (e) {
+    } catch {
       toast.error('Erreur suppression');
     }
   };
@@ -372,7 +388,7 @@ function Alerts() {
     try {
       const res = await api.post(`/alerts/${id}/test`);
       toast.success(res.data.message);
-    } catch (e) {
+    } catch {
       toast.error('Erreur test email');
     } finally {
       setTesting(null);
@@ -499,35 +515,40 @@ function Messages() {
   const { user } = useAuthStore();
   const location = useLocation();
 
+  const openConversation = useCallback(async (conv) => {
+    setSelected(conv);
+    try {
+      const res = await api.get(`/chat/conversations/${conv.id}/messages`);
+      setMessages(res.data.messages || []);
+    } catch {
+      toast.error('Erreur chargement messages');
+    }
+  }, []);
+
   useEffect(() => {
+    let active = true;
     const fetch = async () => {
       try {
         const res = await api.get('/chat/conversations');
         const convs = res.data.conversations || [];
+        if (!active) return;
         setConversations(convs);
 
         const params = new URLSearchParams(location.search);
         const targetId = location.state?.openConversationId || params.get('conversation');
         if (targetId) {
           const target = convs.find(c => c.id === targetId);
-          if (target) openConversation(target);
+          if (target) await openConversation(target);
         }
-      } catch (e) {
-        toast.error('Erreur chargement conversations');
+      } catch {
+        if (active) toast.error('Erreur chargement conversations');
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
     fetch();
-  }, []);
-
-  const openConversation = async (conv) => {
-    setSelected(conv);
-    try {
-      const res = await api.get(`/chat/conversations/${conv.id}/messages`);
-      setMessages(res.data.messages || []);
-    } catch (e) {}
-  };
+    return () => { active = false; };
+  }, [location.search, location.state?.openConversationId, openConversation]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -536,7 +557,7 @@ function Messages() {
       const res = await api.post(`/chat/conversations/${selected.id}/messages`, { content: newMsg });
       setMessages(prev => [...prev, res.data.message]);
       setNewMsg('');
-    } catch (e) {
+    } catch {
       toast.error('Erreur envoi message');
     }
   };
@@ -652,7 +673,7 @@ function Profile() {
       await api.put('/auth/profile', form);
       updateUser(form);
       toast.success('Profil mis à jour !');
-    } catch (e) {
+    } catch {
       toast.error('Erreur mise à jour profil');
     } finally {
       setLoading(false);

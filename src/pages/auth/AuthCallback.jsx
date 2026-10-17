@@ -66,7 +66,8 @@ export default function AuthCallback() {
   }, [login, navigate]);
 
   useEffect(() => {
-    completeGoogleLogin();
+    const timeout = window.setTimeout(() => completeGoogleLogin(), 0);
+    return () => window.clearTimeout(timeout);
   }, [completeGoogleLogin]);
 
   if (countryRequired) {

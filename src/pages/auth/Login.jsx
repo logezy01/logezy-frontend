@@ -59,7 +59,7 @@ export default function Login() {
         options: { redirectTo: `${window.location.origin}/auth/callback` },
       });
       if (error) throw error;
-    } catch (error) {
+    } catch {
       toast.error('Erreur connexion Google');
       setGoogleLoading(false); 
     }

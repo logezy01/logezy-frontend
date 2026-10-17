@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Plus, Eye, Trash2, CheckCircle, Camera, Search, Video,
@@ -17,7 +17,7 @@ import { LISTING_CATEGORIES } from '../../data/listingCategories';
 import useAuthStore from '../../store/authStore';
 import AdminMessages from '../../components/common/AdminMessages';
 
-import { Building2, Globe, Phone, Mail, Upload, Users, X } from 'lucide-react';
+import { Building2, Globe, Phone, Upload, Users, X } from 'lucide-react';
 import api from '../../lib/axios';
 import { CountrySelect } from '../../components/common/CountrySelect';
 import CurrencySelect from '../../components/common/CurrencySelect';
@@ -57,7 +57,6 @@ function StatCard({ icon: Icon, label, value, color = 'green' }) {
 function Overview() {
   const [stats, setStats] = useState(null);
   const [listings, setListings] = useState([]);
-  const [loading, setLoading] = useState(true);
   const { user } = useAuthStore();
 
   useEffect(() => {
@@ -73,10 +72,8 @@ function Overview() {
           vente: data.filter(l => l.type === 'vente').length,
           views: data.reduce((sum, l) => sum + (l.views_count || 0), 0),
         });
-      } catch (e) {
+      } catch {
         toast.error('Erreur chargement données');
-      } finally {
-        setLoading(false);
       }
     };
     fetch();
@@ -195,18 +192,21 @@ function MyListings() {
   const [uploadingId, setUploadingId] = useState(null);
   const [uploadingVideoId, setUploadingVideoId] = useState(null);
 
-  const fetchListings = async () => {
+  const fetchListings = useCallback(async () => {
     try {
       const res = await api.get('/listings/owner/my-listings');
       setListings(res.data.listings || []);
-    } catch (e) {
+    } catch {
       toast.error('Erreur chargement annonces');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  useEffect(() => { fetchListings(); }, []);
+  useEffect(() => {
+    const timeout = window.setTimeout(() => { void fetchListings(); }, 0);
+    return () => window.clearTimeout(timeout);
+  }, [fetchListings]);
 
   const handleDelete = async (id) => {
     if (!confirm('Supprimer cette annonce ?')) return;
@@ -214,7 +214,7 @@ function MyListings() {
       await api.delete(`/listings/${id}`);
       toast.success('Annonce supprimée');
       fetchListings();
-    } catch (e) {
+    } catch {
       toast.error('Erreur suppression');
     }
   };
@@ -224,7 +224,7 @@ function MyListings() {
       await api.put(`/listings/${id}`, { status: status === 'active' ? 'inactive' : 'active' });
       toast.success('Statut mis à jour');
       fetchListings();
-    } catch (e) {
+    } catch {
       toast.error('Erreur mise à jour');
     }
   };
@@ -382,35 +382,40 @@ function Messages() {
   const { user } = useAuthStore();
   const location = useLocation();
 
+  const openConversation = useCallback(async (conv) => {
+    setSelected(conv);
+    try {
+      const res = await api.get(`/chat/conversations/${conv.id}/messages`);
+      setMessages(res.data.messages || []);
+    } catch {
+      toast.error('Erreur chargement messages');
+    }
+  }, []);
+
   useEffect(() => {
+    let active = true;
     const fetch = async () => {
       try {
         const res = await api.get('/chat/conversations');
         const convs = res.data.conversations || [];
+        if (!active) return;
         setConversations(convs);
 
         const params = new URLSearchParams(location.search);
         const targetId = location.state?.openConversationId || params.get('conversation');
         if (targetId) {
           const target = convs.find(c => c.id === targetId);
-          if (target) openConversation(target);
+          if (target) await openConversation(target);
         }
-      } catch (e) {
-        toast.error('Erreur chargement conversations');
+      } catch {
+        if (active) toast.error('Erreur chargement conversations');
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
     fetch();
-  }, []);
-
-  const openConversation = async (conv) => {
-    setSelected(conv);
-    try {
-      const res = await api.get(`/chat/conversations/${conv.id}/messages`);
-      setMessages(res.data.messages || []);
-    } catch (e) {}
-  };
+    return () => { active = false; };
+  }, [location.search, location.state?.openConversationId, openConversation]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -419,7 +424,7 @@ function Messages() {
       const res = await api.post(`/chat/conversations/${selected.id}/messages`, { content: newMsg });
       setMessages(prev => [...prev, res.data.message]);
       setNewMsg('');
-    } catch (e) {
+    } catch {
       toast.error('Erreur envoi');
     }
   };
@@ -809,7 +814,7 @@ function Profile() {
       await api.put('/auth/profile', form);
       updateUser(form);
       toast.success('Profil mis à jour !');
-    } catch (e) {
+    } catch {
       toast.error('Erreur mise à jour profil');
     } finally {
       setLoading(false);
@@ -943,7 +948,7 @@ function AgencyManager() {
     phone: '', email: '', city: '', address: ''
   });
 
-  const fetchAgency = async () => {
+  const fetchAgency = useCallback(async () => {
     try {
       const res = await api.get('/agencies/me/agency');
       setAgency(res.data.agency);
@@ -960,9 +965,12 @@ function AgencyManager() {
       }
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
-  };
+  }, []);
 
-  useEffect(() => { fetchAgency(); }, []);
+  useEffect(() => {
+    const timeout = window.setTimeout(() => { void fetchAgency(); }, 0);
+    return () => window.clearTimeout(timeout);
+  }, [fetchAgency]);
 
   const handleCreate = async () => {
     if (!form.name) { toast.error('Nom de l\'agence requis'); return; }
@@ -994,12 +1002,12 @@ function AgencyManager() {
     try {
       const formData = new FormData();
       formData.append('logo', file);
-      const res = await api.post(`/agencies/${agency.id}/logo`, formData, {
+      await api.post(`/agencies/${agency.id}/logo`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast.success('Logo mis à jour !');
       fetchAgency();
-    } catch (e) {
+    } catch {
       toast.error('Erreur upload logo');
     } finally {
       setLogoUploading(false);
@@ -1019,14 +1027,14 @@ function AgencyManager() {
          u.email?.toLowerCase().includes(inviteSearch.toLowerCase()))
       );
       setSearchResults(results.slice(0, 5));
-    } catch (e) {
+    } catch {
       toast.error('Erreur recherche');
     } finally {
       setSearching(false);
     }
   };
 
-  const handleInvite = async (agentId, agentName) => {
+  const handleInvite = async (agentId) => {
     try {
       const res = await api.post(`/agencies/${agency.id}/invite`, { agent_id: agentId });
       toast.success(res.data.message);
@@ -1043,7 +1051,7 @@ function AgencyManager() {
       await api.delete(`/agencies/${agency.id}/members/${agentId}`);
       toast.success('Membre retiré');
       fetchAgency();
-    } catch (e) {
+    } catch {
       toast.error('Erreur');
     }
   };

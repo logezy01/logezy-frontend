@@ -37,3 +37,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </BrowserRouter>
   </React.StrictMode>,
 )
+
+window.setTimeout(() => {
+  try {
+    sessionStorage.removeItem('logezy:stale-build-reload');
+  } catch (error) {
+    console.warn('Le marqueur de version ne peut pas être nettoyé.', error);
+  }
+}, 30_000);
