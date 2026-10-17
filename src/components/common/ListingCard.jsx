@@ -76,22 +76,10 @@ export default function ListingCard({ listing }) {
           if (!isAuthenticated) { setShowAuthModal(true); return; }
           navigate(`/annonces/${listing.id}`);
         }}
-        className="group block bg-white dark:bg-[#161616] rounded-[26px] overflow-hidden border border-[#F0F0F0] dark:border-[#262626] cursor-pointer"
-        style={{
-          transition: 'transform 0.4s cubic-bezier(0.23,1,0.32,1), box-shadow 0.4s cubic-bezier(0.23,1,0.32,1)',
-          boxShadow: '0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-6px)';
-          e.currentTarget.style.boxShadow = '0 24px 48px -12px rgba(15,23,42,0.18), 0 8px 16px -8px rgba(15,23,42,0.08)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = '0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)';
-        }}
+        className="premium-listing-card group block overflow-hidden rounded-2xl border border-[#e9e6dc] bg-white dark:border-[#2a352c] dark:bg-[#171f19] cursor-pointer"
       >
         {/* Image */}
-        <div className="relative h-52 overflow-hidden bg-[#F5F5F7] dark:bg-[#222222]">
+        <div className="relative aspect-[4/3] overflow-hidden bg-[#f2f0e9] dark:bg-[#222822]">
           {coverImage ? (
             <>
               {!imgLoaded && (
@@ -109,13 +97,11 @@ export default function ListingCard({ listing }) {
                 alt={listing.title}
                 loading="lazy"
                 onLoad={() => setImgLoaded(true)}
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                 style={{
                   opacity: imgLoaded ? 1 : 0,
-                  transition: 'opacity 0.4s ease, transform 0.6s cubic-bezier(0.23,1,0.32,1)',
+                  transition: 'opacity 0.4s ease',
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.06)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
               />
             </>
           ) : (
@@ -228,7 +214,7 @@ export default function ListingCard({ listing }) {
           )}
 
           {/* Titre */}
-          <h3 className="font-bold text-[15px] text-[#0F172A] dark:text-white mb-3 line-clamp-2 leading-snug group-hover:text-[#3A7D44] transition-colors" style={{ letterSpacing: '-0.01em' }}>
+          <h3 className="font-sans font-semibold text-[15px] text-[#1d2820] dark:text-white mb-3 line-clamp-2 leading-snug group-hover:text-[#3A7D44] transition-colors" style={{ letterSpacing: '-0.01em' }}>
             {formatTitle(listing.title)}
           </h3>
 

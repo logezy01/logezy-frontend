@@ -94,25 +94,25 @@ export default function Navbar() {
         /* ═══ LIQUID GLASS — iOS 26 inspiré ═══ */
         .liquid-glass {
           position: relative;
-          background: rgba(255,255,255,0.6);
-          backdrop-filter: blur(24px) saturate(180%);
-          -webkit-backdrop-filter: blur(24px) saturate(180%);
-          border: 1px solid rgba(255,255,255,0.6);
-          box-shadow: 0 8px 32px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(15,23,42,0.04);
-          transition: background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+          background: rgba(255,254,250,0.94);
+          backdrop-filter: blur(18px) saturate(140%);
+          -webkit-backdrop-filter: blur(18px) saturate(140%);
+          border: 1px solid rgba(233,230,220,0.8);
+          box-shadow: 0 8px 28px rgba(29,40,32,0.08);
+          transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         }
         .liquid-glass::before {
           content: '';
           position: absolute;
           inset: 0;
           border-radius: inherit;
-          background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.06) 40%, rgba(255,255,255,0) 60%);
+          background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 55%);
           pointer-events: none;
         }
         .dark .liquid-glass {
-          background: rgba(22,26,36,0.55);
-          border-color: rgba(255,255,255,0.12);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.25);
+          background: rgba(23,31,25,0.96);
+          border-color: rgba(255,255,255,0.1);
+          box-shadow: 0 8px 28px rgba(0,0,0,0.25);
         }
         .dark .liquid-glass::before {
           background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 40%, rgba(255,255,255,0) 60%);
@@ -120,11 +120,11 @@ export default function Navbar() {
 
         .liquid-glass-dark {
           position: relative;
-          background: rgba(18,22,32,0.45);
-          backdrop-filter: blur(28px) saturate(160%);
-          -webkit-backdrop-filter: blur(28px) saturate(160%);
-          border: 1px solid rgba(255,255,255,0.14);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.2);
+          background: rgba(12,20,15,0.78);
+          backdrop-filter: blur(20px) saturate(130%);
+          -webkit-backdrop-filter: blur(20px) saturate(130%);
+          border: 1px solid rgba(255,255,255,0.12);
+          box-shadow: 0 14px 34px rgba(0,0,0,0.22);
           transition: background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
         }
         .liquid-glass-dark::before {
@@ -132,7 +132,7 @@ export default function Navbar() {
           position: absolute;
           inset: 0;
           border-radius: inherit;
-          background: linear-gradient(135deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.02) 40%, rgba(255,255,255,0) 60%);
+          background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 55%);
           pointer-events: none;
         }
 

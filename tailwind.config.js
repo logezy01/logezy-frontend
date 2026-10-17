@@ -22,16 +22,16 @@ export default {
           border: '#2A2A2A',
           text: '#F1F5F9',
         },
-        paper: '#FAFAF9',      // nouveau — blanc cassé, remplace le blanc pur en fond
+        paper: '#F8F6F0',
       },
       fontFamily: {
         sans: ['"DM Sans"', 'sans-serif'],
-        display: ['"Outfit"', 'sans-serif'],
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
       },
       boxShadow: {
-        card: '0 2px 8px rgba(0,0,0,0.06)',
-        float: '0 8px 24px rgba(0,0,0,0.12)',
-        cta: '0 6px 20px rgba(58,125,68,0.35)',
+        card: '0 2px 8px rgba(39,50,40,0.05), 0 1px 2px rgba(39,50,40,0.04)',
+        float: '0 18px 42px -20px rgba(35,54,39,0.28)',
+        cta: '0 8px 20px rgba(58,125,68,0.22)',
         'soft-sm': '0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',
         'soft-lg': '0 24px 48px -12px rgba(15,23,42,0.18), 0 8px 16px -8px rgba(15,23,42,0.08)',
         'glow-brand': '0 0 0 4px rgba(74,222,128,0.12), 0 20px 60px rgba(58,125,68,0.15)',
@@ -39,8 +39,8 @@ export default {
         'glass-dark': '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.12)',
       },
       borderRadius: {
-        btn: '10px',
-        card: '16px',
+        btn: '12px',
+        card: '20px',
         squircle: '26px',
         'squircle-sm': '16px',
         'squircle-lg': '34px',

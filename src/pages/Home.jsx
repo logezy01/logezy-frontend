@@ -63,13 +63,9 @@ function Counter({ target, suffix = '' }) {
 }
 
 // ── Carte flottante 3D ────────────────────────────────────────
-function FloatingCard({ children, delay = 0, style = {} }) {
+function FloatingCard({ children, style = {} }) {
   return (
-    <div style={{
-      animation: `float3d ${3 + delay}s ease-in-out infinite`,
-      animationDelay: `${delay}s`,
-      ...style,
-    }}>
+    <div style={style}>
       {children}
     </div>
   );
@@ -135,7 +131,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-paper pb-20 md:pb-0 font-sans">
+    <div className="home-page min-h-screen bg-paper pb-20 font-sans dark:bg-[#101612] md:pb-0">
 
       <style>{`
         @keyframes float3d {
@@ -181,32 +177,26 @@ export default function Home() {
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         .shimmer-green {
-          background: linear-gradient(90deg, #3A7D44, #4ade80, #86efac, #4ade80, #3A7D44);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: shimmer 4s linear infinite;
+          color: #c8d8bf;
+          -webkit-text-fill-color: currentColor;
         }
         .card-3d {
-          transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-          transform-style: preserve-3d;
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
         .card-3d:hover {
-          transform: translateY(-8px) rotateX(5deg) rotateY(2deg);
-          box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(58,125,68,0.3);
+          transform: translateY(-4px);
+          box-shadow: 0 18px 42px -20px rgba(15,23,42,0.28);
         }
 
         .btn-3d {
-          position: relative;
-          transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.35s cubic-bezier(0.23, 1, 0.32, 1);
-          transform-style: preserve-3d;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .btn-3d:hover {
-          transform: translateY(-3px) scale(1.02);
-          box-shadow: 0 10px 40px rgba(58,125,68,0.4), 0 0 0 1px rgba(58,125,68,0.5);
+          transform: translateY(-2px);
+          box-shadow: 0 10px 24px rgba(58,125,68,0.22);
         }
         .btn-3d:active {
-          transform: translateY(0px) scale(0.96);
+          transform: translateY(0);
           transition: transform 0.1s ease;
         }
 
@@ -286,7 +276,7 @@ export default function Home() {
           <div className="hero-text">
 
             <div className="mb-5" style={{ perspective: '1000px' }}>
-              <h1 className="font-display font-black" style={{ fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', color: 'white', lineHeight: 1.02, letterSpacing: '-0.03em' }}>
+              <h1 className="font-display font-semibold" style={{ fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', color: 'white', lineHeight: 1.04, letterSpacing: '-0.04em' }}>
                 Trouvez votre
                 <span className="block shimmer-green">maison idéale</span>
                 <span style={{ color: 'white' }}>au Bénin</span>
@@ -380,7 +370,7 @@ export default function Home() {
           {/* Visuel droit — Stats premium */}
           <div className="hero-img hidden lg:flex flex-col gap-4 items-end justify-center relative">
 
-            <FloatingCard delay={0.5} style={{ alignSelf: 'flex-start' }}>
+            <FloatingCard style={{ alignSelf: 'flex-start' }}>
               <div style={{ background: 'rgba(10,20,15,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 16, padding: '16px 20px', minWidth: 200 }}>
                 <div className="flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, marginBottom: 6 }}>
                   <Star size={12} /> Satisfaction clients
@@ -392,7 +382,7 @@ export default function Home() {
               </div>
             </FloatingCard>
 
-            <FloatingCard delay={1}>
+            <FloatingCard>
               <div className="liquid-glass-dark glass-squircle-sm" style={{ padding: '16px 20px', minWidth: 200 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} className="animate-pulse" />
@@ -405,7 +395,7 @@ export default function Home() {
               </div>
             </FloatingCard>
 
-            <FloatingCard delay={1.5} style={{ alignSelf: 'flex-start' }}>
+            <FloatingCard style={{ alignSelf: 'flex-start' }}>
               <div className="liquid-glass-dark glass-squircle-sm" style={{ padding: '16px 20px', minWidth: 200 }}>
                 <div className="flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, marginBottom: 4 }}>
                   <Users size={12} /> Utilisateurs actifs

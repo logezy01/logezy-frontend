@@ -53,11 +53,11 @@ function PlanPreviewCard({ plan }) {
   const cover = (plan.plan_images || []).find(i => i.is_cover) || (plan.plan_images || [])[0];
   return (
     <Link to={`/plans/${plan.id}`}
-      className="group overflow-hidden rounded-[26px] border border-white/60 bg-white/65 shadow-glass backdrop-blur-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-slate-900/60">
-      <div className="aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-800">
+      className="premium-plan-card group overflow-hidden rounded-2xl border border-[#e9e6dc] bg-white dark:border-[#2a352c] dark:bg-[#171f19]">
+      <div className="aspect-[4/3] overflow-hidden bg-[#f2f0e9] dark:bg-[#222822]">
         {cover ? (
           <img src={cover.image_url} alt={plan.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             <Building2 size={32} className="text-slate-400" />
@@ -65,7 +65,7 @@ function PlanPreviewCard({ plan }) {
         )}
       </div>
       <div className="p-4">
-        <h3 className="line-clamp-1 font-display text-sm font-semibold text-slate-900 dark:text-white">
+        <h3 className="line-clamp-1 font-sans text-sm font-semibold text-slate-900 dark:text-white">
           {plan.title}
         </h3>
         <div className="mt-1.5 flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
@@ -115,7 +115,7 @@ export default function PlansHome() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-paper dark:bg-[#101612]">
       <style>{`
         .liquid-glass {
           position: relative;

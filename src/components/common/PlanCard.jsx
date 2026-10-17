@@ -39,14 +39,14 @@ export default function PlanCard({ plan }) {
   return (
     <Link
       to={`/plans/${plan.id}`}
-      className="group flex flex-col overflow-hidden rounded-[26px] border border-white/60 bg-white/65 shadow-glass backdrop-blur-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-slate-900/60"
+      className="premium-plan-card group flex flex-col overflow-hidden rounded-2xl border border-[#e9e6dc] bg-white dark:border-[#2a352c] dark:bg-[#171f19]"
     >
-      <div className="aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-800">
+      <div className="aspect-[4/3] overflow-hidden bg-[#f2f0e9] dark:bg-[#222822]">
         {image ? (
           <img
             src={image}
             alt={plan.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-slate-300">
@@ -57,7 +57,7 @@ export default function PlanCard({ plan }) {
 
       <div className="flex flex-1 flex-col p-4">
         {plan.style && <Tag>{plan.style}</Tag>}
-        <h3 className="mt-2 line-clamp-1 font-display text-sm font-semibold text-slate-900 dark:text-white">
+        <h3 className="mt-2 line-clamp-1 font-sans text-sm font-semibold text-slate-900 dark:text-white">
           {plan.title}
         </h3>
 

@@ -1,67 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, Menu, Bell, Home, ChevronRight, Sparkles } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import useThemeStore from '../../store/themeStore';
 import toast from 'react-hot-toast';
-
-function Particles({ dark }) {
-  const canvasRef = useRef(null);
-useEffect(() => {
-  const canvas = canvasRef.current;
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-
-  // Réduire de 40 à 20 particules pour les performances
-  const particles = Array.from({ length: 20 }, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    size: Math.random() * 1.5 + 0.5,
-    speedX: (Math.random() - 0.5) * 0.3,
-    speedY: (Math.random() - 0.5) * 0.3,
-    opacity: Math.random() * 0.4 + 0.1,
-  }));
-
-  let animId;
-  let lastTime = 0;
-  const FPS = 30; // Limite à 30 fps au lieu de 60
-  const interval = 1000 / FPS;
-
-  const animate = (timestamp) => {
-    animId = requestAnimationFrame(animate);
-
-    // Throttle — on saute les frames pour rester à 30fps
-    if (timestamp - lastTime < interval) return;
-    lastTime = timestamp;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const color = dark ? '74, 222, 128' : '58, 125, 68';
-
-    particles.forEach(p => {
-      p.x += p.speedX;
-      p.y += p.speedY;
-      if (p.x < 0) p.x = canvas.width;
-      if (p.x > canvas.width) p.x = 0;
-      if (p.y < 0) p.y = canvas.height;
-      if (p.y > canvas.height) p.y = 0;
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${color}, ${dark ? p.opacity : p.opacity * 0.3})`;
-      ctx.fill();
-    });
-
-    // Connexions désactivées pour les performances
-    // (supprimées car trop coûteuses en calcul)
-  };
-
-  animate(0);
-  return () => cancelAnimationFrame(animId);
-}, [dark]);
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />;
-}
 
 function AnimatedHouse({ size = 32 }) {
   return (
@@ -167,36 +109,29 @@ const getRoleBadge = () => {
 
   // Styles dynamiques selon le thème
   const sidebarStyle = dark
-    ? { background: 'rgba(10, 12, 20, 0.92)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,255,255,0.06)' }
-    : { background: 'rgba(255, 255, 255, 0.97)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(0,0,0,0.06)', boxShadow: '4px 0 24px rgba(0,0,0,0.06)' };
+    ? { background: '#171f19', borderRight: '1px solid rgba(255,255,255,0.08)' }
+    : { background: '#fffefa', borderRight: '1px solid #e9e6dc', boxShadow: '4px 0 20px rgba(29,40,32,0.04)' };
 
   const headerStyle = dark
-    ? { background: 'rgba(8, 11, 20, 0.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }
-    : { background: 'rgba(255, 255, 255, 0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' };
+    ? { background: 'rgba(16,22,18,0.96)', borderBottom: '1px solid rgba(255,255,255,0.08)' }
+    : { background: 'rgba(255,254,250,0.96)', borderBottom: '1px solid #e9e6dc' };
 
   const mainStyle = dark
-    ? { background: 'linear-gradient(135deg, #080B14 0%, #0A0F1E 50%, #080B14 100%)' }
-    : { background: 'linear-gradient(135deg, #F0F4F8 0%, #F8FAFC 50%, #EEF2F7 100%)' };
+    ? { background: '#101612' }
+    : { background: '#f8f6f0' };
 
   return (
-    <div className="min-h-screen flex" style={{ fontFamily: 'Inter, sans-serif', background: dark ? '#080B14' : '#F0F4F8' }}>
+    <div className="min-h-screen flex" style={{ fontFamily: '"DM Sans", sans-serif', background: dark ? '#101612' : '#f8f6f0' }}>
 
       <style>{`
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.15; } 50% { transform: scale(1.1); opacity: 0.25; } }
         @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
-        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(58,125,68,0.3); } 50% { box-shadow: 0 0 40px rgba(58,125,68,0.6); } }
         .nav-item { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .nav-item:hover { transform: translateX(4px); }
-        .nav-item-active { animation: glow 2s ease-in-out infinite; }
+        .nav-item:hover { transform: translateX(2px); }
+        .nav-item-active { animation: none; }
         .shimmer-text {
-          background: linear-gradient(90deg, #3A7D44, #4ade80, #3A7D44);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: shimmer 3s linear infinite;
+          color: #3A7D44;
+          -webkit-text-fill-color: currentColor;
         }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -217,13 +152,6 @@ const getRoleBadge = () => {
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         ${collapsed ? 'w-20' : 'w-64'}
       `} style={sidebarStyle}>
-
-        {/* Particules */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <Particles dark={dark} />
-          <div className="absolute pointer-events-none"
-            style={{ top: '-50px', left: '-50px', width: 200, height: 200, borderRadius: '50%', background: '#3A7D44', filter: 'blur(100px)', opacity: dark ? 0.08 : 0.04 }} />
-        </div>
 
         {/* Logo */}
         <div className={`relative z-10 p-5 flex items-center justify-between ${dark ? 'border-b border-white/5' : 'border-b border-black/5'}`}>
@@ -252,8 +180,7 @@ const getRoleBadge = () => {
           <div className="relative z-10 mx-3 my-3 p-3 rounded-2xl overflow-hidden"
             style={{ background: dark ? 'rgba(58,125,68,0.1)' : 'rgba(58,125,68,0.06)', border: dark ? '1px solid rgba(58,125,68,0.2)' : '1px solid rgba(58,125,68,0.15)' }}>
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getRoleColor()} flex items-center justify-center font-black text-sm text-white shadow-lg flex-shrink-0`}
-                style={{ animation: 'float 3s ease-in-out infinite' }}>
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getRoleColor()} flex items-center justify-center font-black text-sm text-white shadow-lg flex-shrink-0`}>
                 {user?.full_name?.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
@@ -396,12 +323,6 @@ const getRoleBadge = () => {
 
         {/* Main content */}
         <main className="flex-1 p-4 md:p-6 overflow-y-auto" style={mainStyle}>
-          <div className="fixed inset-0 pointer-events-none"
-            style={{
-              backgroundImage: `radial-gradient(circle, ${dark ? 'rgba(58,125,68,0.03)' : 'rgba(58,125,68,0.04)'} 1px, transparent 1px)`,
-              backgroundSize: '32px 32px',
-              zIndex: 0,
-            }} />
           <div className="relative z-10" style={{ animation: 'fadeUp 0.4s ease' }}>
             {children}
           </div>

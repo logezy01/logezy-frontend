@@ -51,8 +51,8 @@ export default function PlansNavbar() {
     { path: '/demander-un-plan', label: 'Demander un plan' },
   ];
   const navBg = scrolled
-    ? 'bg-white/70 dark:bg-slate-950/70 backdrop-blur-2xl border-b border-white/60 dark:border-white/10 shadow-sm'
-    : 'bg-white/50 dark:bg-slate-950/50 backdrop-blur-xl border-b border-white/40 dark:border-white/5';
+    ? 'bg-[#fffefa]/95 dark:bg-[#101612]/95 backdrop-blur-xl border-b border-[#e9e6dc] dark:border-white/10 shadow-sm'
+    : 'bg-[#fffefa]/90 dark:bg-[#101612]/90 backdrop-blur-xl border-b border-[#e9e6dc]/80 dark:border-white/5';
 
   return (
     <>
