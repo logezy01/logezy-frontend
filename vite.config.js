@@ -31,31 +31,6 @@ export default defineConfig({
     }),
   ],
   build: {
-    // Code splitting automatique
-rollupOptions: {
-  output: {
-    manualChunks: (id) => {
-      if (id.includes('node_modules')) {
-        if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
-          return 'vendor-react';
-        }
-        if (id.includes('framer-motion') || id.includes('lucide-react')) {
-          return 'vendor-ui';
-        }
-        if (id.includes('leaflet') || id.includes('react-leaflet')) {
-          return 'vendor-map';
-        }
-        if (id.includes('@supabase')) {
-          return 'vendor-supabase';
-        }
-        if (id.includes('socket.io')) {
-          return 'vendor-socket';
-        }
-        return 'vendor';
-      }
-    },
-  },
-},
     // Compression
     minify: 'terser',
     terserOptions: {
